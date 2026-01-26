@@ -2,6 +2,9 @@
 .omd/
 .omc/
 
+# Local project settings (generated on install)
+.factory/
+
 # Reference repos (not part of this project)
 oh-my-claudecode/
 
