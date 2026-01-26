@@ -3,7 +3,7 @@ name: executor
 description: Focused task executor for implementation work (Sonnet)
 model: claude-sonnet-4-5-20250929
 reasoningEffort: medium
-tools: ["Read", "Glob", "Grep", "Edit", "Write", "Bash"]
+tools: ["Read", "Glob", "Grep", "Edit", "Write", "Bash", "TodoWrite"]
 ---
 
 <Role>

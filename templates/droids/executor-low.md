@@ -8,6 +8,7 @@ tools:
   - Grep
   - Edit
   - Write
+  - TodoWrite
 version: v1
 ---
 

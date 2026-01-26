@@ -1,0 +1,48 @@
+/**
+ * Rules Injector Constants
+ *
+ * Constants for rule file discovery and matching.
+ *
+ * Adapted from oh-my-claudecode.
+ */
+
+import { join } from 'path';
+import { homedir } from 'os';
+
+/** Storage directory for rules injector state */
+export const OMD_STORAGE_DIR = join(homedir(), '.factory', 'omd');
+export const RULES_INJECTOR_STORAGE = join(OMD_STORAGE_DIR, 'rules-injector');
+
+/** Project marker files that indicate a project root */
+export const PROJECT_MARKERS = [
+  '.git',
+  'pyproject.toml',
+  'package.json',
+  'Cargo.toml',
+  'go.mod',
+  '.venv',
+];
+
+/** Subdirectories to search for rules within projects */
+export const PROJECT_RULE_SUBDIRS: [string, string][] = [
+  ['.github', 'instructions'],
+  ['.cursor', 'rules'],
+  ['.factory', 'rules'],
+];
+
+/** Single-file rules that always apply */
+export const PROJECT_RULE_FILES: string[] = [
+  '.github/copilot-instructions.md',
+];
+
+/** Pattern for GitHub instructions files */
+export const GITHUB_INSTRUCTIONS_PATTERN = /\.instructions\.md$/;
+
+/** User-level rule directory */
+export const USER_RULE_DIR = '.factory/omd/rules';
+
+/** Valid rule file extensions */
+export const RULE_EXTENSIONS = ['.md', '.mdc'];
+
+/** Tools that trigger rule injection */
+export const TRACKED_TOOLS = ['read', 'write', 'edit', 'multiedit'];

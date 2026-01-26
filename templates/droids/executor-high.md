@@ -10,6 +10,7 @@ tools:
   - Edit
   - Write
   - Bash
+  - TodoWrite
 version: v1
 ---
 
