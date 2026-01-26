@@ -334,7 +334,7 @@ export {
   getInstallInfo,
   isFactoryInstalled,
   FACTORY_CONFIG_DIR as INSTALLER_FACTORY_CONFIG_DIR,
-  AGENTS_DIR,
+  DROIDS_DIR,
   COMMANDS_DIR,
   VERSION as INSTALLER_VERSION,
   type InstallResult,

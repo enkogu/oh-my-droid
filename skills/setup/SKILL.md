@@ -30,11 +30,9 @@ Use the AskUserQuestion tool to prompt the user:
 
 **Options:**
 1. **Local (this project)** - Creates `.factory/FACTORY.md` in current project directory. Best for project-specific configurations.
-2. **Global (all projects)** - Creates `~/.factory/FACTORY.md` for all Claude Code sessions. Best for consistent behavior everywhere.
+2. **Global (all projects)** - Creates `~/.factory/FACTORY.md` for all Factory Droid sessions. Best for consistent behavior everywhere.
 
 ## Step 2A: Local Configuration (--local flag or user chose LOCAL)
-
-**CRITICAL**: This ALWAYS downloads fresh FACTORY.md from GitHub to the local project. DO NOT use the Write tool - use bash curl exclusively.
 
 ### Create Local .factory Directory
 
@@ -43,39 +41,37 @@ Use the AskUserQuestion tool to prompt the user:
 mkdir -p .factory && echo ".factory directory ready"
 ```
 
-### Download Fresh FACTORY.md
+### Copy FACTORY.md from Plugin
+
+Copy FACTORY.md from the oh-my-droid plugin installation:
 
 ```bash
-# Extract old version before download
-OLD_VERSION=$(grep -m1 "^# oh-my-droid" .factory/FACTORY.md 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' || echo "none")
+# Find the plugin's docs/FACTORY.md
+PLUGIN_DIR=""
 
-# Download fresh FACTORY.md from GitHub
-curl -fsSL "https://raw.githubusercontent.com/YOUR_REPO/oh-my-droid/main/docs/FACTORY.md" -o .factory/FACTORY.md && \
-echo "Downloaded FACTORY.md to .factory/FACTORY.md"
+# Check common plugin locations
+if [ -d "$HOME/.factory/plugins/oh-my-droid" ]; then
+  PLUGIN_DIR="$HOME/.factory/plugins/oh-my-droid"
+elif [ -d "$FACTORY_PLUGIN_ROOT" ]; then
+  PLUGIN_DIR="$FACTORY_PLUGIN_ROOT"
+fi
 
-# Extract new version and report
-NEW_VERSION=$(grep -m1 "^# oh-my-droid" .factory/FACTORY.md 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' || echo "unknown")
-if [ "$OLD_VERSION" = "none" ]; then
-  echo "Installed FACTORY.md: $NEW_VERSION"
-elif [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
-  echo "FACTORY.md unchanged: $NEW_VERSION"
+# Copy FACTORY.md
+if [ -n "$PLUGIN_DIR" ] && [ -f "$PLUGIN_DIR/docs/FACTORY.md" ]; then
+  cp "$PLUGIN_DIR/docs/FACTORY.md" .factory/FACTORY.md
+  echo "Copied FACTORY.md to .factory/FACTORY.md"
 else
-  echo "Updated FACTORY.md: $OLD_VERSION -> $NEW_VERSION"
+  echo "Warning: Could not find plugin FACTORY.md. Creating minimal config..."
+  echo "# oh-my-droid Configuration" > .factory/FACTORY.md
+  echo "" >> .factory/FACTORY.md
+  echo "Run /omd-help for usage instructions." >> .factory/FACTORY.md
 fi
 ```
-
-**Note**: The downloaded FACTORY.md includes Context Persistence instructions with `<remember>` tags for surviving conversation compaction.
-
-**MANDATORY**: Always run this command. Do NOT skip. Do NOT use Write tool.
-
-**FALLBACK** if curl fails:
-Tell user to manually download from:
-https://raw.githubusercontent.com/YOUR_REPO/oh-my-droid/main/docs/FACTORY.md
 
 ### Verify Plugin Installation
 
 ```bash
-grep -q "oh-my-droid" ~/.factory/settings.json && echo "Plugin verified" || echo "Plugin NOT found - run: claude /install-plugin oh-my-droid"
+grep -q "oh-my-droid" ~/.factory/settings.json 2>/dev/null && echo "Plugin verified" || echo "Plugin NOT found - install via Factory plugin manager"
 ```
 
 ### Confirm Local Configuration Success
@@ -83,10 +79,10 @@ grep -q "oh-my-droid" ~/.factory/settings.json && echo "Plugin verified" || echo
 After completing local configuration, report:
 
 **OMD Project Configuration Complete**
-- FACTORY.md: Updated with latest configuration from GitHub at ./.factory/FACTORY.md
+- FACTORY.md: Installed at ./.factory/FACTORY.md
 - Scope: **PROJECT** - applies only to this project
 - Hooks: Provided by plugin (no manual installation needed)
-- Agents: 25+ available for Android development
+- Agents: 25+ available
 - Model routing: Haiku/Sonnet/Opus based on task complexity
 
 **Note**: This configuration is project-specific and won't affect other projects or global settings.
@@ -95,26 +91,28 @@ If `--local` flag was used, **STOP HERE**. Do not continue to HUD setup or other
 
 ## Step 2B: Global Configuration (--global flag or user chose GLOBAL)
 
-**CRITICAL**: This ALWAYS downloads fresh FACTORY.md from GitHub to global config. DO NOT use the Write tool - use bash curl exclusively.
-
-### Download Fresh FACTORY.md
+### Copy FACTORY.md from Plugin
 
 ```bash
-# Extract old version before download
-OLD_VERSION=$(grep -m1 "^# oh-my-droid" ~/.factory/FACTORY.md 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' || echo "none")
+# Find the plugin's docs/FACTORY.md
+PLUGIN_DIR=""
 
-# Download fresh FACTORY.md to global config
-curl -fsSL "https://raw.githubusercontent.com/YOUR_REPO/oh-my-droid/main/docs/FACTORY.md" -o ~/.factory/FACTORY.md && \
-echo "Downloaded FACTORY.md to ~/.factory/FACTORY.md"
+# Check common plugin locations
+if [ -d "$HOME/.factory/plugins/oh-my-droid" ]; then
+  PLUGIN_DIR="$HOME/.factory/plugins/oh-my-droid"
+elif [ -d "$FACTORY_PLUGIN_ROOT" ]; then
+  PLUGIN_DIR="$FACTORY_PLUGIN_ROOT"
+fi
 
-# Extract new version and report
-NEW_VERSION=$(grep -m1 "^# oh-my-droid" ~/.factory/FACTORY.md 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' || echo "unknown")
-if [ "$OLD_VERSION" = "none" ]; then
-  echo "Installed FACTORY.md: $NEW_VERSION"
-elif [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
-  echo "FACTORY.md unchanged: $NEW_VERSION"
+# Copy FACTORY.md to global config
+if [ -n "$PLUGIN_DIR" ] && [ -f "$PLUGIN_DIR/docs/FACTORY.md" ]; then
+  cp "$PLUGIN_DIR/docs/FACTORY.md" ~/.factory/FACTORY.md
+  echo "Copied FACTORY.md to ~/.factory/FACTORY.md"
 else
-  echo "Updated FACTORY.md: $OLD_VERSION -> $NEW_VERSION"
+  echo "Warning: Could not find plugin FACTORY.md. Creating minimal config..."
+  echo "# oh-my-droid Configuration" > ~/.factory/FACTORY.md
+  echo "" >> ~/.factory/FACTORY.md
+  echo "Run /omd-help for usage instructions." >> ~/.factory/FACTORY.md
 fi
 ```
 
@@ -131,14 +129,10 @@ rm -f ~/.factory/hooks/session-start.sh
 echo "Legacy hooks cleaned"
 ```
 
-Check `~/.factory/settings.json` for manual hook entries. If the "hooks" key exists with UserPromptSubmit, Stop, or SessionStart entries pointing to bash scripts, inform the user:
-
-> **Note**: Found legacy hooks in settings.json. These should be removed since the plugin now provides hooks automatically. Remove the "hooks" section from ~/.factory/settings.json to prevent duplicate hook execution.
-
 ### Verify Plugin Installation
 
 ```bash
-grep -q "oh-my-droid" ~/.factory/settings.json && echo "Plugin verified" || echo "Plugin NOT found - run: claude /install-plugin oh-my-droid"
+grep -q "oh-my-droid" ~/.factory/settings.json 2>/dev/null && echo "Plugin verified" || echo "Plugin NOT found - install via Factory plugin manager"
 ```
 
 ### Confirm Global Configuration Success
@@ -146,10 +140,10 @@ grep -q "oh-my-droid" ~/.factory/settings.json && echo "Plugin verified" || echo
 After completing global configuration, report:
 
 **OMD Global Configuration Complete**
-- FACTORY.md: Updated with latest configuration from GitHub at ~/.factory/FACTORY.md
-- Scope: **GLOBAL** - applies to all Claude Code sessions
+- FACTORY.md: Installed at ~/.factory/FACTORY.md
+- Scope: **GLOBAL** - applies to all Factory Droid sessions
 - Hooks: Provided by plugin (no manual installation needed)
-- Agents: 25+ available for Android development
+- Agents: 25+ available
 - Model routing: Haiku/Sonnet/Opus based on task complexity
 
 **Note**: Hooks are now managed by the plugin system automatically. No manual hook installation required.
@@ -158,9 +152,9 @@ If `--global` flag was used, **STOP HERE**. Do not continue to HUD setup or othe
 
 ## Step 3: Setup HUD Statusline
 
-The HUD shows real-time status in Claude Code's status bar. **Invoke the hud skill** to set up and configure:
+The HUD shows real-time status in Factory Droid's status bar. **Invoke the hud skill** to set up and configure:
 
-Use the Skill tool to invoke: `hud` with args: `setup`
+Use the Skill tool to invoke: `omd-hud` with args: `setup`
 
 This will:
 1. Install the HUD wrapper script to `~/.factory/hud/omd-hud.mjs`
@@ -205,7 +199,7 @@ OMD Setup Complete!
 You don't need to learn any commands. I now have intelligent behaviors that activate automatically.
 
 WHAT HAPPENS AUTOMATICALLY:
-- Android tasks -> I parallelize and delegate to specialized Android agents
+- Complex tasks -> I parallelize and delegate to specialized agents
 - "plan this" -> I start a planning interview
 - "don't stop until done" -> I persist until verified complete
 - "stop" or "cancel" -> I intelligently stop current operation
@@ -215,63 +209,61 @@ Just include these words naturally in your request:
 
 | Keyword | Effect | Example |
 |---------|--------|---------|
-| ralph | Persistence mode | "ralph: fix the lifecycle bug" |
+| ralph | Persistence mode | "ralph: fix the bug" |
 | ralplan | Iterative planning | "ralplan this feature" |
-| ulw | Max parallelism | "ulw implement all screens" |
+| ulw | Max parallelism | "ulw fix all errors" |
 | eco | Token-efficient mode | "eco fix lint errors" |
 | plan | Planning interview | "plan the new feature" |
 
 Combine them: "ralph ulw: implement authentication"
 
 HUD STATUSLINE:
-The status bar now shows OMD state. Restart Claude Code to see it.
+The status bar now shows OMD state. Restart Factory Droid to see it.
 
-ANDROID-SPECIFIC AGENTS:
-- android-architect: System design and architecture
-- kotlin-expert: Kotlin implementation
-- layout-designer: XML/Compose UI
-- gradle-expert: Build configuration
-- test-expert: Testing strategies
+AVAILABLE AGENTS:
+- architect: System design and debugging (Opus)
+- executor: Focused implementation (Sonnet)
+- explore: Fast pattern matching (Haiku)
+- designer: UI/UX specialist (Sonnet)
+- planner: Strategic planning (Opus)
 - And 20+ more specialized agents
 
-That's it! Just use Claude Code normally for Android development.
+That's it! Just use Factory Droid normally.
 ```
 
 ## Help Text
 
-When user runs `/oh-my-droid:omd-setup --help` or just `--help`, display:
+When user runs `/omd-setup --help` or just `--help`, display:
 
 ```
 OMD Setup - Configure oh-my-droid
 
 USAGE:
-  /oh-my-droid:omd-setup           Run initial setup wizard
-  /oh-my-droid:omd-setup --local   Configure local project (.factory/FACTORY.md)
-  /oh-my-droid:omd-setup --global  Configure global settings (~/.factory/FACTORY.md)
-  /oh-my-droid:omd-setup --help    Show this help
+  /omd-setup           Run initial setup wizard
+  /omd-setup --local   Configure local project (.factory/FACTORY.md)
+  /omd-setup --global  Configure global settings (~/.factory/FACTORY.md)
+  /omd-setup --help    Show this help
 
 MODES:
   Initial Setup (no flags)
     - Interactive wizard for first-time setup
     - Configures FACTORY.md (local or global)
     - Sets up HUD statusline
-    - Checks for updates
+    - Sets default execution mode
 
   Local Configuration (--local)
-    - Downloads fresh FACTORY.md to ./.factory/
+    - Copies FACTORY.md to ./.factory/
     - Project-specific settings
     - Use this to update project config after OMD upgrades
 
   Global Configuration (--global)
-    - Downloads fresh FACTORY.md to ~/.factory/
-    - Applies to all Claude Code sessions
+    - Copies FACTORY.md to ~/.factory/
+    - Applies to all Factory Droid sessions
     - Cleans up legacy hooks
     - Use this to update global config after OMD upgrades
 
 EXAMPLES:
-  /oh-my-droid:omd-setup           # First time setup
-  /oh-my-droid:omd-setup --local   # Update this project
-  /oh-my-droid:omd-setup --global  # Update all projects
-
-For more info: https://github.com/YOUR_REPO/oh-my-droid
+  /omd-setup           # First time setup
+  /omd-setup --local   # Update this project
+  /omd-setup --global  # Update all projects
 ```

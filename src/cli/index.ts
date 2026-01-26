@@ -45,6 +45,9 @@ import {
   installSlashCommands,
   listInstalledCommands,
   uninstallSlashCommands,
+  cleanupLegacyCommands,
+  uninstall as uninstallOmd,
+  cleanInstall as cleanInstallOmd,
   isInstalled,
   getInstallInfo,
   FACTORY_COMMANDS_DIR,
@@ -616,6 +619,12 @@ program
     });
 
     if (result.success) {
+      // Clean up legacy omd- prefixed commands from older versions
+      const legacyCleanup = cleanupLegacyCommands({ verbose: !options.quiet });
+      if (legacyCleanup.removed.length > 0 && !options.quiet) {
+        console.log(chalk.blue(`\nCleaned up ${legacyCleanup.removed.length} legacy commands`));
+      }
+
       // Also install slash commands
       if (!options.quiet) {
         console.log(chalk.blue('\nInstalling slash commands...'));
@@ -638,7 +647,7 @@ program
         console.log('  /omd-deepsearch <query>       # Thorough codebase search');
         console.log('  /omd-analyze <target>         # Deep analysis mode');
         console.log('  /omd-plan <description>       # Start planning with Planner');
-        console.log('  /omd-omd-setup                # Configure oh-my-droid');
+        console.log('  /omd-setup                    # Configure oh-my-droid');
         console.log('');
         console.log(chalk.yellow('Available Agents (via Task tool):'));
         console.log(chalk.gray('  Base Agents:'));
@@ -654,7 +663,7 @@ program
         console.log('');
         console.log(chalk.blue('Quick Start:'));
         console.log('  1. Run Factory Droid in your project');
-        console.log('  2. Type \'/omd-omd-setup\' to configure');
+        console.log('  2. Type \'/omd-setup\' to configure');
         console.log('  3. Or use \'/omd-autopilot <task>\' for autonomous execution');
       }
     } else {
@@ -699,15 +708,13 @@ program
   .description('Install oh-my-droid skills as Factory Droid slash commands')
   .option('-f, --force', 'Overwrite existing commands')
   .option('-v, --verbose', 'Show detailed progress')
-  .option('--prefix <prefix>', 'Command prefix (default: omd-)', 'omd-')
   .action(async (options) => {
     console.log(chalk.blue('\nInstalling oh-my-droid slash commands...\n'));
     console.log(chalk.gray(`Target: ${FACTORY_COMMANDS_DIR}\n`));
 
     const result = installSlashCommands({
       force: options.force,
-      verbose: true,
-      prefix: options.prefix
+      verbose: true
     });
 
     if (result.success) {
@@ -715,8 +722,8 @@ program
       if (result.skipped.length > 0) {
         console.log(chalk.yellow(`  Skipped ${result.skipped.length} existing commands (use --force to overwrite)`));
       }
-      console.log(chalk.gray(`\nCommands are available as /${options.prefix}<skill-name>`));
-      console.log(chalk.gray('Example: /omd-autopilot, /omd-ultrawork, /omd-ralph'));
+      console.log(chalk.gray(`\nCommands are available as /omd-<skill-name>`));
+      console.log(chalk.gray('Example: /omd-autopilot, /omd-ultrawork, /omd-ralph, /omd-setup'));
     } else {
       console.log(chalk.red(`\n✗ Installation failed with ${result.errors.length} errors`));
       result.errors.forEach(err => console.log(chalk.red(`  - ${err}`)));
@@ -730,9 +737,8 @@ program
 program
   .command('list-commands')
   .description('List installed oh-my-droid slash commands')
-  .option('--prefix <prefix>', 'Command prefix to filter', 'omd-')
-  .action(async (options) => {
-    const commands = listInstalledCommands(options.prefix);
+  .action(async () => {
+    const commands = listInstalledCommands();
 
     if (commands.length === 0) {
       console.log(chalk.yellow('No oh-my-droid commands installed.'));
@@ -753,14 +759,12 @@ program
 program
   .command('uninstall-commands')
   .description('Remove oh-my-droid slash commands from Factory')
-  .option('--prefix <prefix>', 'Command prefix to remove', 'omd-')
   .option('-v, --verbose', 'Show detailed progress')
   .action(async (options) => {
     console.log(chalk.blue('\nRemoving oh-my-droid slash commands...\n'));
 
     const result = uninstallSlashCommands({
-      verbose: options.verbose,
-      prefix: options.prefix
+      verbose: options.verbose
     });
 
     if (result.removed.length > 0) {
@@ -773,6 +777,108 @@ program
       console.log(chalk.red(`\n✗ ${result.errors.length} errors occurred`));
       result.errors.forEach(err => console.log(chalk.red(`  - ${err}`)));
     }
+  });
+
+/**
+ * Cleanup Legacy Commands - Remove legacy omd/ subfolder
+ */
+program
+  .command('cleanup-legacy')
+  .description('Remove legacy omd/ subfolder from ~/.factory/commands/')
+  .option('-v, --verbose', 'Show detailed progress')
+  .action(async (options) => {
+    console.log(chalk.blue('\nCleaning up legacy omd/ subfolder...\n'));
+
+    const result = cleanupLegacyCommands({
+      verbose: options.verbose
+    });
+
+    if (result.removed.length > 0) {
+      console.log(chalk.green(`\n✓ Removed ${result.removed.length} legacy files`));
+    } else {
+      console.log(chalk.yellow('No legacy files to remove.'));
+    }
+
+    if (result.errors.length > 0) {
+      console.log(chalk.red(`\n✗ ${result.errors.length} errors occurred`));
+      result.errors.forEach(err => console.log(chalk.red(`  - ${err}`)));
+    }
+  });
+
+/**
+ * Uninstall - Remove all oh-my-droid components
+ */
+program
+  .command('uninstall')
+  .description('Remove all oh-my-droid components (commands, state, configuration)')
+  .option('-v, --verbose', 'Show detailed progress')
+  .action(async (options) => {
+    console.log(chalk.blue('\nUninstalling oh-my-droid...\n'));
+
+    const result = uninstallOmd({
+      verbose: options.verbose
+    });
+
+    if (result.success) {
+      console.log(chalk.green('\n✓ Successfully uninstalled oh-my-droid'));
+      console.log(`  Commands removed: ${result.removedCommands.length}`);
+      console.log(`  State directory removed: ${result.removedState ? 'Yes' : 'No'}`);
+    } else {
+      console.log(chalk.yellow('\n⚠ Uninstall completed with errors'));
+      result.errors.forEach(err => console.log(chalk.red(`  - ${err}`)));
+    }
+  });
+
+/**
+ * Clean Install - Uninstall and reinstall fresh
+ */
+program
+  .command('clean-install')
+  .description('Clean install: remove everything and reinstall fresh')
+  .option('-v, --verbose', 'Show detailed progress')
+  .action(async (options) => {
+    console.log(chalk.blue('\n🧹 Starting clean install of oh-my-droid...\n'));
+
+    const result = cleanInstallOmd({
+      verbose: options.verbose,
+      force: true
+    });
+
+    // Summary
+    console.log(chalk.blue('\n=== Clean Install Summary ===\n'));
+
+    // Uninstall results
+    if (result.uninstallResult.success) {
+      console.log(chalk.green('✓ Uninstall: Success'));
+      console.log(`  Removed ${result.uninstallResult.removedCommands.length} commands`);
+    } else {
+      console.log(chalk.yellow('⚠ Uninstall: Completed with errors'));
+    }
+
+    // Install results
+    if (result.installResult.success) {
+      console.log(chalk.green('✓ Install: Success'));
+      console.log(`  Droids: ${result.installResult.installedDroids.length}`);
+      console.log(`  Skills: ${result.installResult.installedSkills.length}`);
+      console.log(`  Hooks: ${result.installResult.hooksConfigured ? 'Configured' : 'Skipped'}`);
+    } else {
+      console.log(chalk.red('✗ Install: Failed'));
+      result.installResult.errors.forEach(err => console.log(chalk.red(`  - ${err}`)));
+    }
+
+    // Commands results
+    if (result.commandsResult.errors.length === 0) {
+      console.log(chalk.green('✓ Slash Commands: Success'));
+      console.log(`  Installed: ${result.commandsResult.installed}`);
+    } else {
+      console.log(chalk.yellow('⚠ Slash Commands: Completed with errors'));
+      result.commandsResult.errors.forEach(err => console.log(chalk.red(`  - ${err}`)));
+    }
+
+    console.log(chalk.blue('\n---'));
+    console.log('Commands are available as /omd-<skill-name>');
+    console.log('Example: /omd-setup, /omd-autopilot, /omd-ultrawork');
+    console.log(chalk.gray('\nRestart Factory Droid to see the changes.'));
   });
 
 // Parse arguments

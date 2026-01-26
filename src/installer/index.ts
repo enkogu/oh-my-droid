@@ -16,7 +16,7 @@
  * - OMD_USE_BASH_HOOKS=1: Force Bash hooks (Unix only)
  */
 
-import { existsSync, mkdirSync, writeFileSync, readFileSync, chmodSync, readdirSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, chmodSync, readdirSync, unlinkSync, rmdirSync, rmSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { homedir } from 'os';
@@ -32,7 +32,7 @@ import {
 
 /** Factory configuration directory */
 export const FACTORY_CONFIG_DIR = join(homedir(), '.factory', 'omd');
-export const AGENTS_DIR = join(FACTORY_CONFIG_DIR, 'agents');
+export const DROIDS_DIR = join(FACTORY_CONFIG_DIR, 'droids');
 export const COMMANDS_DIR = join(FACTORY_CONFIG_DIR, 'commands');
 export const SKILLS_DIR = join(FACTORY_CONFIG_DIR, 'skills');
 export const HOOKS_DIR = join(FACTORY_CONFIG_DIR, 'hooks');
@@ -57,7 +57,7 @@ export const VERSION = '1.0.0';
 export interface InstallResult {
   success: boolean;
   message: string;
-  installedAgents: string[];
+  installedDroids: string[];
   installedCommands: string[];
   installedSkills: string[];
   hooksConfigured: boolean;
@@ -127,20 +127,20 @@ export function getPackageDir(): string {
 }
 
 /**
- * Load agent definitions from /agents/*.md files
+ * Load droid definitions from /droids/*.md files
  */
-function loadAgentDefinitions(): Record<string, string> {
-  const agentsDir = join(getPackageDir(), 'agents');
+function loadDroidDefinitions(): Record<string, string> {
+  const droidsDir = join(getPackageDir(), 'droids');
   const definitions: Record<string, string> = {};
 
-  if (!existsSync(agentsDir)) {
-    console.error(`FATAL: agents directory not found: ${agentsDir}`);
+  if (!existsSync(droidsDir)) {
+    console.error(`FATAL: droids directory not found: ${droidsDir}`);
     process.exit(1);
   }
 
-  for (const file of readdirSync(agentsDir)) {
+  for (const file of readdirSync(droidsDir)) {
     if (file.endsWith('.md')) {
-      definitions[file] = readFileSync(join(agentsDir, file), 'utf-8');
+      definitions[file] = readFileSync(join(droidsDir, file), 'utf-8');
     }
   }
 
@@ -149,14 +149,15 @@ function loadAgentDefinitions(): Record<string, string> {
 
 /**
  * Load command definitions from /commands/*.md files
+ * Note: oh-my-droid uses skills instead of commands, so this returns empty if commands dir doesn't exist
  */
 function loadCommandDefinitions(): Record<string, string> {
   const commandsDir = join(getPackageDir(), 'commands');
   const definitions: Record<string, string> = {};
 
+  // Commands directory is optional in oh-my-droid (we use skills instead)
   if (!existsSync(commandsDir)) {
-    console.error(`FATAL: commands directory not found: ${commandsDir}`);
-    process.exit(1);
+    return definitions;
   }
 
   for (const file of readdirSync(commandsDir)) {
@@ -189,7 +190,7 @@ export function install(options: InstallOptions = {}): InstallResult {
   const result: InstallResult = {
     success: false,
     message: '',
-    installedAgents: [],
+    installedDroids: [],
     installedCommands: [],
     installedSkills: [],
     hooksConfigured: false,
@@ -243,13 +244,13 @@ export function install(options: InstallOptions = {}): InstallResult {
       mkdirSync(FACTORY_CONFIG_DIR, { recursive: true });
     }
 
-    // Skip agent/command/hook file installation when running as plugin
-    // Plugin system handles these via ${FACTORY_PLUGIN_ROOT}
+    // Skip droid/command/hook file installation when running as plugin
+    // Plugin system handles these via ${DROID_PLUGIN_ROOT}
     if (!runningAsPlugin) {
       // Create directories
       log('Creating directories...');
-      if (!existsSync(AGENTS_DIR)) {
-        mkdirSync(AGENTS_DIR, { recursive: true });
+      if (!existsSync(DROIDS_DIR)) {
+        mkdirSync(DROIDS_DIR, { recursive: true });
       }
       if (!existsSync(COMMANDS_DIR)) {
         mkdirSync(COMMANDS_DIR, { recursive: true });
@@ -261,15 +262,15 @@ export function install(options: InstallOptions = {}): InstallResult {
         mkdirSync(HOOKS_DIR, { recursive: true });
       }
 
-      // Install agents
-      log('Installing agent definitions...');
-      for (const [filename, content] of Object.entries(loadAgentDefinitions())) {
-        const filepath = join(AGENTS_DIR, filename);
+      // Install droids
+      log('Installing droid definitions...');
+      for (const [filename, content] of Object.entries(loadDroidDefinitions())) {
+        const filepath = join(DROIDS_DIR, filename);
         if (existsSync(filepath) && !options.force) {
           log(`  Skipping ${filename} (already exists)`);
         } else {
-          writeFileSync(filepath, content);
-          result.installedAgents.push(filename);
+          writeFileSync(filepath, content as string);
+          result.installedDroids.push(filename);
           log(`  Installed ${filename}`);
         }
       }
@@ -526,7 +527,7 @@ export function install(options: InstallOptions = {}): InstallResult {
 
     result.success = true;
     const hookCount = Object.keys(HOOK_SCRIPTS).length;
-    result.message = `Successfully installed ${result.installedAgents.length} agents, ${result.installedCommands.length} commands, ${result.installedSkills.length} skills, and ${hookCount} hooks`;
+    result.message = `Successfully installed ${result.installedDroids.length} droids, ${result.installedCommands.length} commands, ${result.installedSkills.length} skills, and ${hookCount} hooks`;
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -541,7 +542,7 @@ export function install(options: InstallOptions = {}): InstallResult {
  * Check if OMD is already installed
  */
 export function isInstalled(): boolean {
-  return existsSync(VERSION_FILE) && existsSync(AGENTS_DIR) && existsSync(COMMANDS_DIR);
+  return existsSync(VERSION_FILE) && existsSync(DROIDS_DIR) && existsSync(COMMANDS_DIR);
 }
 
 /**
@@ -578,13 +579,44 @@ export interface InstallCommandsResult {
  * Install oh-my-droid skills as Factory Droid slash commands
  *
  * This copies SKILL.md files from skills/ to ~/.factory/commands/
- * with the prefix "omd-" to avoid conflicts with other plugins.
+ * with omd- prefix to avoid conflicts with other plugins.
+ * Factory Droid uses flat file structure (no subfolders).
  *
  * @param options.force - Overwrite existing commands
  * @param options.verbose - Print progress
- * @param options.prefix - Command prefix (default: "omd-")
  */
-export function installSlashCommands(options: { force?: boolean; verbose?: boolean; prefix?: string } = {}): InstallCommandsResult {
+
+/**
+ * Convert frontmatter from oh-my-claudecode format to Factory Droid format
+ * Factory Droid uses: description, argument-hint (not name)
+ */
+function convertFrontmatterToFactoryFormat(content: string): string {
+  // Match YAML frontmatter
+  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (!frontmatterMatch) {
+    return content;
+  }
+
+  const frontmatter = frontmatterMatch[1];
+  const body = frontmatterMatch[2];
+
+  // Parse frontmatter lines
+  const lines = frontmatter.split('\n');
+  const newLines: string[] = [];
+
+  for (const line of lines) {
+    // Remove 'name:' field (Factory Droid uses filename as command name)
+    if (line.startsWith('name:')) {
+      continue;
+    }
+    newLines.push(line);
+  }
+
+  // Reconstruct content
+  return `---\n${newLines.join('\n')}\n---\n${body}`;
+}
+
+export function installSlashCommands(options: { force?: boolean; verbose?: boolean } = {}): InstallCommandsResult {
   const result: InstallCommandsResult = {
     success: false,
     installed: [],
@@ -597,8 +629,6 @@ export function installSlashCommands(options: { force?: boolean; verbose?: boole
       console.log(msg);
     }
   };
-
-  const prefix = options.prefix ?? 'omd-';
 
   try {
     // Ensure ~/.factory/commands/ exists
@@ -630,10 +660,15 @@ export function installSlashCommands(options: { force?: boolean; verbose?: boole
       }
 
       try {
-        const content = readFileSync(skillMdPath, 'utf-8');
+        let content = readFileSync(skillMdPath, 'utf-8');
 
-        // Target filename: omd-{skillname}.md
-        const targetName = `${prefix}${skillName}.md`;
+        // Convert frontmatter to Factory Droid format
+        // Factory Droid uses: description, argument-hint (not name)
+        content = convertFrontmatterToFactoryFormat(content);
+
+        // Target filename: omd-{skillname}.md in commands root
+        // Factory Droid doesn't support subfolders, so we use prefix
+        const targetName = `omd-${skillName}.md`;
         const targetPath = join(FACTORY_COMMANDS_DIR, targetName);
 
         if (existsSync(targetPath) && !options.force) {
@@ -644,7 +679,7 @@ export function installSlashCommands(options: { force?: boolean; verbose?: boole
 
         writeFileSync(targetPath, content);
         result.installed.push(skillName);
-        log(`  Installed /${prefix}${skillName}`);
+        log(`  Installed /omd-${skillName}`);
 
       } catch (err) {
         const errMsg = err instanceof Error ? err.message : String(err);
@@ -667,22 +702,21 @@ export function installSlashCommands(options: { force?: boolean; verbose?: boole
 /**
  * List installed oh-my-droid slash commands
  */
-export function listInstalledCommands(prefix: string = 'omd-'): string[] {
+export function listInstalledCommands(): string[] {
   if (!existsSync(FACTORY_COMMANDS_DIR)) {
     return [];
   }
 
   return readdirSync(FACTORY_COMMANDS_DIR)
-    .filter(f => f.startsWith(prefix) && f.endsWith('.md'))
+    .filter(f => f.startsWith('omd-') && f.endsWith('.md'))
     .map(f => f.replace('.md', ''));
 }
 
 /**
  * Uninstall oh-my-droid slash commands
  */
-export function uninstallSlashCommands(options: { verbose?: boolean; prefix?: string } = {}): { removed: string[]; errors: string[] } {
+export function uninstallSlashCommands(options: { verbose?: boolean } = {}): { removed: string[]; errors: string[] } {
   const result = { removed: [] as string[], errors: [] as string[] };
-  const prefix = options.prefix ?? 'omd-';
 
   const log = (msg: string) => {
     if (options.verbose) {
@@ -694,12 +728,11 @@ export function uninstallSlashCommands(options: { verbose?: boolean; prefix?: st
     return result;
   }
 
-  const commands = listInstalledCommands(prefix);
+  const commands = listInstalledCommands();
 
   for (const cmd of commands) {
     const filePath = join(FACTORY_COMMANDS_DIR, `${cmd}.md`);
     try {
-      const { unlinkSync } = require('fs');
       unlinkSync(filePath);
       result.removed.push(cmd);
       log(`Removed /${cmd}`);
@@ -710,4 +743,137 @@ export function uninstallSlashCommands(options: { verbose?: boolean; prefix?: st
   }
 
   return result;
+}
+
+/**
+ * Clean up legacy omd/ subfolder if it exists
+ * Earlier versions tried to use subfolders which Factory Droid doesn't support
+ */
+export function cleanupLegacyCommands(options: { verbose?: boolean } = {}): { removed: string[]; errors: string[] } {
+  const result = { removed: [] as string[], errors: [] as string[] };
+
+  const log = (msg: string) => {
+    if (options.verbose) {
+      console.log(msg);
+    }
+  };
+
+  // Clean up legacy omd/ subfolder (Factory Droid doesn't support subfolders)
+  const legacySubfolder = join(FACTORY_COMMANDS_DIR, 'omd');
+  if (existsSync(legacySubfolder)) {
+    try {
+      // Remove all files in the subfolder
+      const files = readdirSync(legacySubfolder);
+      for (const file of files) {
+        unlinkSync(join(legacySubfolder, file));
+        result.removed.push(`omd/${file}`);
+        log(`Removed legacy omd/${file}`);
+      }
+      // Remove the subfolder itself
+      rmdirSync(legacySubfolder);
+      log('Removed legacy omd/ subfolder');
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      result.errors.push(`omd/ subfolder: ${errMsg}`);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Uninstall all oh-my-droid components
+ * Removes commands, state, and configuration
+ */
+export interface UninstallResult {
+  success: boolean;
+  removedCommands: string[];
+  removedState: boolean;
+  errors: string[];
+}
+
+export function uninstall(options: { verbose?: boolean } = {}): UninstallResult {
+  const result: UninstallResult = {
+    success: true,
+    removedCommands: [],
+    removedState: false,
+    errors: []
+  };
+
+  const log = (msg: string) => {
+    if (options.verbose) {
+      console.log(msg);
+    }
+  };
+
+  // 1. Remove slash commands
+  log('Removing slash commands...');
+  const cmdResult = uninstallSlashCommands(options);
+  result.removedCommands = cmdResult.removed;
+  if (cmdResult.errors.length > 0) {
+    result.errors.push(...cmdResult.errors);
+  }
+
+  // 2. Clean up legacy subfolder
+  log('Cleaning up legacy commands...');
+  const legacyResult = cleanupLegacyCommands(options);
+  if (legacyResult.errors.length > 0) {
+    result.errors.push(...legacyResult.errors);
+  }
+
+  // 3. Remove global state directory
+  if (existsSync(FACTORY_CONFIG_DIR)) {
+    try {
+      log(`Removing state directory: ${FACTORY_CONFIG_DIR}`);
+      rmSync(FACTORY_CONFIG_DIR, { recursive: true, force: true });
+      result.removedState = true;
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      result.errors.push(`State directory: ${errMsg}`);
+      result.success = false;
+    }
+  }
+
+  if (result.errors.length > 0) {
+    result.success = false;
+  }
+
+  return result;
+}
+
+/**
+ * Clean install - uninstall everything and reinstall fresh
+ */
+export interface CleanInstallResult {
+  uninstallResult: UninstallResult;
+  installResult: InstallResult;
+  commandsResult: InstallCommandsResult;
+}
+
+export function cleanInstall(options: InstallOptions = {}): CleanInstallResult {
+  const log = (msg: string) => {
+    if (options.verbose) {
+      console.log(msg);
+    }
+  };
+
+  log('Starting clean install...');
+
+  // 1. Uninstall everything
+  log('\n=== Uninstalling ===');
+  const uninstallResult = uninstall(options);
+
+  // 2. Install fresh
+  log('\n=== Installing ===');
+  const installResult = install({ ...options, force: true });
+
+  // 3. Install slash commands
+  log('\n=== Installing Slash Commands ===');
+  const commandsResult = installSlashCommands({ ...options, force: true });
+
+  return {
+    uninstallResult,
+    installResult,
+    commandsResult
+  };
 }

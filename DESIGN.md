@@ -1663,11 +1663,58 @@ description: Maximum parallel execution mode
 | oh-my-claudecode | oh-my-droid |
 |------------------|-------------|
 | `omc` | `omd` |
-| `oh-my-claudecode:` | `oh-my-droid:` |
-| `/oh-my-claudecode:help` | `/oh-my-droid:help` |
+| `oh-my-claudecode:` | `omd-` (파일명 접두사) |
+| `/oh-my-claudecode:help` | `/omd-help` |
 | `omc-setup` | `omd-setup` |
 | `.omc/` | `.omd/` |
-| `CLAUDE.md` | `DROID.md` 또는 프로젝트 지시 파일 |
+| `CLAUDE.md` | `FACTORY.md` 또는 프로젝트 지시 파일 |
+
+### 10.2.1 슬래시 명령어 아키텍처 결정
+
+**중요: Factory Droid와 Claude Code의 슬래시 명령어 시스템 차이**
+
+| 측면 | Claude Code | Factory Droid |
+|------|-------------|---------------|
+| **하위 폴더 지원** | 지원 (`sc/`, `oh-my-claudecode/`) | **미지원** (플랫 구조만) |
+| **플러그인 prefix** | `/oh-my-claudecode:setup` | **미지원** |
+| **명령어 위치** | `~/.claude/commands/{subfolder}/` | `~/.factory/commands/` (최상위만) |
+| **충돌 방지** | 하위 폴더로 네임스페이스 분리 | **파일명 접두사** 사용 |
+
+#### 설계 결정 배경
+
+Factory Droid 공식 문서([custom-slash-commands.md](docs/droid/custom-slash-commands.md))에서 명시:
+
+> "Commands must live at the top level of the `commands` directory. Nested folders are ignored today."
+
+따라서 oh-my-droid는 다음과 같이 명령어를 설치합니다:
+
+```
+~/.factory/commands/
+├── omd-setup.md        → /omd-setup
+├── omd-autopilot.md    → /omd-autopilot
+├── omd-ultrawork.md    → /omd-ultrawork
+├── omd-ralph.md        → /omd-ralph
+└── ...                 → /omd-{skill-name}
+```
+
+#### 왜 `omd-` 접두사인가?
+
+1. **충돌 방지**: 다른 플러그인/사용자 명령어와 이름 충돌 방지
+2. **일관성**: oh-my-claudecode의 `omc-` 패턴과 유사
+3. **발견 가능성**: `/omd-` 입력 시 모든 oh-my-droid 명령어가 자동완성
+4. **단순함**: 사용자가 기억하기 쉬운 짧은 접두사
+
+#### oh-my-claudecode와의 비교
+
+```
+# oh-my-claudecode (Claude Code)
+/oh-my-claudecode:setup     # 플러그인 prefix 사용
+/oh-my-claudecode:autopilot
+
+# oh-my-droid (Factory Droid)
+/omd-setup                   # 파일명 prefix 사용
+/omd-autopilot
+```
 
 ### 10.3 Hook 입력 차이
 
