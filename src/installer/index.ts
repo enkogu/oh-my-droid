@@ -40,6 +40,9 @@ export const HUD_DIR = join(FACTORY_CONFIG_DIR, 'hud');
 export const SETTINGS_FILE = join(FACTORY_CONFIG_DIR, 'settings.json');
 export const VERSION_FILE = join(FACTORY_CONFIG_DIR, '.omd-version.json');
 
+/** Factory Droid standard commands directory (slash commands) */
+export const FACTORY_COMMANDS_DIR = join(homedir(), '.factory', 'commands');
+
 /**
  * Core commands - DISABLED for v3.0+
  * All commands are now plugin-scoped skills managed by Factory.
@@ -116,7 +119,7 @@ export function isRunningAsPlugin(): boolean {
  * Get the package root directory
  * From dist/installer/index.js, go up to package root
  */
-function getPackageDir(): string {
+export function getPackageDir(): string {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
   // From dist/installer/index.js, go up to package root
@@ -559,4 +562,152 @@ export function getInstallInfo(): { version: string; installedAt: string; method
   } catch {
     return null;
   }
+}
+
+/**
+ * Install slash commands result
+ */
+export interface InstallCommandsResult {
+  success: boolean;
+  installed: string[];
+  skipped: string[];
+  errors: string[];
+}
+
+/**
+ * Install oh-my-droid skills as Factory Droid slash commands
+ *
+ * This copies SKILL.md files from skills/ to ~/.factory/commands/
+ * with the prefix "omd-" to avoid conflicts with other plugins.
+ *
+ * @param options.force - Overwrite existing commands
+ * @param options.verbose - Print progress
+ * @param options.prefix - Command prefix (default: "omd-")
+ */
+export function installSlashCommands(options: { force?: boolean; verbose?: boolean; prefix?: string } = {}): InstallCommandsResult {
+  const result: InstallCommandsResult = {
+    success: false,
+    installed: [],
+    skipped: [],
+    errors: []
+  };
+
+  const log = (msg: string) => {
+    if (options.verbose) {
+      console.log(msg);
+    }
+  };
+
+  const prefix = options.prefix ?? 'omd-';
+
+  try {
+    // Ensure ~/.factory/commands/ exists
+    if (!existsSync(FACTORY_COMMANDS_DIR)) {
+      mkdirSync(FACTORY_COMMANDS_DIR, { recursive: true });
+      log(`Created ${FACTORY_COMMANDS_DIR}`);
+    }
+
+    // Get skills directory from package
+    const skillsDir = join(getPackageDir(), 'skills');
+    if (!existsSync(skillsDir)) {
+      result.errors.push(`Skills directory not found: ${skillsDir}`);
+      return result;
+    }
+
+    // Scan skills directory
+    const skillDirs = readdirSync(skillsDir, { withFileTypes: true })
+      .filter(d => d.isDirectory())
+      .map(d => d.name);
+
+    log(`Found ${skillDirs.length} skills to install`);
+
+    for (const skillName of skillDirs) {
+      const skillMdPath = join(skillsDir, skillName, 'SKILL.md');
+
+      if (!existsSync(skillMdPath)) {
+        log(`  Skipping ${skillName} (no SKILL.md)`);
+        continue;
+      }
+
+      try {
+        const content = readFileSync(skillMdPath, 'utf-8');
+
+        // Target filename: omd-{skillname}.md
+        const targetName = `${prefix}${skillName}.md`;
+        const targetPath = join(FACTORY_COMMANDS_DIR, targetName);
+
+        if (existsSync(targetPath) && !options.force) {
+          result.skipped.push(skillName);
+          log(`  Skipping ${skillName} (already exists)`);
+          continue;
+        }
+
+        writeFileSync(targetPath, content);
+        result.installed.push(skillName);
+        log(`  Installed /${prefix}${skillName}`);
+
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        result.errors.push(`${skillName}: ${errMsg}`);
+        log(`  Error installing ${skillName}: ${errMsg}`);
+      }
+    }
+
+    result.success = result.errors.length === 0;
+    log(`\nInstalled ${result.installed.length} commands, skipped ${result.skipped.length}`);
+
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    result.errors.push(errMsg);
+  }
+
+  return result;
+}
+
+/**
+ * List installed oh-my-droid slash commands
+ */
+export function listInstalledCommands(prefix: string = 'omd-'): string[] {
+  if (!existsSync(FACTORY_COMMANDS_DIR)) {
+    return [];
+  }
+
+  return readdirSync(FACTORY_COMMANDS_DIR)
+    .filter(f => f.startsWith(prefix) && f.endsWith('.md'))
+    .map(f => f.replace('.md', ''));
+}
+
+/**
+ * Uninstall oh-my-droid slash commands
+ */
+export function uninstallSlashCommands(options: { verbose?: boolean; prefix?: string } = {}): { removed: string[]; errors: string[] } {
+  const result = { removed: [] as string[], errors: [] as string[] };
+  const prefix = options.prefix ?? 'omd-';
+
+  const log = (msg: string) => {
+    if (options.verbose) {
+      console.log(msg);
+    }
+  };
+
+  if (!existsSync(FACTORY_COMMANDS_DIR)) {
+    return result;
+  }
+
+  const commands = listInstalledCommands(prefix);
+
+  for (const cmd of commands) {
+    const filePath = join(FACTORY_COMMANDS_DIR, `${cmd}.md`);
+    try {
+      const { unlinkSync } = require('fs');
+      unlinkSync(filePath);
+      result.removed.push(cmd);
+      log(`Removed /${cmd}`);
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      result.errors.push(`${cmd}: ${errMsg}`);
+    }
+  }
+
+  return result;
 }

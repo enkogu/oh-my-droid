@@ -40,6 +40,16 @@ import {
   isTokscaleCLIAvailable,
   getInstallInstructions
 } from './utils/tokscale-launcher.js';
+import {
+  install as installOmd,
+  installSlashCommands,
+  listInstalledCommands,
+  uninstallSlashCommands,
+  isInstalled,
+  getInstallInfo,
+  FACTORY_COMMANDS_DIR,
+  FACTORY_CONFIG_DIR
+} from '../installer/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -564,6 +574,205 @@ program
 
     console.log(chalk.gray('\n━'.repeat(50)));
     console.log(chalk.gray('\nTo check for updates, run: omd update --check'));
+  });
+
+/**
+ * Install command - Full installation to ~/.factory/
+ */
+program
+  .command('install')
+  .description('Install oh-my-droid agents, hooks, and commands to Factory config (~/.factory/)')
+  .option('-f, --force', 'Overwrite existing files')
+  .option('-q, --quiet', 'Suppress output except for errors')
+  .option('--skip-factory-check', 'Skip checking if Factory Droid is installed')
+  .action(async (options) => {
+    if (!options.quiet) {
+      console.log(chalk.blue('╔═══════════════════════════════════════════════════════════╗'));
+      console.log(chalk.blue('║              Oh-My-Droid Installer                        ║'));
+      console.log(chalk.blue('║   Multi-Agent Orchestration for Factory Droid            ║'));
+      console.log(chalk.blue('╚═══════════════════════════════════════════════════════════╝'));
+      console.log('');
+    }
+
+    // Check if already installed
+    if (isInstalled() && !options.force) {
+      const info = getInstallInfo();
+      if (!options.quiet) {
+        console.log(chalk.yellow('Oh-My-Droid is already installed.'));
+        if (info) {
+          console.log(chalk.gray(`  Version: ${info.version}`));
+          console.log(chalk.gray(`  Installed: ${info.installedAt}`));
+        }
+        console.log(chalk.gray('\nUse --force to reinstall.'));
+      }
+      return;
+    }
+
+    // Run installation
+    const result = installOmd({
+      force: options.force,
+      verbose: !options.quiet,
+      skipFactoryCheck: options.skipFactoryCheck
+    });
+
+    if (result.success) {
+      // Also install slash commands
+      if (!options.quiet) {
+        console.log(chalk.blue('\nInstalling slash commands...'));
+      }
+      const cmdResult = installSlashCommands({ force: options.force, verbose: !options.quiet });
+
+      if (!options.quiet) {
+        console.log('');
+        console.log(chalk.green('╔═══════════════════════════════════════════════════════════╗'));
+        console.log(chalk.green('║              Installation Complete!                       ║'));
+        console.log(chalk.green('╚═══════════════════════════════════════════════════════════╝'));
+        console.log('');
+        console.log(chalk.gray(`Installed to: ${FACTORY_CONFIG_DIR}`));
+        console.log(chalk.gray(`Commands at:  ${FACTORY_COMMANDS_DIR}`));
+        console.log('');
+        console.log(chalk.yellow('Slash Commands:'));
+        console.log('  /omd-autopilot <task>         # Full autonomous execution');
+        console.log('  /omd-ultrawork <task>         # Maximum performance mode');
+        console.log('  /omd-ralph <task>             # Persistence until complete');
+        console.log('  /omd-deepsearch <query>       # Thorough codebase search');
+        console.log('  /omd-analyze <target>         # Deep analysis mode');
+        console.log('  /omd-plan <description>       # Start planning with Planner');
+        console.log('  /omd-omd-setup                # Configure oh-my-droid');
+        console.log('');
+        console.log(chalk.yellow('Available Agents (via Task tool):'));
+        console.log(chalk.gray('  Base Agents:'));
+        console.log('    oh-my-droid:architect       - Architecture & debugging (Opus)');
+        console.log('    oh-my-droid:researcher      - Documentation & research (Sonnet)');
+        console.log('    oh-my-droid:explore         - Fast pattern matching (Haiku)');
+        console.log('    oh-my-droid:designer        - UI/UX specialist (Sonnet)');
+        console.log('    oh-my-droid:executor        - Focused execution (Sonnet)');
+        console.log('    oh-my-droid:planner         - Strategic planning (Opus)');
+        console.log(chalk.gray('  Tiered Variants:'));
+        console.log('    oh-my-droid:executor-high   - Complex tasks (Opus)');
+        console.log('    oh-my-droid:executor-low    - Trivial tasks (Haiku)');
+        console.log('');
+        console.log(chalk.blue('Quick Start:'));
+        console.log('  1. Run Factory Droid in your project');
+        console.log('  2. Type \'/omd-omd-setup\' to configure');
+        console.log('  3. Or use \'/omd-autopilot <task>\' for autonomous execution');
+      }
+    } else {
+      console.error(chalk.red(`Installation failed: ${result.message}`));
+      if (result.errors.length > 0) {
+        result.errors.forEach(err => console.error(chalk.red(`  - ${err}`)));
+      }
+      process.exit(1);
+    }
+  });
+
+/**
+ * Postinstall command - Silent install for npm postinstall hook
+ */
+program
+  .command('postinstall', { hidden: true })
+  .description('Run post-install setup (called automatically by npm)')
+  .action(async () => {
+    // Silent install - only show errors
+    const result = installOmd({
+      force: false,
+      verbose: false,
+      skipFactoryCheck: true
+    });
+
+    if (result.success) {
+      console.log(chalk.green('✓ Oh-My-Droid installed successfully!'));
+      console.log(chalk.gray('  Run "oh-my-droid info" to see available agents.'));
+      console.log(chalk.gray('  Run "oh-my-droid install-commands" to add slash commands.'));
+    } else {
+      // Don't fail the npm install, just warn
+      console.warn(chalk.yellow('⚠ Could not complete setup:'), result.message);
+      console.warn(chalk.gray('  Run "oh-my-droid install" manually to complete setup.'));
+    }
+  });
+
+/**
+ * Install Commands - Install oh-my-droid skills as Factory slash commands
+ */
+program
+  .command('install-commands')
+  .description('Install oh-my-droid skills as Factory Droid slash commands')
+  .option('-f, --force', 'Overwrite existing commands')
+  .option('-v, --verbose', 'Show detailed progress')
+  .option('--prefix <prefix>', 'Command prefix (default: omd-)', 'omd-')
+  .action(async (options) => {
+    console.log(chalk.blue('\nInstalling oh-my-droid slash commands...\n'));
+    console.log(chalk.gray(`Target: ${FACTORY_COMMANDS_DIR}\n`));
+
+    const result = installSlashCommands({
+      force: options.force,
+      verbose: true,
+      prefix: options.prefix
+    });
+
+    if (result.success) {
+      console.log(chalk.green(`\n✓ Successfully installed ${result.installed.length} commands`));
+      if (result.skipped.length > 0) {
+        console.log(chalk.yellow(`  Skipped ${result.skipped.length} existing commands (use --force to overwrite)`));
+      }
+      console.log(chalk.gray(`\nCommands are available as /${options.prefix}<skill-name>`));
+      console.log(chalk.gray('Example: /omd-autopilot, /omd-ultrawork, /omd-ralph'));
+    } else {
+      console.log(chalk.red(`\n✗ Installation failed with ${result.errors.length} errors`));
+      result.errors.forEach(err => console.log(chalk.red(`  - ${err}`)));
+      process.exit(1);
+    }
+  });
+
+/**
+ * List Commands - List installed oh-my-droid slash commands
+ */
+program
+  .command('list-commands')
+  .description('List installed oh-my-droid slash commands')
+  .option('--prefix <prefix>', 'Command prefix to filter', 'omd-')
+  .action(async (options) => {
+    const commands = listInstalledCommands(options.prefix);
+
+    if (commands.length === 0) {
+      console.log(chalk.yellow('No oh-my-droid commands installed.'));
+      console.log(chalk.gray('Run `omd install-commands` to install them.'));
+      return;
+    }
+
+    console.log(chalk.blue(`\nInstalled oh-my-droid commands (${commands.length}):\n`));
+    commands.forEach(cmd => {
+      console.log(`  /${cmd}`);
+    });
+    console.log(chalk.gray(`\nLocation: ${FACTORY_COMMANDS_DIR}`));
+  });
+
+/**
+ * Uninstall Commands - Remove oh-my-droid slash commands
+ */
+program
+  .command('uninstall-commands')
+  .description('Remove oh-my-droid slash commands from Factory')
+  .option('--prefix <prefix>', 'Command prefix to remove', 'omd-')
+  .option('-v, --verbose', 'Show detailed progress')
+  .action(async (options) => {
+    console.log(chalk.blue('\nRemoving oh-my-droid slash commands...\n'));
+
+    const result = uninstallSlashCommands({
+      verbose: options.verbose,
+      prefix: options.prefix
+    });
+
+    if (result.removed.length > 0) {
+      console.log(chalk.green(`\n✓ Removed ${result.removed.length} commands`));
+    } else {
+      console.log(chalk.yellow('No commands to remove.'));
+    }
+
+    if (result.errors.length > 0) {
+      console.log(chalk.red(`\n✗ ${result.errors.length} errors occurred`));
+      result.errors.forEach(err => console.log(chalk.red(`  - ${err}`)));
+    }
   });
 
 // Parse arguments

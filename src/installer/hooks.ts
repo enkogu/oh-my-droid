@@ -37,16 +37,23 @@ function getPackageDir(): string {
 /**
  * Load a hook template file from templates/hooks/
  * @param filename - The template filename (e.g., 'keyword-detector.sh')
- * @returns The template content
- * @throws If the template file is not found
+ * @returns The template content, or empty string if not found
  */
 function loadTemplate(filename: string): string {
   const templatePath = join(getPackageDir(), 'templates', 'hooks', filename);
   if (!existsSync(templatePath)) {
-    console.error(`FATAL: Hook template not found: ${templatePath}`);
-    process.exit(1);
+    // Return empty string instead of crashing - templates may not exist in all contexts
+    return '';
   }
   return readFileSync(templatePath, 'utf-8');
+}
+
+/**
+ * Check if hook templates are available
+ */
+export function areHookTemplatesAvailable(): boolean {
+  const templatePath = join(getPackageDir(), 'templates', 'hooks');
+  return existsSync(templatePath);
 }
 
 // =============================================================================
@@ -512,12 +519,40 @@ export function getHookScripts(): Record<string, string> {
   return shouldUseNodeHooks() ? getHookScriptsNode() : getHookScriptsBash();
 }
 
-// Legacy exports for backward compatibility (these call the loader functions)
+// Legacy exports for backward compatibility (lazy-loaded to avoid errors when templates don't exist)
+let _hookScriptsBash: Record<string, string> | null = null;
+let _hookScriptsNode: Record<string, string> | null = null;
+
 /** @deprecated Use getHookScriptsBash() instead */
-export const HOOK_SCRIPTS_BASH: Record<string, string> = getHookScriptsBash();
+export function getHookScriptsBashLegacy(): Record<string, string> {
+  if (!_hookScriptsBash) {
+    try {
+      _hookScriptsBash = getHookScriptsBash();
+    } catch {
+      _hookScriptsBash = {};
+    }
+  }
+  return _hookScriptsBash;
+}
 
 /** @deprecated Use getHookScriptsNode() instead */
-export const HOOK_SCRIPTS_NODE: Record<string, string> = getHookScriptsNode();
+export function getHookScriptsNodeLegacy(): Record<string, string> {
+  if (!_hookScriptsNode) {
+    try {
+      _hookScriptsNode = getHookScriptsNode();
+    } catch {
+      _hookScriptsNode = {};
+    }
+  }
+  return _hookScriptsNode;
+}
+
+// These are kept for backward compatibility but now return empty objects to avoid load-time errors
+/** @deprecated Use getHookScriptsBash() instead */
+export const HOOK_SCRIPTS_BASH: Record<string, string> = {};
+
+/** @deprecated Use getHookScriptsNode() instead */
+export const HOOK_SCRIPTS_NODE: Record<string, string> = {};
 
 /** @deprecated Use getHookScripts() for cross-platform support */
-export const HOOK_SCRIPTS: Record<string, string> = HOOK_SCRIPTS_BASH;
+export const HOOK_SCRIPTS: Record<string, string> = {};
