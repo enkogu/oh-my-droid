@@ -68,7 +68,7 @@ async function main() {
     let data = {};
     try { data = JSON.parse(input); } catch {}
 
-    const directory = data.directory || process.cwd();
+    const directory = data.cwd || process.cwd();
     const messages = [];
 
     // Check for ultrawork state
@@ -187,7 +187,12 @@ ${cleanContent}
     }
 
     if (messages.length > 0) {
-      console.log(JSON.stringify({ continue: true, message: messages.join('\n') }));
+      console.log(JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: 'SessionStart',
+          additionalContext: messages.join('\n')
+        }
+      }));
     } else {
       console.log(JSON.stringify({ continue: true }));
     }

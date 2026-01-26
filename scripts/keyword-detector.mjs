@@ -248,7 +248,7 @@ async function main() {
 
     let data = {};
     try { data = JSON.parse(input); } catch {}
-    const directory = data.directory || process.cwd();
+    const directory = data.cwd || process.cwd();
 
     const prompt = extractPrompt(input);
     if (!prompt) {
@@ -261,40 +261,70 @@ async function main() {
     // Check for ultrawork keywords (highest priority for execution mode)
     if (/\b(ultrawork|ulw|uw)\b/.test(cleanPrompt)) {
       activateUltraworkState(directory, prompt);
-      console.log(JSON.stringify({ continue: true, message: ULTRAWORK_MESSAGE }));
+      console.log(JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: 'UserPromptSubmit',
+          additionalContext: ULTRAWORK_MESSAGE
+        }
+      }));
       return;
     }
 
     // Check for autopilot keywords
     if (/\b(autopilot|auto-pilot)\b/.test(cleanPrompt)) {
       activateAutopilotState(directory, prompt);
-      console.log(JSON.stringify({ continue: true, message: AUTOPILOT_MESSAGE }));
+      console.log(JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: 'UserPromptSubmit',
+          additionalContext: AUTOPILOT_MESSAGE
+        }
+      }));
       return;
     }
 
     // Check for ralph keywords
     if (/\b(ralph|ralph-loop|ralphloop)\b/.test(cleanPrompt)) {
       activateRalphState(directory, prompt);
-      console.log(JSON.stringify({ continue: true, message: RALPH_MESSAGE }));
+      console.log(JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: 'UserPromptSubmit',
+          additionalContext: RALPH_MESSAGE
+        }
+      }));
       return;
     }
 
     // Check for eco mode keywords
     if (/\b(eco|ecomode|eco-mode|economical)\b/.test(cleanPrompt)) {
       activateEcoState(directory, prompt);
-      console.log(JSON.stringify({ continue: true, message: ECO_MESSAGE }));
+      console.log(JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: 'UserPromptSubmit',
+          additionalContext: ECO_MESSAGE
+        }
+      }));
       return;
     }
 
     // Check for search keywords
     if (/\b(search|find|locate|lookup|explore|discover|scan|grep|query|browse|detect|trace|seek|track|pinpoint|hunt)\b|where\s+is|show\s+me|list\s+all/.test(cleanPrompt)) {
-      console.log(JSON.stringify({ continue: true, message: SEARCH_MESSAGE }));
+      console.log(JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: 'UserPromptSubmit',
+          additionalContext: SEARCH_MESSAGE
+        }
+      }));
       return;
     }
 
     // Check for analyze keywords
     if (/\b(analyze|analyse|investigate|examine|research|study|deep.?dive|inspect|audit|evaluate|assess|review|diagnose|scrutinize|dissect|debug|comprehend|interpret|breakdown|understand)\b|why\s+is|how\s+does|how\s+to/.test(cleanPrompt)) {
-      console.log(JSON.stringify({ continue: true, message: ANALYZE_MESSAGE }));
+      console.log(JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: 'UserPromptSubmit',
+          additionalContext: ANALYZE_MESSAGE
+        }
+      }));
       return;
     }
 

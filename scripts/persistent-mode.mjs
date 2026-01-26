@@ -148,7 +148,14 @@ async function main() {
     let data = {};
     try { data = JSON.parse(input); } catch {}
 
-    const directory = data.directory || process.cwd();
+    // CRITICAL: Check stop_hook_active to prevent infinite loops
+    // If this is a re-invocation from the stop hook itself, allow it
+    if (data.stop_hook_active) {
+      console.log(JSON.stringify({ decision: 'allow' }));
+      return;
+    }
+
+    const directory = data.cwd || process.cwd();
     const todosDir = join(homedir(), '.factory', 'todos');
 
     // Check for ultrawork state
@@ -178,10 +185,7 @@ async function main() {
 
       // If PRD exists and all stories are complete, allow completion
       if (prdStatus.hasPrd && prdStatus.allComplete) {
-        console.log(JSON.stringify({
-          continue: true,
-          reason: `[RALPH LOOP COMPLETE - PRD] All ${prdStatus.total} stories are complete! Great work!`
-        }));
+        console.log(JSON.stringify({ decision: 'allow' }));
         return;
       }
 
@@ -191,7 +195,7 @@ async function main() {
         const maxAttempts = verificationState.max_verification_attempts || 3;
 
         console.log(JSON.stringify({
-          continue: false,
+          decision: 'block',
           reason: `<ralph-verification>
 
 [ARCHITECT VERIFICATION REQUIRED - Attempt ${attempt}/${maxAttempts}]
@@ -272,7 +276,7 @@ ${progressPatterns.map(p => `- ${p}`).join('\n')}
         }
 
         console.log(JSON.stringify({
-          continue: false,
+          decision: 'block',
           reason: `<ralph-loop-continuation>
 
 [RALPH LOOP - ITERATION ${newIter}/${maxIter}]
@@ -300,7 +304,7 @@ ${ralphState.prompt ? `Original task: ${ralphState.prompt}` : ''}
     // Priority 2: Autopilot with incomplete todos
     if (autopilotState?.active && incompleteCount > 0) {
       console.log(JSON.stringify({
-        continue: false,
+        decision: 'block',
         reason: `<autopilot-continuation>
 
 [AUTOPILOT MODE STILL ACTIVE]
@@ -326,10 +330,7 @@ ${autopilotState.original_prompt ? `Original task: ${autopilotState.original_pro
 
       // Escape mechanism: after max reinforcements, allow stopping
       if (newCount > maxReinforcements) {
-        console.log(JSON.stringify({
-          continue: true,
-          reason: `[ULTRAWORK ESCAPE] Maximum reinforcements (${maxReinforcements}) reached. Allowing stop despite ${incompleteCount} incomplete todos. If tasks are genuinely stuck, consider cancelling them or asking the user for help.`
-        }));
+        console.log(JSON.stringify({ decision: 'allow' }));
         return;
       }
 
@@ -339,7 +340,7 @@ ${autopilotState.original_prompt ? `Original task: ${autopilotState.original_pro
       writeJsonFile(join(directory, '.omd', 'ultrawork-state.json'), ultraworkState);
 
       console.log(JSON.stringify({
-        continue: false,
+        decision: 'block',
         reason: `<ultrawork-persistence>
 
 [ULTRAWORK MODE STILL ACTIVE - Reinforcement #${newCount}]
@@ -378,15 +379,12 @@ ${ultraworkState.original_prompt ? `Original task: ${ultraworkState.original_pro
 
       // Escape mechanism: after max continuations, allow stopping
       if (contState.count > maxContinuations) {
-        console.log(JSON.stringify({
-          continue: true,
-          reason: `[TODO ESCAPE] Maximum continuation attempts (${maxContinuations}) reached. Allowing stop despite ${incompleteCount} incomplete todos. Tasks may be stuck - consider reviewing and clearing them.`
-        }));
+        console.log(JSON.stringify({ decision: 'allow' }));
         return;
       }
 
       console.log(JSON.stringify({
-        continue: false,
+        decision: 'block',
         reason: `<todo-continuation>
 
 [SYSTEM REMINDER - TODO CONTINUATION ${contState.count}/${maxContinuations}]
@@ -406,9 +404,9 @@ Incomplete tasks remain in your todo list (${incompleteCount} remaining). Contin
     }
 
     // No blocking needed - clean session stop
-    console.log(JSON.stringify({ continue: true }));
+    console.log(JSON.stringify({ decision: 'allow' }));
   } catch (error) {
-    console.log(JSON.stringify({ continue: true }));
+    console.log(JSON.stringify({ decision: 'allow' }));
   }
 }
 
