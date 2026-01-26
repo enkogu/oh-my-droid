@@ -1,64 +1,64 @@
-# oh-my-droid 설계 문서
+# oh-my-droid Design Document
 
-> Factory AI의 Droid CLI를 위한 멀티 Droid 오케스트레이션 플러그인의 포괄적인 설계 명세
+> Comprehensive design specification for a multi-Droid orchestration plugin for Factory AI's Droid CLI
 
-**버전:** 1.0.0
-**기반:** oh-my-claudecode v3.5.8 아키텍처
-**대상 플랫폼:** Factory AI Droid CLI
+**Version:** 1.0.0
+**Based on:** oh-my-claudecode v3.5.8 architecture
+**Target Platform:** Factory AI Droid CLI
 
 ---
 
-## 목차
+## Table of Contents
 
-1. [개요](#1-개요)
-2. [아키텍처](#2-아키텍처)
-3. [디렉토리 구조](#3-디렉토리-구조)
+1. [Overview](#1-overview)
+2. [Architecture](#2-architecture)
+3. [Directory Structure](#3-directory-structure)
 4. [Plugin Manifest](#4-plugin-manifest)
-5. [Hooks 시스템](#5-hooks-시스템)
-6. [Custom Droids 시스템](#6-custom-droids-시스템)
-7. [Skills 시스템](#7-skills-시스템)
-8. [상태 관리](#8-상태-관리)
-9. [설정](#9-설정)
-10. [oh-my-claudecode와의 주요 차이점](#10-oh-my-claudecode와의-주요-차이점)
-11. [구현 단계](#11-구현-단계)
+5. [Hooks System](#5-hooks-system)
+6. [Custom Droids System](#6-custom-droids-system)
+7. [Skills System](#7-skills-system)
+8. [State Management](#8-state-management)
+9. [Configuration](#9-configuration)
+10. [Key Differences from oh-my-claudecode](#10-key-differences-from-oh-my-claudecode)
+11. [Implementation Phases](#11-implementation-phases)
 
 ---
 
-## 1. 개요
+## 1. Overview
 
-### 1.1 목적
+### 1.1 Purpose
 
-oh-my-droid는 Factory AI의 Droid CLI를 단일 수행자에서 복잡도 계층에 걸쳐 특화된 Custom Droids에게 작업을 위임하는 **오케스트레이션 지휘자**로 변환합니다.
+oh-my-droid transforms Factory AI's Droid CLI from a single performer into an **orchestration conductor** that delegates tasks to specialized Custom Droids across complexity tiers.
 
-### 1.2 핵심 철학
+### 1.2 Core Philosophy
 
 ```
-규칙 1: 항상 실질적인 작업을 전문 Custom Droid에게 위임하라
-규칙 2: 항상 인식된 패턴에 대해 적절한 스킬을 호출하라
-규칙 3: 코드 변경을 직접 하지 말고 executor droid에게 위임하라
-규칙 4: Architect droid 검증 없이 완료하지 마라
+Rule 1: ALWAYS delegate substantive work to specialized Custom Droids
+Rule 2: ALWAYS invoke appropriate skills for recognized patterns
+Rule 3: NEVER make code changes directly - delegate to executor droid
+Rule 4: NEVER complete without Architect droid verification
 ```
 
-### 1.3 주요 기능
+### 1.3 Key Features
 
-| 기능 | 설명 |
-|------|------|
-| **32개의 계층형 Droids** | LOW/MEDIUM/HIGH 계층(Haiku/Sonnet/Opus)의 특화된 Custom Droids |
-| **35개 이상의 Skill** | 조합 가능한 동작 (autopilot, ralph, ultrawork, planner 등) |
-| **매직 키워드** | 학습 곡선이 없는 자연어 트리거 |
-| **검증 프로토콜** | 완료 주장 전 필수 증거 |
-| **스마트 모델 라우팅** | 지능적인 계층 선택을 통한 비용 최적화 |
-| **지속성 모드** | 완료 보장을 위한 Ralph-loop 및 ultrawork |
+| Feature | Description |
+|---------|-------------|
+| **32 Tiered Droids** | Specialized Custom Droids in LOW/MEDIUM/HIGH tiers (Haiku/Sonnet/Opus) |
+| **35+ Skills** | Composable behaviors (autopilot, ralph, ultrawork, planner, etc.) |
+| **Magic Keywords** | Natural language triggers with zero learning curve |
+| **Verification Protocol** | Mandatory evidence before completion claims |
+| **Smart Model Routing** | Cost optimization through intelligent tier selection |
+| **Persistence Modes** | Ralph-loop and ultrawork for completion guarantee |
 
 ---
 
-## 2. 아키텍처
+## 2. Architecture
 
-### 2.1 고수준 아키텍처
+### 2.1 High-Level Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         사용자 요청                              │
+│                         User Request                              │
 └─────────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
@@ -75,7 +75,7 @@ oh-my-droid는 Factory AI의 Droid CLI를 단일 수행자에서 복잡도 계�
 │  │  │         │               │               │               │││
 │  │  │         ▼               ▼               ▼               │││
 │  │  │  ┌─────────────────────────────────────────────────────┐│││
-│  │  │  │              상태 관리                              ││││
+│  │  │  │              State Management                       ││││
 │  │  │  │  .omd/ (local) | ~/.factory/omd/ (global)          ││││
 │  │  │  └─────────────────────────────────────────────────────┘│││
 │  │  └─────────────────────────────────────────────────────────┘││
@@ -84,7 +84,7 @@ oh-my-droid는 Factory AI의 Droid CLI를 단일 수행자에서 복잡도 계�
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    특화된 Custom Droids                          │
+│                    Specialized Custom Droids                      │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
 │  │ Architect│  │ Executor │  │ Designer │  │ Planner  │  ...  │
 │  │  (Opus)  │  │ (Sonnet) │  │ (Sonnet) │  │  (Opus)  │       │
@@ -92,169 +92,169 @@ oh-my-droid는 Factory AI의 Droid CLI를 단일 수행자에서 복잡도 계�
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 2.2 Skill 조합 계층
+### 2.2 Skill Composition Layers
 
 ```
-[보장 계층: ralph]
+[Guarantee Layer: ralph]
         ↓
-[향상 계층: ultrawork + git-master + frontend-ui-ux]
+[Enhancement Layer: ultrawork + git-master + frontend-ui-ux]
         ↓
-[실행 계층: default | orchestrate | planner]
+[Execution Layer: default | orchestrate | planner]
 ```
 
-### 2.3 데이터 흐름
+### 2.3 Data Flow
 
 ```
-사용자 입력
+User Input
     │
     ▼
-UserPromptSubmit Hook → 키워드 탐지 → 모드 활성화
+UserPromptSubmit Hook → Keyword Detection → Mode Activation
     │
     ▼
-SessionStart Hook → 상태 복원 → 컨텍스트 주입
+SessionStart Hook → State Restoration → Context Injection
     │
     ▼
-PreToolUse Hook → 위임 강제 → Tool 수정
+PreToolUse Hook → Delegation Enforcement → Tool Modification
     │
     ▼
-Tool 실행
+Tool Execution
     │
     ▼
-PostToolUse Hook → 검증 → 컨텍스트 업데이트
+PostToolUse Hook → Verification → Context Update
     │
     ▼
-Stop Hook → 완료 확인 → 계속/중지 허용
+Stop Hook → Completion Check → Allow Continue/Stop
 ```
 
 ---
 
-## 3. 디렉토리 구조
+## 3. Directory Structure
 
 ```
 oh-my-droid/
-├── .factory-plugin/              # Plugin manifest (Droid 전용)
-│   ├── plugin.json               # Plugin 설정
-│   └── marketplace.json          # Marketplace 메타데이터
+├── .factory-plugin/              # Plugin manifest (Droid-specific)
+│   ├── plugin.json               # Plugin configuration
+│   └── marketplace.json          # Marketplace metadata
 │
-├── droids/                       # Custom Droid 정의 (Droid 표준 형식)
-│   ├── architect.md              # 전략적 조언자 (Opus, READ-ONLY)
-│   ├── architect-medium.md       # 표준 분석 (Sonnet)
-│   ├── architect-low.md          # 빠른 조회 (Haiku)
-│   ├── executor.md               # 작업 실행자 (Sonnet)
-│   ├── executor-low.md           # 단순 작업 (Haiku)
-│   ├── executor-high.md          # 복잡한 작업 (Opus)
-│   ├── designer.md               # UI/UX 전문가 (Sonnet)
-│   ├── designer-low.md           # 단순 스타일링 (Haiku)
-│   ├── designer-high.md          # 복잡한 UI (Opus)
-│   ├── planner.md                # 전략 계획 (Opus)
-│   ├── critic.md                 # 계획 검토 (Opus)
-│   ├── analyst.md                # 사전 계획 (Opus)
-│   ├── explore.md                # 빠른 검색 (Haiku)
-│   ├── explore-medium.md         # 철저한 검색 (Sonnet)
-│   ├── explore-high.md           # 아키텍처 검색 (Opus)
-│   ├── researcher.md             # 문서 연구 (Sonnet)
-│   ├── researcher-low.md         # 빠른 조회 (Haiku)
-│   ├── scientist.md              # 데이터 분석 (Sonnet)
-│   ├── scientist-low.md          # 빠른 통계 (Haiku)
-│   ├── scientist-high.md         # ML/복잡한 작업 (Opus)
-│   ├── qa-tester.md              # CLI 테스팅 (Sonnet)
-│   ├── qa-tester-high.md         # 복잡한 테스팅 (Opus)
-│   ├── security-reviewer.md      # 보안 감사 (Opus)
-│   ├── security-reviewer-low.md  # 빠른 스캔 (Haiku)
-│   ├── build-fixer.md            # 빌드 에러 (Sonnet)
-│   ├── build-fixer-low.md        # 단순 수정 (Haiku)
-│   ├── tdd-guide.md              # TDD 워크플로우 (Sonnet)
-│   ├── tdd-guide-low.md          # 테스트 제안 (Haiku)
-│   ├── code-reviewer.md          # 코드 리뷰 (Opus)
-│   ├── code-reviewer-low.md      # 빠른 확인 (Haiku)
-│   ├── writer.md                 # 문서화 (Haiku)
-│   ├── vision.md                 # 시각적 분석 (Sonnet)
-│   └── templates/                # Droid 생성 템플릿
+├── droids/                       # Custom Droid definitions (Droid standard format)
+│   ├── architect.md              # Strategic advisor (Opus, READ-ONLY)
+│   ├── architect-medium.md       # Standard analysis (Sonnet)
+│   ├── architect-low.md          # Quick lookup (Haiku)
+│   ├── executor.md               # Task executor (Sonnet)
+│   ├── executor-low.md           # Simple tasks (Haiku)
+│   ├── executor-high.md          # Complex tasks (Opus)
+│   ├── designer.md               # UI/UX expert (Sonnet)
+│   ├── designer-low.md           # Simple styling (Haiku)
+│   ├── designer-high.md          # Complex UI (Opus)
+│   ├── planner.md                # Strategic planning (Opus)
+│   ├── critic.md                 # Plan review (Opus)
+│   ├── analyst.md                # Pre-planning (Opus)
+│   ├── explore.md                # Fast search (Haiku)
+│   ├── explore-medium.md         # Thorough search (Sonnet)
+│   ├── explore-high.md           # Architecture search (Opus)
+│   ├── researcher.md             # Document research (Sonnet)
+│   ├── researcher-low.md         # Quick lookup (Haiku)
+│   ├── scientist.md              # Data analysis (Sonnet)
+│   ├── scientist-low.md          # Quick statistics (Haiku)
+│   ├── scientist-high.md         # ML/complex tasks (Opus)
+│   ├── qa-tester.md              # CLI testing (Sonnet)
+│   ├── qa-tester-high.md         # Complex testing (Opus)
+│   ├── security-reviewer.md      # Security audit (Opus)
+│   ├── security-reviewer-low.md  # Quick scan (Haiku)
+│   ├── build-fixer.md            # Build errors (Sonnet)
+│   ├── build-fixer-low.md        # Simple fixes (Haiku)
+│   ├── tdd-guide.md              # TDD workflow (Sonnet)
+│   ├── tdd-guide-low.md          # Test suggestions (Haiku)
+│   ├── code-reviewer.md          # Code review (Opus)
+│   ├── code-reviewer-low.md      # Quick check (Haiku)
+│   ├── writer.md                 # Documentation (Haiku)
+│   ├── vision.md                 # Visual analysis (Sonnet)
+│   └── templates/                # Droid creation templates
 │       ├── base-droid.md
 │       ├── tier-instructions.md
 │       └── README.md
 │
-├── skills/                       # Skill 정의
-│   ├── autopilot/SKILL.md        # 완전 자율 실행
-│   ├── ultrapilot/SKILL.md       # 병렬 autopilot
-│   ├── ralph/SKILL.md            # 지속성 루프
-│   ├── ultrawork/SKILL.md        # 최대 병렬화
-│   ├── ecomode/SKILL.md          # 토큰 효율 모드
-│   ├── planner/SKILL.md          # 전략 계획
-│   ├── plan/SKILL.md             # 계획 세션
-│   ├── ralplan/SKILL.md          # 반복적 합의
-│   ├── review/SKILL.md           # Critic 검토
-│   ├── analyze/SKILL.md          # 심층 분석
-│   ├── deepsearch/SKILL.md       # 코드베이스 검색
-│   ├── deepinit/SKILL.md         # AGENTS.md 생성
-│   ├── research/SKILL.md         # 병렬 연구
-│   ├── ultraqa/SKILL.md          # QA 순환
-│   ├── tdd/SKILL.md              # TDD 워크플로우
-│   ├── frontend-ui-ux/SKILL.md   # 디자인 감각
-│   ├── git-master/SKILL.md       # Git 전문성
-│   ├── swarm/SKILL.md            # 조정된 에이전트들
-│   ├── pipeline/SKILL.md         # 순차적 체이닝
-│   ├── orchestrate/SKILL.md      # 핵심 오케스트레이션
-│   ├── cancel/SKILL.md           # 통합 취소
+├── skills/                       # Skill definitions
+│   ├── autopilot/SKILL.md        # Fully autonomous execution
+│   ├── ultrapilot/SKILL.md       # Parallel autopilot
+│   ├── ralph/SKILL.md            # Persistence loop
+│   ├── ultrawork/SKILL.md        # Maximum parallelization
+│   ├── ecomode/SKILL.md          # Token-efficient mode
+│   ├── planner/SKILL.md          # Strategic planning
+│   ├── plan/SKILL.md             # Planning session
+│   ├── ralplan/SKILL.md          # Iterative consensus
+│   ├── review/SKILL.md           # Critic review
+│   ├── analyze/SKILL.md          # Deep analysis
+│   ├── deepsearch/SKILL.md       # Codebase search
+│   ├── deepinit/SKILL.md         # AGENTS.md generation
+│   ├── research/SKILL.md         # Parallel research
+│   ├── ultraqa/SKILL.md          # QA cycling
+│   ├── tdd/SKILL.md              # TDD workflow
+│   ├── frontend-ui-ux/SKILL.md   # Design sensibility
+│   ├── git-master/SKILL.md       # Git expertise
+│   ├── swarm/SKILL.md            # Coordinated agents
+│   ├── pipeline/SKILL.md         # Sequential chaining
+│   ├── orchestrate/SKILL.md      # Core orchestration
+│   ├── cancel/SKILL.md           # Unified cancellation
 │   ├── cancel-autopilot/SKILL.md
 │   ├── cancel-ralph/SKILL.md
 │   ├── cancel-ultrawork/SKILL.md
 │   ├── cancel-ultraqa/SKILL.md
-│   ├── learner/SKILL.md          # Skill 추출
-│   ├── note/SKILL.md             # 메모리 시스템
-│   ├── doctor/SKILL.md           # 진단
-│   ├── hud/SKILL.md              # 상태 표시줄 설정
-│   ├── help/SKILL.md             # 사용 가이드
-│   ├── omd-setup/SKILL.md        # 일회성 설정
-│   ├── omd-default/SKILL.md      # 로컬 프로젝트 설정
-│   ├── omd-default-global/SKILL.md # 글로벌 설정
-│   ├── ralph-init/SKILL.md       # PRD 초기화
-│   ├── build-fix/SKILL.md        # 빌드 에러 수정
-│   ├── code-review/SKILL.md      # 종합 코드 리뷰
-│   ├── security-review/SKILL.md  # 종합 보안 리뷰
-│   ├── release/SKILL.md          # 릴리스 워크플로우
-│   ├── skill/SKILL.md            # 로컬 skill 관리
-│   ├── local-skills-setup/SKILL.md # 로컬 skill 설정
-│   ├── mcp-setup/SKILL.md        # MCP 서버 설정
-│   └── learn-about-omd/SKILL.md  # OMD 학습 가이드
+│   ├── learner/SKILL.md          # Skill extraction
+│   ├── note/SKILL.md             # Memory system
+│   ├── doctor/SKILL.md           # Diagnostics
+│   ├── hud/SKILL.md              # Status bar configuration
+│   ├── help/SKILL.md             # Usage guide
+│   ├── omd-setup/SKILL.md        # One-time setup
+│   ├── omd-default/SKILL.md      # Local project configuration
+│   ├── omd-default-global/SKILL.md # Global configuration
+│   ├── ralph-init/SKILL.md       # PRD initialization
+│   ├── build-fix/SKILL.md        # Build error fixing
+│   ├── code-review/SKILL.md      # Comprehensive code review
+│   ├── security-review/SKILL.md  # Comprehensive security review
+│   ├── release/SKILL.md          # Release workflow
+│   ├── skill/SKILL.md            # Local skill management
+│   ├── local-skills-setup/SKILL.md # Local skill setup
+│   ├── mcp-setup/SKILL.md        # MCP server setup
+│   └── learn-about-omd/SKILL.md  # OMD learning guide
 │
-├── commands/                     # Command 문서
+├── commands/                     # Command documentation
 │   ├── help.md
 │   ├── autopilot.md
 │   ├── ralph.md
 │   ├── ultrawork.md
-│   └── ... (skills 미러링)
+│   └── ... (mirrors skills)
 │
-├── hooks/                        # Hook 설정
-│   └── hooks.json                # 메인 hooks 설정
+├── hooks/                        # Hook configuration
+│   └── hooks.json                # Main hooks configuration
 │
-├── scripts/                      # Hook 구현 스크립트
-│   ├── keyword-detector.mjs      # UserPromptSubmit: 매직 키워드
-│   ├── skill-injector.mjs        # UserPromptSubmit: 학습된 스킬
-│   ├── session-start.mjs         # SessionStart: 상태 복원
-│   ├── pre-tool-enforcer.mjs     # PreToolUse: 위임 강제
-│   ├── post-tool-verifier.mjs    # PostToolUse: 검증
-│   ├── pre-compact.mjs           # PreCompact: 지혜 보존
-│   ├── session-end.mjs           # SessionEnd: 정리 및 통계
-│   └── persistent-mode.mjs       # Stop: 계속 강제
+├── scripts/                      # Hook implementation scripts
+│   ├── keyword-detector.mjs      # UserPromptSubmit: magic keywords
+│   ├── skill-injector.mjs        # UserPromptSubmit: learned skills
+│   ├── session-start.mjs         # SessionStart: state restoration
+│   ├── pre-tool-enforcer.mjs     # PreToolUse: delegation enforcement
+│   ├── post-tool-verifier.mjs    # PostToolUse: verification
+│   ├── pre-compact.mjs           # PreCompact: wisdom preservation
+│   ├── session-end.mjs           # SessionEnd: cleanup and statistics
+│   └── persistent-mode.mjs       # Stop: continuation enforcement
 │
-├── src/                          # TypeScript 소스 (선택적)
-│   ├── index.ts                  # 메인 진입점
-│   ├── agents/                   # Agent 유틸리티
-│   ├── features/                 # 기능 모듈
-│   ├── hooks/                    # Hook 핸들러
-│   └── tools/                    # 커스텀 도구
+├── src/                          # TypeScript source (optional)
+│   ├── index.ts                  # Main entry point
+│   ├── agents/                   # Agent utilities
+│   ├── features/                 # Feature modules
+│   ├── hooks/                    # Hook handlers
+│   └── tools/                    # Custom tools
 │
-├── docs/                         # 문서
+├── docs/                         # Documentation
 │   ├── ARCHITECTURE.md
 │   ├── REFERENCE.md
 │   ├── FEATURES.md
 │   └── MIGRATION.md
 │
-├── AGENTS.md                     # 프로젝트 지식 베이스
-├── README.md                     # 사용자 대상 문서
-├── package.json                  # NPM 설정
-└── tsconfig.json                 # TypeScript 설정
+├── AGENTS.md                     # Project knowledge base
+├── README.md                     # User-facing documentation
+├── package.json                  # NPM configuration
+└── tsconfig.json                 # TypeScript configuration
 ```
 
 ---
@@ -263,7 +263,7 @@ oh-my-droid/
 
 ### 4.1 plugin.json
 
-위치: `.factory-plugin/plugin.json`
+Location: `.factory-plugin/plugin.json`
 
 ```json
 {
@@ -283,7 +283,7 @@ oh-my-droid/
 
 ### 4.2 marketplace.json
 
-위치: `.factory-plugin/marketplace.json`
+Location: `.factory-plugin/marketplace.json`
 
 ```json
 {
@@ -305,13 +305,13 @@ oh-my-droid/
 
 ---
 
-## 5. Hooks 시스템
+## 5. Hooks System
 
-### 5.1 Hooks 설정
+### 5.1 Hooks Configuration
 
-위치: `hooks/hooks.json`
+Location: `hooks/hooks.json`
 
-> **참고:** Droid hooks 레퍼런스에 따르면, matchers는 **PreToolUse와 PostToolUse 이벤트에만 적용됩니다**. SessionStart와 같은 이벤트의 경우, `source` 필드는 입력 JSON에 전달되며 스크립트 자체에서 처리해야 합니다.
+> **Note:** According to the Droid hooks reference, matchers are **only applicable to PreToolUse and PostToolUse events**. For events like SessionStart, the `source` field is passed in the input JSON and must be handled within the script itself.
 
 ```json
 {
@@ -461,13 +461,13 @@ oh-my-droid/
 }
 ```
 
-### 5.2 Hook 스크립트 설계
+### 5.2 Hook Script Design
 
 #### 5.2.1 keyword-detector.mjs
 
-**목적:** 매직 키워드 탐지 및 모드 활성화
+**Purpose:** Magic keyword detection and mode activation
 
-**입력 (stdin):**
+**Input (stdin):**
 ```json
 {
   "session_id": "abc123",
@@ -479,7 +479,7 @@ oh-my-droid/
 }
 ```
 
-**출력 (stdout):**
+**Output (stdout):**
 ```json
 {
   "hookSpecificOutput": {
@@ -489,9 +489,9 @@ oh-my-droid/
 }
 ```
 
-**탐지할 키워드:**
-| 키워드 | 모드 | 상태 파일 |
-|--------|------|----------|
+**Keywords to Detect:**
+| Keyword | Mode | State File |
+|---------|------|------------|
 | `ultrawork`, `ulw`, `uw`, `fast`, `parallel` | Ultrawork | `.omd/ultrawork-state.json` |
 | `ralph`, `don't stop`, `must complete` | Ralph | `.omd/ralph-state.json` |
 | `autopilot`, `build me`, `I want a` | Autopilot | `.omd/autopilot-state.json` |
@@ -502,83 +502,83 @@ oh-my-droid/
 
 #### 5.2.2 session-start.mjs
 
-**목적:** 세션 시작 시 상태 복원
+**Purpose:** State restoration at session start
 
-**작업:**
-1. 활성 ultrawork 상태 확인 → 계속 컨텍스트 주입
-2. 활성 ralph-loop 상태 확인 → PRD 컨텍스트 주입
-3. 미완료 todos 카운트 → 알림 주입
-4. notepad Priority Context 읽기 → 존재 시 주입
-5. HUD 설정 확인 → 설정되지 않았으면 경고
+**Tasks:**
+1. Check for active ultrawork state → inject continuation context
+2. Check for active ralph-loop state → inject PRD context
+3. Count incomplete todos → inject notification
+4. Read notepad Priority Context → inject if exists
+5. Check HUD configuration → warn if not set
 
-**출력:**
+**Output:**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
-    "additionalContext": "<session-restore>\n[복원된 상태 정보]\n</session-restore>"
+    "additionalContext": "<session-restore>\n[Restored state information]\n</session-restore>"
   }
 }
 ```
 
 #### 5.2.3 pre-tool-enforcer.mjs
 
-**목적:** 위임 규칙 강제 및 알림 주입
+**Purpose:** Delegation rule enforcement and notification injection
 
-**작업:**
-1. 미완료 todos 카운트
-2. 도구별 알림 생성:
-   - `Task` → "병렬로 여러 에이전트 실행"
-   - `Bash` → "독립적인 작업을 위한 병렬 실행 사용"
-   - `Edit|Write` → "executor 에이전트에 위임 고려"
-   - `Read|Grep|Glob` → "병렬로 검색 결합"
+**Tasks:**
+1. Count incomplete todos
+2. Generate tool-specific notifications:
+   - `Task` → "Run multiple agents in parallel"
+   - `Bash` → "Use parallel execution for independent tasks"
+   - `Edit|Write` → "Consider delegating to executor agent"
+   - `Read|Grep|Glob` → "Combine searches in parallel"
 
-**출력 (JSON):**
+**Output (JSON):**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "PreToolUse",
-    "additionalContext": "[2 활성, 3 대기 중 todos] 도구 알림..."
+    "additionalContext": "[2 active, 3 pending todos] Tool notification..."
   }
 }
 ```
 
-**위임 경고 (소스 파일용):**
+**Delegation Warning (for source files):**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "PreToolUse",
     "permissionDecision": "ask",
-    "permissionDecisionReason": "이 코드 변경을 executor 에이전트에 위임하는 것을 고려하세요"
+    "permissionDecisionReason": "Consider delegating this code change to an executor agent"
   }
 }
 ```
 
 #### 5.2.4 post-tool-verifier.mjs
 
-**목적:** 도구 결과 검증 및 학습 캡처
+**Purpose:** Tool result verification and learning capture
 
-**작업:**
-1. 세션 통계 업데이트
-2. `<remember>` 태그 처리 → notepad에 저장
-3. 실패 탐지 → 가이드 제공
-4. 도구별 검증 프롬프트
+**Tasks:**
+1. Update session statistics
+2. Process `<remember>` tags → save to notepad
+3. Detect failures → provide guidance
+4. Tool-specific verification prompts
 
-**출력:**
+**Output:**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "PostToolUse",
-    "additionalContext": "진행하기 전에 변경사항이 예상대로 작동하는지 확인하세요."
+    "additionalContext": "Verify that changes work as expected before proceeding."
   }
 }
 ```
 
 #### 5.2.5 pre-compact.mjs
 
-**목적:** 압축 전 지혜와 상태 보존
+**Purpose:** Preserve wisdom and state before compaction
 
-**입력 (stdin):**
+**Input (stdin):**
 ```json
 {
   "session_id": "abc123",
@@ -591,27 +591,27 @@ oh-my-droid/
 }
 ```
 
-**작업:**
-1. 휘발성 notepad 항목을 디스크에 저장
-2. 현재 세션 통계 유지
-3. 복원을 위한 압축 요약 생성
-4. 압축 인식 컨텍스트 주입
+**Tasks:**
+1. Save volatile notepad entries to disk
+2. Persist current session statistics
+3. Generate compaction summary for restoration
+4. Inject compaction-aware context
 
-**출력:**
+**Output:**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "PreCompact",
-    "additionalContext": "상태 보존됨. Notepad: 3개 학습, 2개 결정 저장됨."
+    "additionalContext": "State preserved. Notepad: 3 learnings, 2 decisions saved."
   }
 }
 ```
 
 #### 5.2.6 session-end.mjs
 
-**목적:** 세션 종료 시 정리 및 상태 유지
+**Purpose:** Cleanup and state persistence at session end
 
-**입력 (stdin):**
+**Input (stdin):**
 ```json
 {
   "session_id": "abc123",
@@ -623,46 +623,46 @@ oh-my-droid/
 }
 ```
 
-**작업:**
-1. 세션 통계를 디스크에 유지
-2. 임시 상태 파일 정리
-3. 글로벌 분석 업데이트
-4. 오래된 notepad 항목 정리 (>7일)
+**Tasks:**
+1. Persist session statistics to disk
+2. Clean up temporary state files
+3. Update global analytics
+4. Prune old notepad entries (>7 days)
 
-**출력:**
+**Output:**
 ```json
 {}
 ```
 
-> **참고:** SessionEnd hooks는 세션 종료를 차단할 수 없습니다. 정리 작업만을 위한 것입니다.
+> **Note:** SessionEnd hooks cannot block session termination. They are for cleanup tasks only.
 
 #### 5.2.7 persistent-mode.mjs
 
-**목적:** 조기 중지 방지
+**Purpose:** Prevent premature stopping
 
-**우선순위 수준:**
-1. **PRD가 있는 Ralph Loop** → 스토리 완료 확인, oracle 검증
-2. **Ultrawork Mode** → todos 완료 확인
-3. **일반 Todo 계속** → 미완료 todos 확인
+**Priority Levels:**
+1. **Ralph Loop with PRD** → Check story completion, oracle verification
+2. **Ultrawork Mode** → Check todos completion
+3. **Generic Todo Continuation** → Check incomplete todos
 
-**출력 (차단):**
+**Output (blocking):**
 ```json
 {
   "decision": "block",
-  "reason": "<ralph-loop-continuation iteration=\"3\">\n미완료 작업이 있습니다...\n</ralph-loop-continuation>"
+  "reason": "<ralph-loop-continuation iteration=\"3\">\nIncomplete tasks remain...\n</ralph-loop-continuation>"
 }
 ```
 
-**탈출 메커니즘:**
-- Ralph: 최대 10회 반복
-- Ultrawork: 최대 10회 강화
-- Generic: 최대 15회 시도
+**Escape Mechanisms:**
+- Ralph: Maximum 10 iterations
+- Ultrawork: Maximum 10 reinforcements
+- Generic: Maximum 15 attempts
 
 #### 5.2.8 error-recovery.mjs
 
-**목적:** 에러 복구 (context-window, edit-error, session-recovery 통합)
+**Purpose:** Error recovery (integrating context-window, edit-error, session-recovery)
 
-**입력 (stdin):**
+**Input (stdin):**
 ```json
 {
   "session_id": "abc123",
@@ -680,38 +680,38 @@ oh-my-droid/
 }
 ```
 
-**작업:**
-1. 에러 타입별 복구 전략 결정
-2. context_window_overflow → 압축 권장 및 중요 상태 보존
-3. edit_conflict → 파일 상태 확인 및 재시도 가이드
-4. tool_execution → 대안 접근법 제안
-5. session_corrupt → 상태 파일 복구 시도 및 안내
-6. 복구 가이드 컨텍스트 생성
+**Tasks:**
+1. Determine recovery strategy based on error type
+2. context_window_overflow → recommend compaction and preserve critical state
+3. edit_conflict → check file state and provide retry guidance
+4. tool_execution → suggest alternative approaches
+5. session_corrupt → attempt state file recovery and provide guidance
+6. Generate recovery guidance context
 
-**출력:**
+**Output:**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "Error",
-    "additionalContext": "<error-recovery type=\"context_window_overflow\">\n## 복구 가이드\n1. 컨텍스트 압축이 필요합니다\n2. 중요 상태가 보존되었습니다\n3. 다음 단계: ...\n</error-recovery>"
+    "additionalContext": "<error-recovery type=\"context_window_overflow\">\n## Recovery Guide\n1. Context compaction is needed\n2. Critical state has been preserved\n3. Next steps: ...\n</error-recovery>"
   }
 }
 ```
 
-**에러 타입별 복구 전략:**
-| 에러 타입 | 복구 전략 |
-|----------|----------|
-| `context_window_overflow` | 자동 압축 트리거, notepad에 상태 백업 |
-| `edit_conflict` | 파일 현재 상태 읽기, 충돌 해결 가이드 |
-| `tool_execution` | 대안 도구/접근법 제안 |
-| `session_corrupt` | 상태 파일 재초기화, 마지막 유효 상태 복원 |
-| `unknown` | 일반 복구 가이드, 디버그 정보 수집 |
+**Recovery Strategies by Error Type:**
+| Error Type | Recovery Strategy |
+|------------|-------------------|
+| `context_window_overflow` | Trigger auto-compaction, backup state to notepad |
+| `edit_conflict` | Read current file state, provide conflict resolution guidance |
+| `tool_execution` | Suggest alternative tools/approaches |
+| `session_corrupt` | Reinitialize state files, restore last valid state |
+| `unknown` | General recovery guidance, collect debug information |
 
 #### 5.2.9 session-idle.mjs
 
-**목적:** 유휴 상태 감지 및 지속성 루프 계속
+**Purpose:** Idle state detection and persistence loop continuation
 
-**입력 (stdin):**
+**Input (stdin):**
 ```json
 {
   "session_id": "abc123",
@@ -725,24 +725,24 @@ oh-my-droid/
 }
 ```
 
-**작업:**
-1. 활성 지속성 모드 확인 (ralph, ultrawork, autopilot)
-2. 미완료 todos 확인
-3. boulder 상태 확인
-4. 유휴 상태에서 계속해야 할 작업 결정
-5. 계속 프롬프트 생성 또는 유휴 허용
+**Tasks:**
+1. Check for active persistence modes (ralph, ultrawork, autopilot)
+2. Check for incomplete todos
+3. Check boulder state
+4. Determine if work should continue from idle state
+5. Generate continuation prompt or allow idle
 
-**출력 (계속 필요):**
+**Output (continuation needed):**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionIdle",
-    "additionalContext": "<session-idle-continuation>\nRalph loop가 활성화되어 있습니다. 미완료 작업이 있습니다:\n- [ ] Task 1\n- [ ] Task 2\n계속 진행하세요.\n</session-idle-continuation>"
+    "additionalContext": "<session-idle-continuation>\nRalph loop is active. Incomplete tasks remain:\n- [ ] Task 1\n- [ ] Task 2\nPlease continue.\n</session-idle-continuation>"
   }
 }
 ```
 
-**출력 (유휴 허용):**
+**Output (allow idle):**
 ```json
 {
   "hookSpecificOutput": {
@@ -751,18 +751,18 @@ oh-my-droid/
 }
 ```
 
-**지속성 우선순위:**
-1. Ralph Loop 활성 → 즉시 계속 프롬프트
-2. Ultrawork 활성 → 미완료 태스크 확인 후 계속
-3. Autopilot 활성 → 현재 단계 계속
-4. Boulder 활성 → 다음 boulder 항목 진행
-5. 미완료 Todos → 알림 후 사용자 결정 대기
+**Persistence Priority:**
+1. Ralph Loop active → immediate continuation prompt
+2. Ultrawork active → check incomplete tasks then continue
+3. Autopilot active → continue current phase
+4. Boulder active → proceed to next boulder item
+5. Incomplete Todos → notify then wait for user decision
 
 #### 5.2.10 messages-transform.mjs
 
-**목적:** API 호출 전 메시지 변환 (empty-message-sanitizer, thinking-block-validator)
+**Purpose:** Message transformation before API calls (empty-message-sanitizer, thinking-block-validator)
 
-**입력 (stdin):**
+**Input (stdin):**
 ```json
 {
   "session_id": "abc123",
@@ -796,14 +796,14 @@ oh-my-droid/
 }
 ```
 
-**작업:**
-1. 빈 메시지 제거 (empty-message-sanitizer)
-2. 연속된 동일 역할 메시지 병합
-3. thinking 블록 검증 및 정리 (thinking-block-validator)
-4. 잘못된 형식의 content 블록 수정
-5. 토큰 최적화를 위한 중복 제거
+**Tasks:**
+1. Remove empty messages (empty-message-sanitizer)
+2. Merge consecutive same-role messages
+3. Validate and clean thinking blocks (thinking-block-validator)
+4. Fix malformed content blocks
+5. Deduplicate for token optimization
 
-**출력:**
+**Output:**
 ```json
 {
   "hookSpecificOutput": {
@@ -831,20 +831,20 @@ oh-my-droid/
 }
 ```
 
-**변환 규칙:**
-| 규칙 | 설명 |
-|------|------|
-| Empty Message | 빈 content를 가진 메시지 제거 |
-| Consecutive Roles | 연속된 동일 역할 메시지 병합 |
-| Thinking Blocks | user 역할에서 thinking 블록 제거 |
-| Invalid Content | 잘못된 content 타입 수정 |
-| Whitespace Only | 공백만 있는 텍스트 정리 |
+**Transformation Rules:**
+| Rule | Description |
+|------|-------------|
+| Empty Message | Remove messages with empty content |
+| Consecutive Roles | Merge consecutive same-role messages |
+| Thinking Blocks | Remove thinking blocks from user role |
+| Invalid Content | Fix invalid content types |
+| Whitespace Only | Clean text containing only whitespace |
 
 #### 5.2.11 chat-params.mjs
 
-**목적:** think-mode 활성화 시 모델/파라미터 조정
+**Purpose:** Adjust model/parameters when think-mode is activated
 
-**입력 (stdin):**
+**Input (stdin):**
 ```json
 {
   "session_id": "abc123",
@@ -868,14 +868,14 @@ oh-my-droid/
 }
 ```
 
-**작업:**
-1. 활성 모드에 따른 파라미터 조정
-2. think-mode 활성화 여부 결정
-3. 모델 업그레이드/다운그레이드 결정
-4. thinking budget 조정
-5. 온도(temperature) 최적화
+**Tasks:**
+1. Adjust parameters based on active modes
+2. Determine whether to enable think-mode
+3. Determine model upgrade/downgrade
+4. Adjust thinking budget
+5. Optimize temperature
 
-**출력:**
+**Output:**
 ```json
 {
   "hookSpecificOutput": {
@@ -898,68 +898,68 @@ oh-my-droid/
 }
 ```
 
-**파라미터 조정 규칙:**
-| 조건 | 조정 내용 |
-|------|----------|
-| `ultrathink` 키워드 감지 | thinking.type = "enabled", budget_tokens = 20000 |
-| 복잡한 디버깅 작업 | model → Opus, thinking 활성화 |
-| ecomode 활성 | model → inherit/Haiku, thinking 비활성화 |
-| 단순 조회 작업 | model 유지, max_tokens 감소 |
-| 창의적 작업 | temperature 증가 (0.7-0.9) |
-| 코드 생성 | temperature 감소 (0.1-0.3) |
+**Parameter Adjustment Rules:**
+| Condition | Adjustment |
+|-----------|------------|
+| `ultrathink` keyword detected | thinking.type = "enabled", budget_tokens = 20000 |
+| Complex debugging task | model → Opus, enable thinking |
+| ecomode active | model → inherit/Haiku, disable thinking |
+| Simple lookup task | keep model, reduce max_tokens |
+| Creative task | increase temperature (0.7-0.9) |
+| Code generation | decrease temperature (0.1-0.3) |
 
-**모드별 기본 파라미터:**
-| 모드 | Model | Thinking | Temperature |
+**Default Parameters by Mode:**
+| Mode | Model | Thinking | Temperature |
 |------|-------|----------|-------------|
 | `ultrathink` | Opus | enabled (20k) | 0.3 |
 | `ultrawork` | Sonnet | enabled (8k) | 0.5 |
 | `ecomode` | inherit | disabled | 0.5 |
 | `autopilot` | Sonnet | enabled (10k) | 0.5 |
-| `ralph` | 현재 유지 | 현재 유지 | 현재 유지 |
+| `ralph` | keep current | keep current | keep current |
 
 ---
 
-## 6. Custom Droids 시스템
+## 6. Custom Droids System
 
-> **중요:** Droid의 Custom Droids 시스템을 사용합니다. 에이전트는 `.factory/droids/` 또는 `~/.factory/droids/` 디렉토리에 Markdown 파일로 정의됩니다.
+> **Important:** Uses Droid's Custom Droids system. Agents are defined as Markdown files in `.factory/droids/` or `~/.factory/droids/` directories.
 
-### 6.1 Droid 정의 형식 (Droid 표준)
+### 6.1 Droid Definition Format (Droid Standard)
 
-각 Custom Droid는 YAML frontmatter가 있는 Markdown 파일로 정의됩니다.
+Each Custom Droid is defined as a Markdown file with YAML frontmatter.
 
-**위치:**
-- 프로젝트 범위: `<repo>/.factory/droids/<name>.md` (팀과 공유)
-- 개인 범위: `~/.factory/droids/<name>.md` (개인용)
+**Location:**
+- Project scope: `<repo>/.factory/droids/<name>.md` (shared with team)
+- Personal scope: `~/.factory/droids/<name>.md` (personal use)
 
-**필수 필드:**
-- `name`: 소문자, 숫자, `-`, `_`만 허용
+**Required Fields:**
+- `name`: lowercase, numbers, `-`, `_` only
 
-**선택 필드:**
-- `description`: 500자 이내, UI에 표시됨
-- `model`: `inherit` (부모 세션 모델 사용) 또는 모델 ID
-- `reasoningEffort`: `low`, `medium`, `high` (호환 모델에서만, `model`이 `inherit`일 때 무시됨)
-- `tools`: 생략 시 모든 도구, 카테고리 문자열, 또는 도구 ID 배열
+**Optional Fields:**
+- `description`: up to 500 characters, displayed in UI
+- `model`: `inherit` (use parent session model) or model ID
+- `reasoningEffort`: `low`, `medium`, `high` (only on compatible models, ignored when `model` is `inherit`)
+- `tools`: omit for all tools, category string, or array of tool IDs
 
-> **참고:** `reasoningEffort`는 확장된 추론을 지원하는 모델(예: Sonnet)에서만 작동합니다. `model`이 `inherit`로 설정된 경우 이 필드는 무시됩니다.
+> **Note:** `reasoningEffort` only works on models that support extended reasoning (e.g., Sonnet). This field is ignored when `model` is set to `inherit`.
 
-**Tool 카테고리:**
+**Tool Categories:**
 
-| 카테고리 | Tool IDs | 목적 |
-|---------|----------|------|
-| `read-only` | `Read`, `LS`, `Grep`, `Glob` | 안전한 분석 및 파일 탐색 |
-| `edit` | `Create`, `Edit`, `ApplyPatch` | 코드 생성 및 수정 |
-| `execute` | `Execute` | 쉘 명령 실행 |
-| `web` | `WebSearch`, `FetchUrl` | 인터넷 연구 |
-| `mcp` | 동적으로 채워짐 | MCP 도구 |
+| Category | Tool IDs | Purpose |
+|----------|----------|---------|
+| `read-only` | `Read`, `LS`, `Grep`, `Glob` | Safe analysis and file exploration |
+| `edit` | `Create`, `Edit`, `ApplyPatch` | Code creation and modification |
+| `execute` | `Execute` | Shell command execution |
+| `web` | `WebSearch`, `FetchUrl` | Internet research |
+| `mcp` | Dynamically populated | MCP tools |
 
-> **참고:** `TodoWrite`는 모든 droid에 자동 포함됩니다.
+> **Note:** `TodoWrite` is automatically included in all droids.
 
-**예시 - Architect (READ-ONLY):**
+**Example - Architect (READ-ONLY):**
 
 ```markdown
 ---
 name: architect
-description: 전략적 아키텍처 및 디버깅 조언자 (READ-ONLY)
+description: Strategic architecture and debugging advisor (READ-ONLY)
 model: claude-opus-4-5-20251101
 reasoningEffort: high
 tools: read-only
@@ -967,268 +967,268 @@ tools: read-only
 
 # Oracle (Strategic Architecture Advisor)
 
-당신은 Oracle로, READ-ONLY 컨설팅을 제공하는 선임 수석 엔지니어입니다.
+You are Oracle, a senior principal engineer providing READ-ONLY consulting.
 
-## 중요 제약사항
+## Critical Constraints
 
-- **절대** 파일을 직접 수정하지 마세요
-- **절대** 다른 에이전트에게 작업을 위임하지 마세요
-- 분석과 권장사항에만 집중하세요
+- **NEVER** modify files directly
+- **NEVER** delegate tasks to other agents
+- Focus only on analysis and recommendations
 
-## 워크플로우
+## Workflow
 
-1. 요청 분석
-2. 관련 코드 탐색
-3. 전략적 권장사항 제공
-4. 위험과 트레이드오프 식별
+1. Analyze request
+2. Explore relevant code
+3. Provide strategic recommendations
+4. Identify risks and tradeoffs
 
-## 출력 형식
+## Output Format
 
-Summary: <한 줄 요약>
+Summary: <one-line summary>
 Findings:
-- <발견 사항>
+- <findings>
 
 Recommendations:
-- <권장사항>
+- <recommendations>
 
 Risks:
-- <위험 요소>
+- <risk factors>
 ```
 
-**예시 - Executor (편집 가능):**
+**Example - Executor (editable):**
 
 ```markdown
 ---
 name: executor
-description: 집중된 작업 실행자 - 코드 변경 및 구현
+description: Focused task executor - code changes and implementation
 model: claude-sonnet-4-5-20250929
 tools: ["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]
 ---
 
 # Sisyphus-Junior (Focused Task Executor)
 
-당신은 집중된 작업 실행자입니다. 주어진 작업을 직접 구현하세요.
+You are a focused task executor. Implement given tasks directly.
 
-## 중요 제약사항
+## Critical Constraints
 
-- 다른 에이전트에게 위임하지 마세요 (당신이 실행자입니다)
-- 주어진 작업 범위 내에서만 작업하세요
-- 완료 전 변경사항을 검증하세요
+- Do not delegate to other agents (you are the executor)
+- Work only within the given task scope
+- Verify changes before completion
 
-## 워크플로우
+## Workflow
 
-1. 작업 이해
-2. 관련 파일 읽기
-3. 변경사항 구현
-4. 테스트/빌드로 검증
+1. Understand the task
+2. Read relevant files
+3. Implement changes
+4. Verify with tests/build
 
-Summary: <완료 요약>
+Summary: <completion summary>
 Files Changed:
-- <파일 목록>
+- <file list>
 ```
 
-**예시 - Explore (빠른 검색):**
+**Example - Explore (fast search):**
 
 ```markdown
 ---
 name: explore
-description: 빠른 코드베이스 검색 전문가
+description: Fast codebase search expert
 model: inherit
 tools: read-only
 ---
 
 # Explore (Fast Codebase Search)
 
-빠르게 파일과 코드 패턴을 찾습니다.
+Quickly find files and code patterns.
 
-## 워크플로우
+## Workflow
 
-1. 검색 쿼리 분석
-2. Glob/Grep으로 파일 찾기
-3. 관련 코드 읽기
-4. 결과 요약
+1. Analyze search query
+2. Find files with Glob/Grep
+3. Read relevant code
+4. Summarize results
 
-Summary: <검색 결과 요약>
+Summary: <search results summary>
 Files Found:
-- <파일:라인>
+- <file:line>
 ```
 
-### 6.2 완전한 Custom Droid 카탈로그 (32개 Droids)
+### 6.2 Complete Custom Droid Catalog (32 Droids)
 
-> **Model ID 참고:**
+> **Model ID Reference:**
 > - Opus: `claude-opus-4-5-20251101`
 > - Sonnet: `claude-sonnet-4-5-20250929`
-> - Haiku: `inherit` (부모 세션 모델) 또는 사용 가능한 Haiku 모델 ID
+> - Haiku: `inherit` (parent session model) or available Haiku model ID
 >
-> `inherit`를 사용하면 부모 세션의 모델을 따릅니다.
+> Using `inherit` follows the parent session's model.
 
 #### Analysis Family (READ-ONLY)
-| Droid | Model | 목적 | Tools |
-|-------|-------|------|-------|
-| `architect` | `claude-opus-4-5-20251101` | 전략적 조언자, 디버깅 | `read-only` + `web` |
-| `architect-medium` | `claude-sonnet-4-5-20250929` | 표준 분석 | `read-only` |
-| `architect-low` | `inherit` | 빠른 질문 | `read-only` |
-| `analyst` | `claude-opus-4-5-20251101` | 사전 계획 요구사항 | `read-only` + `web` |
-| `critic` | `claude-opus-4-5-20251101` | 계획 검토 및 비평 | `read-only` |
+| Droid | Model | Purpose | Tools |
+|-------|-------|---------|-------|
+| `architect` | `claude-opus-4-5-20251101` | Strategic advisor, debugging | `read-only` + `web` |
+| `architect-medium` | `claude-sonnet-4-5-20250929` | Standard analysis | `read-only` |
+| `architect-low` | `inherit` | Quick questions | `read-only` |
+| `analyst` | `claude-opus-4-5-20251101` | Pre-planning requirements | `read-only` + `web` |
+| `critic` | `claude-opus-4-5-20251101` | Plan review and critique | `read-only` |
 
 #### Execution Family
-| Droid | Model | 목적 | Tools |
-|-------|-------|------|-------|
-| `executor` | `claude-sonnet-4-5-20250929` | 표준 작업 실행 | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]` |
-| `executor-low` | `inherit` | 단순 단일 파일 작업 | `["Read", "LS", "Grep", "Glob", "Edit", "Create"]` |
-| `executor-high` | `claude-opus-4-5-20251101` | 복잡한 다중 파일 리팩토링 | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]` |
+| Droid | Model | Purpose | Tools |
+|-------|-------|---------|-------|
+| `executor` | `claude-sonnet-4-5-20250929` | Standard task execution | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]` |
+| `executor-low` | `inherit` | Simple single-file tasks | `["Read", "LS", "Grep", "Glob", "Edit", "Create"]` |
+| `executor-high` | `claude-opus-4-5-20251101` | Complex multi-file refactoring | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]` |
 
 #### Search Family (READ-ONLY)
-| Droid | Model | 목적 | Tools |
-|-------|-------|------|-------|
-| `explore` | `inherit` | 빠른 파일/코드 검색 | `read-only` |
-| `explore-medium` | `claude-sonnet-4-5-20250929` | 철저한 크로스 모듈 검색 | `read-only` |
-| `explore-high` | `claude-opus-4-5-20251101` | 복잡한 아키텍처 검색, 설계 패턴 발견 | `read-only` |
+| Droid | Model | Purpose | Tools |
+|-------|-------|---------|-------|
+| `explore` | `inherit` | Fast file/code search | `read-only` |
+| `explore-medium` | `claude-sonnet-4-5-20250929` | Thorough cross-module search | `read-only` |
+| `explore-high` | `claude-opus-4-5-20251101` | Complex architecture search, design pattern discovery | `read-only` |
 
 #### Frontend Family
-| Droid | Model | 목적 | Tools |
-|-------|-------|------|-------|
-| `designer` | `claude-sonnet-4-5-20250929` | UI/UX 구현 | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]` |
-| `designer-low` | `inherit` | 단순 스타일링 | `["Read", "LS", "Grep", "Glob", "Edit", "Create"]` |
-| `designer-high` | `claude-opus-4-5-20251101` | 복잡한 UI 아키텍처 | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]` |
+| Droid | Model | Purpose | Tools |
+|-------|-------|---------|-------|
+| `designer` | `claude-sonnet-4-5-20250929` | UI/UX implementation | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]` |
+| `designer-low` | `inherit` | Simple styling | `["Read", "LS", "Grep", "Glob", "Edit", "Create"]` |
+| `designer-high` | `claude-opus-4-5-20251101` | Complex UI architecture | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]` |
 
 #### Data Science Family
-| Droid | Model | 목적 | Tools |
-|-------|-------|------|-------|
-| `scientist` | `claude-sonnet-4-5-20250929` | 데이터 분석, 통계 | `["Read", "LS", "Grep", "Glob", "Execute"]` |
-| `scientist-low` | `inherit` | 빠른 데이터 검사 | `read-only` |
-| `scientist-high` | `claude-opus-4-5-20251101` | ML, 가설 검증 | `["Read", "LS", "Grep", "Glob", "Execute"]` |
+| Droid | Model | Purpose | Tools |
+|-------|-------|---------|-------|
+| `scientist` | `claude-sonnet-4-5-20250929` | Data analysis, statistics | `["Read", "LS", "Grep", "Glob", "Execute"]` |
+| `scientist-low` | `inherit` | Quick data inspection | `read-only` |
+| `scientist-high` | `claude-opus-4-5-20251101` | ML, hypothesis testing | `["Read", "LS", "Grep", "Glob", "Execute"]` |
 
 #### QA & Testing Family
-| Droid | Model | 목적 | Tools |
-|-------|-------|------|-------|
-| `qa-tester` | `claude-sonnet-4-5-20250929` | 대화형 CLI 테스팅 | `["Read", "LS", "Grep", "Glob", "Execute"]` |
-| `qa-tester-high` | `claude-opus-4-5-20251101` | 복잡한 E2E/통합 테스팅 | `["Read", "LS", "Grep", "Glob", "Execute"]` |
-| `tdd-guide` | `claude-sonnet-4-5-20250929` | TDD 워크플로우 | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]` |
-| `tdd-guide-low` | `inherit` | 테스트 제안 | `read-only` |
+| Droid | Model | Purpose | Tools |
+|-------|-------|---------|-------|
+| `qa-tester` | `claude-sonnet-4-5-20250929` | Interactive CLI testing | `["Read", "LS", "Grep", "Glob", "Execute"]` |
+| `qa-tester-high` | `claude-opus-4-5-20251101` | Complex E2E/integration testing | `["Read", "LS", "Grep", "Glob", "Execute"]` |
+| `tdd-guide` | `claude-sonnet-4-5-20250929` | TDD workflow | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]` |
+| `tdd-guide-low` | `inherit` | Test suggestions | `read-only` |
 
 #### Security Family
-| Droid | Model | 목적 | Tools |
-|-------|-------|------|-------|
-| `security-reviewer` | `claude-opus-4-5-20251101` | OWASP 취약점 탐지 | `["Read", "LS", "Grep", "Glob", "WebSearch"]` |
-| `security-reviewer-low` | `inherit` | 빠른 보안 스캔 | `read-only` |
+| Droid | Model | Purpose | Tools |
+|-------|-------|---------|-------|
+| `security-reviewer` | `claude-opus-4-5-20251101` | OWASP vulnerability detection | `["Read", "LS", "Grep", "Glob", "WebSearch"]` |
+| `security-reviewer-low` | `inherit` | Quick security scan | `read-only` |
 
 #### Build & Quality Family
-| Droid | Model | 목적 | Tools |
-|-------|-------|------|-------|
-| `build-fixer` | `claude-sonnet-4-5-20250929` | TypeScript/빌드 에러 | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]` |
-| `build-fixer-low` | `inherit` | 단순 빌드 수정 | `["Read", "LS", "Grep", "Glob", "Edit", "Create"]` |
-| `code-reviewer` | `claude-opus-4-5-20251101` | 전문 코드 리뷰 | `read-only` |
-| `code-reviewer-low` | `inherit` | 빠른 품질 확인 | `read-only` |
+| Droid | Model | Purpose | Tools |
+|-------|-------|---------|-------|
+| `build-fixer` | `claude-sonnet-4-5-20250929` | TypeScript/build errors | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]` |
+| `build-fixer-low` | `inherit` | Simple build fixes | `["Read", "LS", "Grep", "Glob", "Edit", "Create"]` |
+| `code-reviewer` | `claude-opus-4-5-20251101` | Expert code review | `read-only` |
+| `code-reviewer-low` | `inherit` | Quick quality check | `read-only` |
 
 #### Research & Documentation Family
-| Droid | Model | 목적 | Tools |
-|-------|-------|------|-------|
-| `researcher` | `claude-sonnet-4-5-20250929` | 외부 문서 연구 | `["Read", "LS", "Grep", "Glob", "WebSearch", "FetchUrl"]` |
-| `researcher-low` | `inherit` | 빠른 문서 조회 | `["Read", "LS", "Grep", "Glob", "WebSearch"]` |
-| `writer` | `inherit` | 기술 문서화 | `["Read", "LS", "Grep", "Glob", "Edit", "Create"]` |
+| Droid | Model | Purpose | Tools |
+|-------|-------|---------|-------|
+| `researcher` | `claude-sonnet-4-5-20250929` | External document research | `["Read", "LS", "Grep", "Glob", "WebSearch", "FetchUrl"]` |
+| `researcher-low` | `inherit` | Quick document lookup | `["Read", "LS", "Grep", "Glob", "WebSearch"]` |
+| `writer` | `inherit` | Technical documentation | `["Read", "LS", "Grep", "Glob", "Edit", "Create"]` |
 
 #### Planning Family
-| Droid | Model | 목적 | Tools |
-|-------|-------|------|-------|
-| `planner` | `claude-opus-4-5-20251101` | 전략적 계획 | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute", "WebSearch"]` |
+| Droid | Model | Purpose | Tools |
+|-------|-------|---------|-------|
+| `planner` | `claude-opus-4-5-20251101` | Strategic planning | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute", "WebSearch"]` |
 
 #### Specialized
-| Droid | Model | 목적 | Tools |
-|-------|-------|------|-------|
-| `vision` | `claude-sonnet-4-5-20250929` | 이미지/PDF 분석 | `read-only` |
+| Droid | Model | Purpose | Tools |
+|-------|-------|---------|-------|
+| `vision` | `claude-sonnet-4-5-20250929` | Image/PDF analysis | `read-only` |
 
-### 6.3 계층 시스템
+### 6.3 Tier System
 
-| 계층 | Model | 비용 | 범위 | 파일 제한 | 사용 대상 |
-|------|-------|------|------|----------|----------|
-| **LOW** | `inherit` | $ | 단순, 잘 정의된 | 1-5 파일 | 조회, 단순 편집 |
-| **MEDIUM** | `claude-sonnet-4-5-20250929` | $$ | 중간 복잡도 | 5-20 파일 | 기능, 표준 작업 |
-| **HIGH** | `claude-opus-4-5-20251101` | $$$ | 복잡, 아키텍처 | 무제한 | 리팩토링, 디버깅 |
+| Tier | Model | Cost | Scope | File Limit | Use For |
+|------|-------|------|-------|------------|---------|
+| **LOW** | `inherit` | $ | Simple, well-defined | 1-5 files | Lookups, simple edits |
+| **MEDIUM** | `claude-sonnet-4-5-20250929` | $$ | Medium complexity | 5-20 files | Features, standard tasks |
+| **HIGH** | `claude-opus-4-5-20251101` | $$$ | Complex, architectural | Unlimited | Refactoring, debugging |
 
-> **참고:** `inherit`를 사용하면 부모 세션의 모델을 따르므로 비용 효율적입니다. LOW 계층의 droid들은 일반적으로 `inherit`를 사용하여 부모가 Haiku를 사용할 때 자동으로 Haiku를 사용합니다.
+> **Note:** Using `inherit` follows the parent session's model for cost efficiency. LOW tier droids typically use `inherit` to automatically use Haiku when the parent uses Haiku.
 
-### 6.4 Droid 선택 가이드
+### 6.4 Droid Selection Guide
 
-| 작업 유형 | 최적 Droid | Model 계층 |
-|-----------|-----------|-----------|
-| 빠른 코드 조회 | `explore` | LOW (inherit) |
-| 파일/패턴 찾기 | `explore` 또는 `explore-medium` | LOW/MEDIUM |
-| 복잡한 아키텍처 검색 | `explore-high` | HIGH (Opus) |
-| 단순 코드 변경 | `executor-low` | LOW (inherit) |
-| 기능 구현 | `executor` | MEDIUM (Sonnet) |
-| 복잡한 리팩토링 | `executor-high` | HIGH (Opus) |
-| 단순 이슈 디버깅 | `architect-low` | LOW (inherit) |
-| 복잡한 이슈 디버깅 | `architect` | HIGH (Opus) |
-| UI 컴포넌트 | `designer` | MEDIUM (Sonnet) |
-| 복잡한 UI 시스템 | `designer-high` | HIGH (Opus) |
-| 문서/주석 작성 | `writer` | LOW (inherit) |
-| 문서/API 연구 | `researcher` | MEDIUM (Sonnet) |
-| 이미지/다이어그램 분석 | `vision` | MEDIUM (Sonnet) |
-| 전략 계획 | `planner` | HIGH (Opus) |
-| 계획 검토/비평 | `critic` | HIGH (Opus) |
-| 보안 리뷰 | `security-reviewer` | HIGH (Opus) |
-| 빌드 에러 수정 | `build-fixer` | MEDIUM (Sonnet) |
-| TDD 워크플로우 | `tdd-guide` | MEDIUM (Sonnet) |
-| 코드 리뷰 | `code-reviewer` | HIGH (Opus) |
-| 데이터 분석 | `scientist` | MEDIUM (Sonnet) |
+| Task Type | Best Droid | Model Tier |
+|-----------|------------|------------|
+| Quick code lookup | `explore` | LOW (inherit) |
+| Find files/patterns | `explore` or `explore-medium` | LOW/MEDIUM |
+| Complex architecture search | `explore-high` | HIGH (Opus) |
+| Simple code change | `executor-low` | LOW (inherit) |
+| Feature implementation | `executor` | MEDIUM (Sonnet) |
+| Complex refactoring | `executor-high` | HIGH (Opus) |
+| Debug simple issue | `architect-low` | LOW (inherit) |
+| Debug complex issue | `architect` | HIGH (Opus) |
+| UI component | `designer` | MEDIUM (Sonnet) |
+| Complex UI system | `designer-high` | HIGH (Opus) |
+| Write docs/comments | `writer` | LOW (inherit) |
+| Research docs/APIs | `researcher` | MEDIUM (Sonnet) |
+| Analyze images/diagrams | `vision` | MEDIUM (Sonnet) |
+| Strategic planning | `planner` | HIGH (Opus) |
+| Review/critique plan | `critic` | HIGH (Opus) |
+| Security review | `security-reviewer` | HIGH (Opus) |
+| Fix build errors | `build-fixer` | MEDIUM (Sonnet) |
+| TDD workflow | `tdd-guide` | MEDIUM (Sonnet) |
+| Code review | `code-reviewer` | HIGH (Opus) |
+| Data analysis | `scientist` | MEDIUM (Sonnet) |
 
-### 6.5 Droid 호출 방법
+### 6.5 How to Invoke Droids
 
-Custom Droid는 **Task tool**을 통해 `subagent_type` 파라미터로 호출됩니다:
+Custom Droids are invoked via the **Task tool** with the `subagent_type` parameter:
 
 ```
-사용자: "code-reviewer droid로 이 diff를 검토해줘"
-또는
-사용자: "Run the subagent `architect` to analyze this architecture"
+User: "Review this diff with the code-reviewer droid"
+or
+User: "Run the subagent `architect` to analyze this architecture"
 ```
 
-Droid는 사용자 요청 없이도 자율적으로 Custom Droid를 호출할 수 있습니다.
+Droid can autonomously invoke Custom Droids without user request.
 
-### 6.6 Delegation Categories (위임 카테고리)
+### 6.6 Delegation Categories
 
-의미론적 작업 분류 시스템으로, 프롬프트 키워드를 기반으로 자동으로 모델 계층, 온도, thinking 예산을 결정합니다.
+A semantic task classification system that automatically determines model tier, temperature, and thinking budget based on prompt keywords.
 
-**카테고리 정의:**
+**Category Definitions:**
 
-| 카테고리 | 계층 | 온도 | Thinking | 용도 |
-|---------|------|------|----------|------|
-| `visual-engineering` | HIGH | 0.7 | high | UI/UX, 프론트엔드, 디자인 시스템 |
-| `ultrabrain` | HIGH | 0.3 | max | 복잡한 추론, 아키텍처, 심층 디버깅 |
-| `artistry` | MEDIUM | 0.9 | medium | 창의적 솔루션, 브레인스토밍 |
-| `quick` | LOW | 0.1 | low | 단순 조회, 기본 작업 |
-| `writing` | MEDIUM | 0.5 | medium | 문서화, 기술 작성 |
+| Category | Tier | Temperature | Thinking | Use For |
+|----------|------|-------------|----------|---------|
+| `visual-engineering` | HIGH | 0.7 | high | UI/UX, frontend, design systems |
+| `ultrabrain` | HIGH | 0.3 | max | Complex reasoning, architecture, deep debugging |
+| `artistry` | MEDIUM | 0.9 | medium | Creative solutions, brainstorming |
+| `quick` | LOW | 0.1 | low | Simple lookups, basic operations |
+| `writing` | MEDIUM | 0.5 | medium | Documentation, technical writing |
 
-**자동 감지 키워드:**
+**Auto-detection Keywords:**
 
-| 카테고리 | 감지 키워드 |
-|---------|------------|
+| Category | Detection Keywords |
+|----------|-------------------|
 | `visual-engineering` | UI, UX, frontend, design, component, styling, layout |
 | `ultrabrain` | debug, complex, architecture, refactor, analyze deeply |
 | `artistry` | creative, brainstorm, innovative, explore options |
 | `quick` | simple, quick, lookup, find, what is |
 | `writing` | document, write, README, comment, explain |
 
-**사용 예시:**
+**Usage Examples:**
 
 ```
-// "UI 컴포넌트 만들어줘" → visual-engineering 감지
+// "Create a UI component" → visual-engineering detected
 Task(subagent_type="designer", model="opus", temperature=0.7, thinking="high")
 
-// "이 버그 디버깅해줘" → ultrabrain 감지
+// "Debug this bug" → ultrabrain detected
 Task(subagent_type="architect", model="opus", temperature=0.3, thinking="max")
 
-// "UserService 찾아줘" → quick 감지
+// "Find UserService" → quick detected
 Task(subagent_type="explore", model="haiku", temperature=0.1, thinking="low")
 ```
 
 ---
 
-## 7. Skills 시스템
+## 7. Skills System
 
-### 7.1 Skill 정의 형식
+### 7.1 Skill Definition Format
 
-위치: `skills/{skill-name}/SKILL.md`
+Location: `skills/{skill-name}/SKILL.md`
 
 ```markdown
 ---
@@ -1238,114 +1238,114 @@ description: Maximum parallel execution mode
 
 # Ultrawork Skill
 
-병렬 에이전트 오케스트레이션으로 최대 성능 모드를 활성화합니다.
+Enables maximum performance mode with parallel agent orchestration.
 
-## 활성화 시
+## When Activated
 
-이 스킬은 다음과 같이 Droid의 능력을 향상시킵니다:
-1. 병렬 실행: 여러 에이전트를 동시에 실행
-2. 공격적 위임: 즉시 전문가에게 작업 라우팅
-3. 백그라운드 작업: 긴 작업에 run_in_background: true 사용
-4. 스마트 모델 라우팅: 토큰 절약을 위해 계층형 에이전트 사용
+This skill enhances Droid's capabilities as follows:
+1. Parallel execution: Run multiple agents simultaneously
+2. Aggressive delegation: Route tasks to specialists immediately
+3. Background tasks: Use run_in_background: true for long tasks
+4. Smart model routing: Use tiered agents to save tokens
 
-## 위임 강제 (중요)
+## Delegation Enforcement (Important)
 
-**당신은 오케스트레이터이지, 구현자가 아닙니다.**
+**You are an orchestrator, not an implementer.**
 
-| 작업 | 직접 수행 | 위임 |
-|------|---------|------|
-| 컨텍스트를 위한 파일 읽기 | 예 | - |
-| 진행 추적 (TODO) | 예 | - |
-| 병렬 에이전트 생성 | 예 | - |
-| **모든 코드 변경** | 절대 | executor |
-| **UI 작업** | 절대 | designer |
-| **문서** | 절대 | writer |
+| Task | Do Directly | Delegate |
+|------|-------------|----------|
+| Read files for context | Yes | - |
+| Track progress (TODO) | Yes | - |
+| Spawn parallel agents | Yes | - |
+| **All code changes** | Never | executor |
+| **UI work** | Never | designer |
+| **Documentation** | Never | writer |
 
 ...
 ```
 
-### 7.2 완전한 Skills 카탈로그 (35개 이상 Skills)
+### 7.2 Complete Skills Catalog (35+ Skills)
 
-#### 실행 모드
-| Skill | 목적 | 트리거 키워드 |
-|-------|------|--------------|
-| `autopilot` | 완전 자율 5단계 실행 | "autopilot", "build me", "I want a" |
-| `ultrapilot` | 병렬 autopilot (3-5배 빠름) | "ultrapilot", "parallel build" |
-| `ralph` | 검증될 때까지 지속성 루프 | "ralph", "don't stop", "must complete" |
-| `ultrawork` | 최대 병렬 실행 | "ulw", "ultrawork", "fast", "parallel" |
-| `ecomode` | 토큰 효율적 실행 | "eco", "ecomode", "budget" |
-| `swarm` | N개의 조정된 에이전트 | "swarm N agents" |
-| `pipeline` | 순차적 에이전트 체이닝 | "pipeline", "chain" |
+#### Execution Modes
+| Skill | Purpose | Trigger Keywords |
+|-------|---------|------------------|
+| `autopilot` | Fully autonomous 5-phase execution | "autopilot", "build me", "I want a" |
+| `ultrapilot` | Parallel autopilot (3-5x faster) | "ultrapilot", "parallel build" |
+| `ralph` | Persistence loop until verified | "ralph", "don't stop", "must complete" |
+| `ultrawork` | Maximum parallel execution | "ulw", "ultrawork", "fast", "parallel" |
+| `ecomode` | Token-efficient execution | "eco", "ecomode", "budget" |
+| `swarm` | N coordinated agents | "swarm N agents" |
+| `pipeline` | Sequential agent chaining | "pipeline", "chain" |
 
-#### 계획 & 분석
-| Skill | 목적 |
-|-------|------|
-| `plan` | 대화형 계획 인터뷰 |
-| `planner` | 전략 계획 컨설턴트 |
-| `ralplan` | 반복적 Planner→Architect→Critic 합의 |
-| `review` | Critic 기반 계획 검토 |
-| `analyze` | 심층 분석 및 조사 |
-| `deepsearch` | 다중 전략 코드베이스 검색 |
-| `deepinit` | AGENTS.md 계층 생성 |
-| `research` | 병렬 scientist 오케스트레이션 |
+#### Planning & Analysis
+| Skill | Purpose |
+|-------|---------|
+| `plan` | Interactive planning interview |
+| `planner` | Strategic planning consultant |
+| `ralplan` | Iterative Planner→Architect→Critic consensus |
+| `review` | Critic-based plan review |
+| `analyze` | Deep analysis and investigation |
+| `deepsearch` | Multi-strategy codebase search |
+| `deepinit` | AGENTS.md hierarchy generation |
+| `research` | Parallel scientist orchestration |
 
-#### 개발 워크플로우
-| Skill | 목적 |
-|-------|------|
-| `ultraqa` | QA 순환: test→fix→repeat |
-| `tdd` | 테스트 우선 개발 강제 |
-| `frontend-ui-ux` | 조용한 디자인 감각 (자동 활성화) |
-| `git-master` | Git 전문성 (자동 활성화) |
-| `ralph-init` | 스토리가 있는 PRD 초기화 |
-| `build-fix` | 빌드/TypeScript 에러 최소 변경으로 수정 |
-| `code-review` | 종합 코드 리뷰 실행 |
-| `security-review` | 종합 보안 리뷰 실행 |
+#### Development Workflows
+| Skill | Purpose |
+|-------|---------|
+| `ultraqa` | QA cycling: test→fix→repeat |
+| `tdd` | Test-first development enforcement |
+| `frontend-ui-ux` | Silent design sensibility (auto-activated) |
+| `git-master` | Git expertise (auto-activated) |
+| `ralph-init` | PRD initialization with stories |
+| `build-fix` | Fix build/TypeScript errors with minimal changes |
+| `code-review` | Run comprehensive code review |
+| `security-review` | Run comprehensive security review |
 
-#### 유틸리티
-| Skill | 목적 |
-|-------|------|
-| `cancel` | 통합 취소 (자동 탐지) |
-| `cancel-autopilot` | autopilot 취소 |
-| `cancel-ralph` | ralph loop 취소 |
-| `cancel-ultrawork` | ultrawork 취소 |
-| `cancel-ultraqa` | ultraqa 취소 |
-| `learner` | 재사용 가능한 스킬 추출 |
-| `note` | 압축 저항 메모리 |
-| `doctor` | 설치 진단 |
-| `hud` | 상태 표시줄 설정 |
-| `help` | 사용 가이드 |
-| `omd-setup` | 일회성 설정 마법사 |
-| `omd-default` | 로컬 프로젝트 설정 |
-| `omd-default-global` | 글로벌 설정 |
-| `release` | 자동화된 릴리스 워크플로우 |
-| `skill` | 로컬 skill 관리 (list, add, remove, search, edit) |
-| `local-skills-setup` | 로컬 skill 설정 및 관리 |
-| `mcp-setup` | MCP 서버 설정 |
-| `learn-about-omd` | OMD 사용 패턴 분석 및 추천 |
+#### Utilities
+| Skill | Purpose |
+|-------|---------|
+| `cancel` | Unified cancellation (auto-detection) |
+| `cancel-autopilot` | Cancel autopilot |
+| `cancel-ralph` | Cancel ralph loop |
+| `cancel-ultrawork` | Cancel ultrawork |
+| `cancel-ultraqa` | Cancel ultraqa |
+| `learner` | Extract reusable skill |
+| `note` | Compaction-resistant memory |
+| `doctor` | Installation diagnostics |
+| `hud` | Status bar configuration |
+| `help` | Usage guide |
+| `omd-setup` | One-time setup wizard |
+| `omd-default` | Local project configuration |
+| `omd-default-global` | Global configuration |
+| `release` | Automated release workflow |
+| `skill` | Local skill management (list, add, remove, search, edit) |
+| `local-skills-setup` | Local skill setup and management |
+| `mcp-setup` | MCP server setup |
+| `learn-about-omd` | OMD usage pattern analysis and recommendations |
 
-### 7.3 Skill 호출
+### 7.3 Skill Invocation
 
-**명시적:**
+**Explicit:**
 ```
 /oh-my-droid:autopilot Build a REST API
 /oh-my-droid:ralph Fix all bugs
 ```
 
-**암시적 (매직 키워드):**
+**Implicit (magic keywords):**
 ```
-"autopilot build me a dashboard" → autopilot 활성화
-"ulw fix all errors" → ultrawork 활성화
-"don't stop until it works" → ralph 활성화
+"autopilot build me a dashboard" → autopilot activated
+"ulw fix all errors" → ultrawork activated
+"don't stop until it works" → ralph activated
 ```
 
 ---
 
-## 8. 상태 관리
+## 8. State Management
 
-### 8.1 상태 파일 위치
+### 8.1 State File Locations
 
-| 상태 | 로컬 경로 | 글로벌 경로 |
-|------|---------|-----------|
+| State | Local Path | Global Path |
+|-------|------------|-------------|
 | Ultrawork | `.omd/ultrawork-state.json` | `~/.factory/omd/ultrawork-state.json` |
 | Ralph | `.omd/ralph-state.json` | - |
 | Autopilot | `.omd/autopilot-state.json` | - |
@@ -1369,7 +1369,7 @@ description: Maximum parallel execution mode
 | Global State | - | `~/.factory/omd/state/{name}.json` |
 | Global Droids | - | `~/.factory/droids/` |
 
-### 8.2 상태 파일 스키마
+### 8.2 State File Schemas
 
 #### ultrawork-state.json
 ```json
@@ -1426,13 +1426,13 @@ description: Maximum parallel execution mode
 }
 ```
 
-| 필드 | 설명 |
-|-----|------|
-| `goal_type` | QA 목표 유형 (tests, build, lint, typecheck, custom) |
-| `goal_pattern` | 커스텀 목표 패턴 |
-| `cycle` | 현재 사이클 번호 |
-| `max_cycles` | 최대 사이클 수 (기본: 5) |
-| `failures` | 실패 로그 배열 |
+| Field | Description |
+|-------|-------------|
+| `goal_type` | QA goal type (tests, build, lint, typecheck, custom) |
+| `goal_pattern` | Custom goal pattern |
+| `cycle` | Current cycle number |
+| `max_cycles` | Maximum number of cycles (default: 5) |
+| `failures` | Array of failure logs |
 
 #### ultrapilot-state.json
 ```json
@@ -1453,13 +1453,13 @@ description: Maximum parallel execution mode
 }
 ```
 
-| 필드 | 설명 |
-|-----|------|
-| `workers` | 활성 워커 상태 배열 |
-| `ownership` | 파일 소유권 맵핑 |
-| `totalWorkersSpawned` | 생성된 총 워커 수 |
-| `successfulWorkers` | 성공한 워커 수 |
-| `failedWorkers` | 실패한 워커 수 |
+| Field | Description |
+|-------|-------------|
+| `workers` | Array of active worker states |
+| `ownership` | File ownership mapping |
+| `totalWorkersSpawned` | Total workers spawned |
+| `successfulWorkers` | Number of successful workers |
+| `failedWorkers` | Number of failed workers |
 
 #### ecomode-state.json
 ```json
@@ -1492,81 +1492,81 @@ description: Maximum parallel execution mode
 [2024-01-26 10:30] Completed phase 1
 ```
 
-### 8.3 Notepad Wisdom 시스템
+### 8.3 Notepad Wisdom System
 
-위치: `.omd/notepads/{plan-name}/`
+Location: `.omd/notepads/{plan-name}/`
 
-| 파일 | 목적 |
-|------|------|
-| `learnings.md` | 기술적 발견, 패턴 |
-| `decisions.md` | 아키텍처 선택, 근거 |
-| `issues.md` | 알려진 문제, 해결 방법 |
-| `problems.md` | 차단 요소, 도전 과제 |
+| File | Purpose |
+|------|---------|
+| `learnings.md` | Technical discoveries, patterns |
+| `decisions.md` | Architecture choices, rationale |
+| `issues.md` | Known issues, workarounds |
+| `problems.md` | Blockers, challenges |
 
-#### Notepad API 함수
+#### Notepad API Functions
 
-| 함수 | 설명 | 반환값 |
-|------|------|--------|
-| `initPlanNotepad(planName)` | 플랜용 notepad 디렉토리 초기화 | `{ path: string }` |
-| `addLearning(planName, content)` | 기술적 발견 추가 | `{ success: boolean }` |
-| `addDecision(planName, content)` | 아키텍처 결정 추가 | `{ success: boolean }` |
-| `addIssue(planName, content)` | 알려진 이슈 추가 | `{ success: boolean }` |
-| `addProblem(planName, content)` | 차단 요소 추가 | `{ success: boolean }` |
-| `getWisdomSummary(planName)` | 전체 지혜 요약 | `{ learnings, decisions, issues, problems }` |
-| `readPlanWisdom(planName)` | 특정 플랜 지혜 읽기 | `PlanWisdom` object |
+| Function | Description | Return Value |
+|----------|-------------|--------------|
+| `initPlanNotepad(planName)` | Initialize notepad directory for plan | `{ path: string }` |
+| `addLearning(planName, content)` | Add technical discovery | `{ success: boolean }` |
+| `addDecision(planName, content)` | Add architecture decision | `{ success: boolean }` |
+| `addIssue(planName, content)` | Add known issue | `{ success: boolean }` |
+| `addProblem(planName, content)` | Add blocker | `{ success: boolean }` |
+| `getWisdomSummary(planName)` | Get full wisdom summary | `{ learnings, decisions, issues, problems }` |
+| `readPlanWisdom(planName)` | Read specific plan wisdom | `PlanWisdom` object |
 
-### 8.4 Context Persistence (컨텍스트 지속성)
+### 8.4 Context Persistence
 
-`<remember>` 태그를 사용하여 대화 압축(compaction)에서 살아남는 컨텍스트를 저장합니다.
+Use `<remember>` tags to save context that survives conversation compaction.
 
-**태그 형식:**
+**Tag Format:**
 
-| 태그 | 수명 | 용도 |
-|------|------|------|
-| `<remember>info</remember>` | 7일 | 세션별 컨텍스트 |
-| `<remember priority>info</remember>` | 영구 | 중요 패턴/사실 |
+| Tag | Lifetime | Use For |
+|-----|----------|---------|
+| `<remember>info</remember>` | 7 days | Session-specific context |
+| `<remember priority>info</remember>` | Permanent | Critical patterns/facts |
 
-**캡처 대상:**
-- 아키텍처 결정
-- 에러 해결 방법
-- 사용자 선호도
-- 중요한 코드 패턴
+**What to Capture:**
+- Architecture decisions
+- Error resolution methods
+- User preferences
+- Important code patterns
 
-**캡처하지 않을 대상:**
-- 진행 상황 (todos 사용)
-- 임시 상태
-- AGENTS.md에 있는 정보
+**What NOT to Capture:**
+- Progress (use todos)
+- Temporary state
+- Information in AGENTS.md
 
-**처리 흐름:**
-1. PostToolUse hook에서 `<remember>` 태그 감지
-2. 태그 내용을 notepad에 저장
-3. PreCompact hook에서 priority 항목 보존
-4. SessionStart hook에서 활성 컨텍스트 복원
+**Processing Flow:**
+1. PostToolUse hook detects `<remember>` tags
+2. Tag content saved to notepad
+3. PreCompact hook preserves priority items
+4. SessionStart hook restores active context
 
-### 8.5 Directory Diagnostics (디렉토리 진단)
+### 8.5 Directory Diagnostics
 
-프로젝트 레벨 타입 체킹을 위한 `lsp_diagnostics_directory` 도구.
+`lsp_diagnostics_directory` tool for project-level type checking.
 
-**전략:**
+**Strategies:**
 
-| 전략 | 설명 | 우선순위 |
-|------|------|---------|
-| `auto` | 자동 선택 (tsconfig.json 존재 시 tsc 선호) | 기본값 |
-| `tsc` | TypeScript 컴파일러 사용 (빠름) | tsconfig.json 필요 |
-| `lsp` | Language Server 사용 (폴백) | 모든 파일 순회 |
+| Strategy | Description | Priority |
+|----------|-------------|----------|
+| `auto` | Auto-select (prefers tsc when tsconfig.json exists) | Default |
+| `tsc` | Use TypeScript compiler (fast) | Requires tsconfig.json |
+| `lsp` | Use Language Server (fallback) | Iterates all files |
 
-**사용 시점:**
-- 커밋 전 전체 프로젝트 에러 확인
-- 리팩토링 후 타입 검증
-- 빌드 실패 진단
+**When to Use:**
+- Check entire project for errors before commit
+- Type verification after refactoring
+- Diagnose build failures
 
 ---
 
-## 9. 설정
+## 9. Configuration
 
-### 9.1 사용자 설정
+### 9.1 User Configuration
 
-위치: `~/.factory/omd.config.json`
+Location: `~/.factory/omd.config.json`
 
 ```json
 {
@@ -1620,9 +1620,9 @@ description: Maximum parallel execution mode
 }
 ```
 
-### 9.2 프로젝트 설정
+### 9.2 Project Configuration
 
-위치: `.factory/omd.config.json`
+Location: `.factory/omd.config.json`
 
 ```json
 {
@@ -1642,13 +1642,13 @@ description: Maximum parallel execution mode
 
 ---
 
-## 10. oh-my-claudecode와의 주요 차이점
+## 10. Key Differences from oh-my-claudecode
 
-### 10.1 플랫폼 차이
+### 10.1 Platform Differences
 
-| 측면 | oh-my-claudecode | oh-my-droid |
-|------|------------------|-------------|
-| **플랫폼** | Claude Code | Factory AI Droid |
+| Aspect | oh-my-claudecode | oh-my-droid |
+|--------|------------------|-------------|
+| **Platform** | Claude Code | Factory AI Droid |
 | **Plugin Dir** | `.claude-plugin/` | `.factory-plugin/` |
 | **Settings** | `~/.claude/settings.json` | `~/.factory/settings.json` |
 | **Project Settings** | `.claude/settings.json` | `.factory/settings.json` |
@@ -1658,35 +1658,35 @@ description: Maximum parallel execution mode
 | **Plugin Root Env** | `${CLAUDE_PLUGIN_ROOT}` | `${DROID_PLUGIN_ROOT}` |
 | **Transcript Path** | `~/.claude/projects/` | `~/.factory/projects/` |
 
-### 10.2 네이밍 규칙
+### 10.2 Naming Conventions
 
 | oh-my-claudecode | oh-my-droid |
 |------------------|-------------|
 | `omc` | `omd` |
-| `oh-my-claudecode:` | `omd-` (파일명 접두사) |
+| `oh-my-claudecode:` | `omd-` (filename prefix) |
 | `/oh-my-claudecode:help` | `/omd-help` |
 | `omc-setup` | `omd-setup` |
 | `.omc/` | `.omd/` |
-| `CLAUDE.md` | `FACTORY.md` 또는 프로젝트 지시 파일 |
+| `CLAUDE.md` | `FACTORY.md` or project instruction file |
 
-### 10.2.1 슬래시 명령어 아키텍처 결정
+### 10.2.1 Slash Command Architecture Decision
 
-**중요: Factory Droid와 Claude Code의 슬래시 명령어 시스템 차이**
+**Important: Slash Command System Differences Between Factory Droid and Claude Code**
 
-| 측면 | Claude Code | Factory Droid |
-|------|-------------|---------------|
-| **하위 폴더 지원** | 지원 (`sc/`, `oh-my-claudecode/`) | **미지원** (플랫 구조만) |
-| **플러그인 prefix** | `/oh-my-claudecode:setup` | **미지원** |
-| **명령어 위치** | `~/.claude/commands/{subfolder}/` | `~/.factory/commands/` (최상위만) |
-| **충돌 방지** | 하위 폴더로 네임스페이스 분리 | **파일명 접두사** 사용 |
+| Aspect | Claude Code | Factory Droid |
+|--------|-------------|---------------|
+| **Subfolder Support** | Supported (`sc/`, `oh-my-claudecode/`) | **Not Supported** (flat structure only) |
+| **Plugin Prefix** | `/oh-my-claudecode:setup` | **Not Supported** |
+| **Command Location** | `~/.claude/commands/{subfolder}/` | `~/.factory/commands/` (top-level only) |
+| **Conflict Prevention** | Namespace separation via subfolders | **Filename prefix** used |
 
-#### 설계 결정 배경
+#### Design Decision Background
 
-Factory Droid 공식 문서([custom-slash-commands.md](docs/droid/custom-slash-commands.md))에서 명시:
+As stated in the Factory Droid official documentation ([custom-slash-commands.md](docs/droid/custom-slash-commands.md)):
 
 > "Commands must live at the top level of the `commands` directory. Nested folders are ignored today."
 
-따라서 oh-my-droid는 다음과 같이 명령어를 설치합니다:
+Therefore, oh-my-droid installs commands as follows:
 
 ```
 ~/.factory/commands/
@@ -1697,50 +1697,50 @@ Factory Droid 공식 문서([custom-slash-commands.md](docs/droid/custom-slash-c
 └── ...                 → /omd-{skill-name}
 ```
 
-#### 왜 `omd-` 접두사인가?
+#### Why the `omd-` Prefix?
 
-1. **충돌 방지**: 다른 플러그인/사용자 명령어와 이름 충돌 방지
-2. **일관성**: oh-my-claudecode의 `omc-` 패턴과 유사
-3. **발견 가능성**: `/omd-` 입력 시 모든 oh-my-droid 명령어가 자동완성
-4. **단순함**: 사용자가 기억하기 쉬운 짧은 접두사
+1. **Conflict Prevention**: Prevents name collisions with other plugins/user commands
+2. **Consistency**: Similar to oh-my-claudecode's `omc-` pattern
+3. **Discoverability**: All oh-my-droid commands auto-complete when typing `/omd-`
+4. **Simplicity**: Short prefix easy for users to remember
 
-#### oh-my-claudecode와의 비교
+#### Comparison with oh-my-claudecode
 
 ```
 # oh-my-claudecode (Claude Code)
-/oh-my-claudecode:setup     # 플러그인 prefix 사용
+/oh-my-claudecode:setup     # Uses plugin prefix
 /oh-my-claudecode:autopilot
 
 # oh-my-droid (Factory Droid)
-/omd-setup                   # 파일명 prefix 사용
+/omd-setup                   # Uses filename prefix
 /omd-autopilot
 ```
 
-### 10.3 Hook 입력 차이
+### 10.3 Hook Input Differences
 
-| 필드 | Claude Code | Droid |
-|------|-------------|-------|
-| `session_id` | 동일 | 동일 |
-| `transcript_path` | 동일 | 동일 |
-| `cwd` | 동일 | 동일 |
-| `permission_mode` | 동일 | 동일 |
+| Field | Claude Code | Droid |
+|-------|-------------|-------|
+| `session_id` | Same | Same |
+| `transcript_path` | Same | Same |
+| `cwd` | Same | Same |
+| `permission_mode` | Same | Same |
 
-### 10.4 Hook 출력 차이
+### 10.4 Hook Output Differences
 
-hook 출력 형식은 플랫폼 간 동일합니다:
-- 종료 코드 (0, 2, 기타)
-- `decision`, `reason`, `hookSpecificOutput`가 포함된 JSON 출력
-- PreToolUse를 위한 `permissionDecision`
+Hook output format is identical across platforms:
+- Exit codes (0, 2, other)
+- JSON output with `decision`, `reason`, `hookSpecificOutput`
+- `permissionDecision` for PreToolUse
 
 ---
 
-## 10.5 MCP Tool 처리
+## 10.5 MCP Tool Handling
 
-MCP tools는 `mcp__<server>__<tool>` 패턴을 따릅니다. 플러그인은 다음과 같이 처리합니다:
+MCP tools follow the `mcp__<server>__<tool>` pattern. The plugin handles them as follows:
 
-### PreToolUse/PostToolUse 매칭
+### PreToolUse/PostToolUse Matching
 
-`*` matcher는 MCP tools를 포함한 모든 도구를 캡처합니다. 특정 MCP 처리를 위해:
+The `*` matcher captures all tools including MCP tools. For specific MCP handling:
 
 ```json
 {
@@ -1758,23 +1758,23 @@ MCP tools는 `mcp__<server>__<tool>` 패턴을 따릅니다. 플러그인은 다
 }
 ```
 
-### 기본 동작
+### Default Behavior
 
-기본적으로 oh-my-droid는 특별한 처리 없이 MCP tools를 통과시킵니다. delegation enforcer는 외부 통합이므로 MCP tools에 대해 경고하지 않습니다.
+By default, oh-my-droid passes MCP tools through without special handling. The delegation enforcer does not warn about MCP tools as they are external integrations.
 
 ---
 
-## 10.6 에러 처리 전략
+## 10.6 Error Handling Strategy
 
-### Hook 스크립트 에러
+### Hook Script Errors
 
-| 종료 코드 | 동작 | Droid 응답 |
-|----------|------|-----------|
-| 0 | 성공 | 정상 진행 |
-| 2 | 차단 에러 | stderr를 피드백으로 처리 |
-| 기타 | 비차단 에러 | 사용자에게 stderr 표시, 진행 |
+| Exit Code | Behavior | Droid Response |
+|-----------|----------|----------------|
+| 0 | Success | Normal proceed |
+| 2 | Blocking error | Process stderr as feedback |
+| Other | Non-blocking error | Show stderr to user, proceed |
 
-### 스크립트 에러 처리 패턴
+### Script Error Handling Pattern
 
 ```javascript
 #!/usr/bin/env node
@@ -1783,75 +1783,75 @@ import { readFileSync } from 'fs';
 try {
   const input = JSON.parse(readFileSync(0, 'utf-8'));
 
-  // 입력 처리...
+  // Process input...
 
   console.log(JSON.stringify({ /* output */ }));
   process.exit(0);
 
 } catch (error) {
-  // 디버깅을 위해 stderr에 로그
+  // Log to stderr for debugging
   console.error(`[omd] Error: ${error.message}`);
 
-  // 비차단 에러 - Droid가 계속하도록 함
+  // Non-blocking error - let Droid continue
   process.exit(1);
 }
 ```
 
-### 상태 파일 에러
+### State File Errors
 
-- **상태 파일 누락**: "모드 활성화 안됨"으로 처리
-- **손상된 JSON**: 경고 로그, 기본 상태로 재설정
-- **권한 에러**: 경고 로그, 상태 없이 계속
+- **Missing state file**: Treated as "mode not activated"
+- **Corrupted JSON**: Log warning, reset to default state
+- **Permission error**: Log warning, continue without state
 
-### 타임아웃 처리
+### Timeout Handling
 
-- 각 hook은 설정된 타임아웃(3-5초)이 있습니다
-- 타임아웃 시 Droid는 hook 출력 없이 계속합니다
-- 스크립트는 중요한 작업을 먼저, 선택적 작업을 마지막에 완료해야 합니다
+- Each hook has a configured timeout (3-5 seconds)
+- On timeout, Droid continues without hook output
+- Scripts should complete critical work first, optional work last
 
 ---
 
-## 11. 구현 단계
+## 11. Implementation Phases
 
-### 1단계: 핵심 인프라 (1주차)
+### Phase 1: Core Infrastructure (Week 1)
 
 1. **Plugin Manifest**
-   - `.factory-plugin/plugin.json` 생성
-   - `.factory-plugin/marketplace.json` 생성
+   - Create `.factory-plugin/plugin.json`
+   - Create `.factory-plugin/marketplace.json`
 
-2. **기본 Hooks**
-   - `hooks/hooks.json` 설정
-   - `scripts/session-start.mjs` - 기본 컨텍스트 주입
-   - `scripts/keyword-detector.mjs` - 매직 키워드 탐지
+2. **Basic Hooks**
+   - Configure `hooks/hooks.json`
+   - `scripts/session-start.mjs` - basic context injection
+   - `scripts/keyword-detector.mjs` - magic keyword detection
 
-3. **핵심 Skills**
+3. **Core Skills**
    - `skills/help/SKILL.md`
    - `skills/omd-setup/SKILL.md`
    - `skills/orchestrate/SKILL.md`
 
-4. **필수 Custom Droids**
+4. **Essential Custom Droids**
    - `droids/architect.md`
    - `droids/executor.md`
    - `droids/explore.md`
 
-### 2단계: 실행 모드 (2주차)
+### Phase 2: Execution Modes (Week 2)
 
 1. **Ultrawork**
    - `skills/ultrawork/SKILL.md`
-   - 상태 관리
-   - 키워드 탐지 통합
+   - State management
+   - Keyword detection integration
 
 2. **Ralph**
    - `skills/ralph/SKILL.md`
    - `scripts/persistent-mode.mjs`
-   - PRD 지원
+   - PRD support
 
-3. **지원 Skills**
+3. **Supporting Skills**
    - `skills/cancel/SKILL.md`
    - `skills/cancel-ultrawork/SKILL.md`
    - `skills/cancel-ralph/SKILL.md`
 
-### 3단계: 계획 시스템 (3주차)
+### Phase 3: Planning System (Week 3)
 
 1. **Planner**
    - `skills/planner/SKILL.md`
@@ -1864,79 +1864,79 @@ try {
    - `skills/ralplan/SKILL.md`
    - `skills/review/SKILL.md`
 
-### 4단계: 전체 Custom Droids 카탈로그 (4주차)
+### Phase 4: Complete Custom Droids Catalog (Week 4)
 
-1. **모든 계층형 Custom Droids**
-   - 32개의 droid 정의 완료 (`droids/*.md`)
-   - 템플릿 시스템
+1. **All Tiered Custom Droids**
+   - Complete 32 droid definitions (`droids/*.md`)
+   - Template system
 
-2. **고급 Skills**
+2. **Advanced Skills**
    - `skills/autopilot/SKILL.md`
    - `skills/ultrapilot/SKILL.md`
    - `skills/swarm/SKILL.md`
    - `skills/pipeline/SKILL.md`
 
-### 5단계: 품질 & 다듬기 (5주차)
+### Phase 5: Quality & Polish (Week 5)
 
-1. **추가 Skills**
+1. **Additional Skills**
    - `skills/ultraqa/SKILL.md`
    - `skills/tdd/SKILL.md`
    - `skills/frontend-ui-ux/SKILL.md`
    - `skills/git-master/SKILL.md`
 
-2. **유틸리티**
+2. **Utilities**
    - `skills/doctor/SKILL.md`
    - `skills/hud/SKILL.md`
    - `skills/note/SKILL.md`
    - `skills/learner/SKILL.md`
 
-3. **문서**
-   - README.md 완료
+3. **Documentation**
+   - Complete README.md
    - AGENTS.md
-   - 모든 명령어 문서
+   - All command documentation
 
-### 6단계: 테스팅 & 릴리스 (6주차)
+### Phase 6: Testing & Release (Week 6)
 
-1. **테스팅**
-   - Hook 스크립트 테스팅
-   - Skill 통합 테스팅
-   - Custom Droids 검증
+1. **Testing**
+   - Hook script testing
+   - Skill integration testing
+   - Custom Droids verification
 
-2. **릴리스**
-   - npm 패키지 준비
-   - Marketplace 제출
-   - 사용자 문서
+2. **Release**
+   - npm package preparation
+   - Marketplace submission
+   - User documentation
 
 ---
 
-## 부록 A: Hook 입력/출력 레퍼런스
+## Appendix A: Hook Input/Output Reference
 
-### A.0 공통 JSON 출력 필드
+### A.0 Common JSON Output Fields
 
-모든 hook 타입은 다음 선택적 필드를 지원합니다:
+All hook types support the following optional fields:
 
 ```json
 {
-  "continue": true,          // Droid가 계속해야 하는지 (기본값: true)
-                             // false인 경우, Droid는 hooks 실행 후 처리를 중단합니다
+  "continue": true,          // Whether Droid should continue (default: true)
+                             // If false, Droid will stop processing after hooks execution
 
-  "stopReason": "string",    // continue가 false일 때 사용자에게 표시되는 메시지
-                             // Droid에게는 표시되지 않음
+  "stopReason": "string",    // Message displayed to user when continue is false
+                             // Not shown to Droid
 
-  "suppressOutput": true,    // transcript 모드에서 stdout 숨김 (기본값: false)
+  "suppressOutput": true,    // Hide stdout in transcript mode (default: false)
 
-  "systemMessage": "string"  // 사용자에게 표시되는 경고 메시지
+  "systemMessage": "string"  // Warning message displayed to user
 }
 ```
 
-**중요:**
-- `continue: false`는 `decision: block` 출력보다 우선합니다
-- `PreToolUse`의 경우, 이것은 하나의 tool call만 차단하는 `permissionDecision: deny`와 다릅니다
-- `Stop/SubagentStop`의 경우, 이것은 `decision: block`보다 우선합니다
+**Important:**
+- `continue: false` takes precedence over `decision: block` output
+- For `PreToolUse`, this differs from `permissionDecision: deny` which only blocks one tool call
+- For `Stop/SubagentStop`, this takes precedence over `decision: block`
 
 ### A.1 UserPromptSubmit
 
-**입력:**
+**Input:**
 ```json
 {
   "session_id": "abc123",
@@ -1948,27 +1948,27 @@ try {
 }
 ```
 
-**출력 (컨텍스트 주입):**
+**Output (context injection):**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "UserPromptSubmit",
-    "additionalContext": "주입할 컨텍스트"
+    "additionalContext": "Context to inject"
   }
 }
 ```
 
-**출력 (차단):**
+**Output (blocking):**
 ```json
 {
   "decision": "block",
-  "reason": "사용자에게 표시되는 이유"
+  "reason": "Reason displayed to user"
 }
 ```
 
 ### A.2 SessionStart
 
-**입력:**
+**Input:**
 ```json
 {
   "session_id": "abc123",
@@ -1980,19 +1980,19 @@ try {
 }
 ```
 
-**출력:**
+**Output:**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
-    "additionalContext": "복원된 세션 컨텍스트..."
+    "additionalContext": "Restored session context..."
   }
 }
 ```
 
 ### A.3 PreToolUse
 
-**입력:**
+**Input:**
 ```json
 {
   "session_id": "abc123",
@@ -2009,28 +2009,28 @@ try {
 }
 ```
 
-**출력 (컨텍스트 주입):**
+**Output (context injection):**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "PreToolUse",
-    "additionalContext": "위임 고려..."
+    "additionalContext": "Consider delegation..."
   }
 }
 ```
 
-**출력 (권한 제어):**
+**Output (permission control):**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "PreToolUse",
     "permissionDecision": "allow|deny|ask",
-    "permissionDecisionReason": "이유"
+    "permissionDecisionReason": "reason"
   }
 }
 ```
 
-**출력 (입력 수정):**
+**Output (input modification):**
 ```json
 {
   "hookSpecificOutput": {
@@ -2045,7 +2045,7 @@ try {
 
 ### A.4 PostToolUse
 
-**입력:**
+**Input:**
 ```json
 {
   "session_id": "abc123",
@@ -2062,19 +2062,19 @@ try {
 }
 ```
 
-**출력:**
+**Output:**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "PostToolUse",
-    "additionalContext": "변경사항 검증..."
+    "additionalContext": "Verify changes..."
   }
 }
 ```
 
 ### A.5 Stop / SubagentStop
 
-**입력:**
+**Input:**
 ```json
 {
   "session_id": "abc123",
@@ -2086,22 +2086,22 @@ try {
 }
 ```
 
-**출력 (중지 허용):**
+**Output (allow stop):**
 ```json
 {}
 ```
 
-**출력 (중지 차단):**
+**Output (block stop):**
 ```json
 {
   "decision": "block",
-  "reason": "<ralph-loop-continuation>\n계속해야 합니다...\n</ralph-loop-continuation>"
+  "reason": "<ralph-loop-continuation>\nMust continue...\n</ralph-loop-continuation>"
 }
 ```
 
 ### A.6 PreCompact
 
-**입력:**
+**Input:**
 ```json
 {
   "session_id": "abc123",
@@ -2114,21 +2114,21 @@ try {
 }
 ```
 
-**출력:**
+**Output:**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "PreCompact",
-    "additionalContext": "지혜 보존됨: 5개 학습, 3개 결정."
+    "additionalContext": "Wisdom preserved: 5 learnings, 3 decisions."
   }
 }
 ```
 
-> **참고:** PreCompact hooks는 압축을 차단할 수 없습니다. 컨텍스트가 압축되기 전 상태 보존을 위한 것입니다.
+> **Note:** PreCompact hooks cannot block compaction. They are for preserving state before context is compacted.
 
 ### A.7 SessionEnd
 
-**입력:**
+**Input:**
 ```json
 {
   "session_id": "abc123",
@@ -2140,16 +2140,16 @@ try {
 }
 ```
 
-**출력:**
+**Output:**
 ```json
 {}
 ```
 
-> **참고:** SessionEnd hooks는 세션 종료를 차단할 수 없습니다. 정리 작업만을 위한 것입니다. 출력은 디버그에만 로그됩니다.
+> **Note:** SessionEnd hooks cannot block session termination. They are for cleanup tasks only. Output is logged only for debug.
 
 ### A.8 Error
 
-**입력:**
+**Input:**
 ```json
 {
   "session_id": "abc123",
@@ -2168,17 +2168,17 @@ try {
 }
 ```
 
-**출력 (복구 가이드 주입):**
+**Output (recovery guidance injection):**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "Error",
-    "additionalContext": "<error-recovery type=\"context_window_overflow\">\n## 복구 가이드\n1. 컨텍스트 압축이 필요합니다\n2. 중요 상태가 보존되었습니다\n3. 다음 단계: ...\n</error-recovery>"
+    "additionalContext": "<error-recovery type=\"context_window_overflow\">\n## Recovery Guide\n1. Context compaction is needed\n2. Critical state has been preserved\n3. Next steps: ...\n</error-recovery>"
   }
 }
 ```
 
-**출력 (자동 복구 시도):**
+**Output (auto-recovery attempt):**
 ```json
 {
   "hookSpecificOutput": {
@@ -2188,16 +2188,16 @@ try {
       "preserved_state": {},
       "retry_params": {}
     },
-    "additionalContext": "자동 복구가 시도됩니다..."
+    "additionalContext": "Auto-recovery will be attempted..."
   }
 }
 ```
 
-> **참고:** Error hooks는 에러 발생 시 복구 가이드를 제공하거나 자동 복구를 시도할 수 있습니다. `recoveryAction`으로 복구 전략을 지정할 수 있습니다.
+> **Note:** Error hooks can provide recovery guidance or attempt auto-recovery when errors occur. Use `recoveryAction` to specify the recovery strategy.
 
 ### A.9 SessionIdle
 
-**입력:**
+**Input:**
 ```json
 {
   "session_id": "abc123",
@@ -2211,18 +2211,18 @@ try {
 }
 ```
 
-**출력 (계속 프롬프트):**
+**Output (continuation prompt):**
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionIdle",
-    "additionalContext": "<session-idle-continuation>\nRalph loop가 활성화되어 있습니다. 미완료 작업이 있습니다:\n- [ ] Task 1\n- [ ] Task 2\n계속 진행하세요.\n</session-idle-continuation>",
+    "additionalContext": "<session-idle-continuation>\nRalph loop is active. Incomplete tasks remain:\n- [ ] Task 1\n- [ ] Task 2\nPlease continue.\n</session-idle-continuation>",
     "continueSession": true
   }
 }
 ```
 
-**출력 (유휴 허용):**
+**Output (allow idle):**
 ```json
 {
   "hookSpecificOutput": {
@@ -2232,11 +2232,11 @@ try {
 }
 ```
 
-> **참고:** SessionIdle hooks는 세션이 일정 시간 유휴 상태일 때 호출됩니다. 지속성 모드(ralph, ultrawork 등)가 활성화된 경우 계속 프롬프트를 주입하여 작업을 재개할 수 있습니다.
+> **Note:** SessionIdle hooks are called when the session has been idle for a certain duration. When persistence modes (ralph, ultrawork, etc.) are active, continuation prompts can be injected to resume work.
 
 ### A.10 MessagesTransform
 
-**입력:**
+**Input:**
 ```json
 {
   "session_id": "abc123",
@@ -2270,7 +2270,7 @@ try {
 }
 ```
 
-**출력:**
+**Output:**
 ```json
 {
   "hookSpecificOutput": {
@@ -2298,11 +2298,11 @@ try {
 }
 ```
 
-> **참고:** MessagesTransform hooks는 API 호출 전 메시지 배열을 변환합니다. 빈 메시지 제거, thinking 블록 정리, 연속 역할 병합 등을 수행할 수 있습니다. `transformedMessages`가 제공되면 원본 메시지를 대체합니다.
+> **Note:** MessagesTransform hooks transform the message array before API calls. They can remove empty messages, clean thinking blocks, merge consecutive roles, etc. If `transformedMessages` is provided, it replaces the original messages.
 
 ### A.11 ChatParams
 
-**입력:**
+**Input:**
 ```json
 {
   "session_id": "abc123",
@@ -2326,7 +2326,7 @@ try {
 }
 ```
 
-**출력:**
+**Output:**
 ```json
 {
   "hookSpecificOutput": {
@@ -2349,38 +2349,38 @@ try {
 }
 ```
 
-> **참고:** ChatParams hooks는 API 호출 전 모델 파라미터를 조정합니다. 활성 모드, 작업 복잡도, 작업 유형에 따라 모델, thinking 설정, 온도 등을 동적으로 조정할 수 있습니다. `modifiedParams`가 제공되면 해당 필드만 원본 파라미터를 덮어씁니다.
+> **Note:** ChatParams hooks adjust model parameters before API calls. They can dynamically adjust model, thinking settings, temperature, etc. based on active modes, task complexity, and task type. If `modifiedParams` is provided, only those fields override the original parameters.
 
 ---
 
-## 부록 B: 환경 변수
+## Appendix B: Environment Variables
 
-| 변수 | 설명 |
-|------|------|
-| `FACTORY_PROJECT_DIR` | 프로젝트 루트의 절대 경로 |
-| `DROID_PLUGIN_ROOT` | 플러그인 디렉토리의 절대 경로 |
-| `OMD_DEBUG` | 디버그 로깅 활성화 |
-| `OMD_CONFIG_PATH` | 커스텀 설정 파일 경로 |
-| `OMD_MAX_BACKGROUND_TASKS` | 최대 동시 백그라운드 작업 수 (기본값: 5) |
-| `OMD_CIRCUIT_BREAKER_THRESHOLD` | 회로 차단기 임계값 (기본값: 3) |
-| `OMD_DIAGNOSTICS_STRATEGY` | 진단 전략 (auto, tsc, lsp) |
-
----
-
-## 부록 C: 매직 키워드 레퍼런스
-
-| 키워드 | 모드 | 상태 파일 | 설명 |
-|--------|------|----------|------|
-| `autopilot`, `build me`, `I want a` | Autopilot | `.omd/autopilot-state.json` | 완전 자율 실행 |
-| `ultrapilot`, `parallel build` | Ultrapilot | `.omd/ultrapilot-state.json` | 병렬 autopilot |
-| `ralph`, `don't stop`, `must complete` | Ralph | `.omd/ralph-state.json` | 지속성 루프 |
-| `ulw`, `ultrawork`, `fast`, `parallel` | Ultrawork | `.omd/ultrawork-state.json` | 최대 병렬화 |
-| `eco`, `ecomode`, `budget`, `efficient` | Ecomode | `.omd/ecomode-state.json` | 토큰 효율 |
-| `ultrathink`, `think` | Think Mode | (컨텍스트만) | 확장된 추론 |
-| `search`, `find`, `locate`, `explore` | Search | (컨텍스트만) | 검색 가이드 |
-| `analyze`, `investigate`, `debug` | Analysis | (컨텍스트만) | 분석 가이드 |
-| `stop`, `cancel`, `abort` | Cancel | (활성 제거) | 활성 모드 취소 |
+| Variable | Description |
+|----------|-------------|
+| `FACTORY_PROJECT_DIR` | Absolute path to project root |
+| `DROID_PLUGIN_ROOT` | Absolute path to plugin directory |
+| `OMD_DEBUG` | Enable debug logging |
+| `OMD_CONFIG_PATH` | Custom configuration file path |
+| `OMD_MAX_BACKGROUND_TASKS` | Maximum concurrent background tasks (default: 5) |
+| `OMD_CIRCUIT_BREAKER_THRESHOLD` | Circuit breaker threshold (default: 3) |
+| `OMD_DIAGNOSTICS_STRATEGY` | Diagnostics strategy (auto, tsc, lsp) |
 
 ---
 
-*설계 문서 끝*
+## Appendix C: Magic Keywords Reference
+
+| Keyword | Mode | State File | Description |
+|---------|------|------------|-------------|
+| `autopilot`, `build me`, `I want a` | Autopilot | `.omd/autopilot-state.json` | Fully autonomous execution |
+| `ultrapilot`, `parallel build` | Ultrapilot | `.omd/ultrapilot-state.json` | Parallel autopilot |
+| `ralph`, `don't stop`, `must complete` | Ralph | `.omd/ralph-state.json` | Persistence loop |
+| `ulw`, `ultrawork`, `fast`, `parallel` | Ultrawork | `.omd/ultrawork-state.json` | Maximum parallelization |
+| `eco`, `ecomode`, `budget`, `efficient` | Ecomode | `.omd/ecomode-state.json` | Token efficiency |
+| `ultrathink`, `think` | Think Mode | (context only) | Extended reasoning |
+| `search`, `find`, `locate`, `explore` | Search | (context only) | Search guidance |
+| `analyze`, `investigate`, `debug` | Analysis | (context only) | Analysis guidance |
+| `stop`, `cancel`, `abort` | Cancel | (removes active) | Cancel active mode |
+
+---
+
+*End of Design Document*
