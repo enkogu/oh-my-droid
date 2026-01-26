@@ -43,7 +43,7 @@ oh-my-droid는 Factory AI의 Droid CLI를 단일 수행자에서 복잡도 계�
 
 | 기능 | 설명 |
 |------|------|
-| **32개의 계층형 Droids** | LOW/MEDIUM/HIGH 계층(Haiku/Sonnet/Opus)의 특화된 Custom Droids |
+| **33개의 계층형 Droids** | LOW/MEDIUM/HIGH 계층(Haiku/Sonnet/Opus)의 특화된 Custom Droids |
 | **35개 이상의 Skill** | 조합 가능한 동작 (autopilot, ralph, ultrawork, planner 등) |
 | **매직 키워드** | 학습 곡선이 없는 자연어 트리거 |
 | **검증 프로토콜** | 완료 주장 전 필수 증거 |
@@ -157,6 +157,7 @@ oh-my-droid/
 │   ├── scientist-low.md          # 빠른 통계 (Haiku)
 │   ├── scientist-high.md         # ML/복잡한 작업 (Opus)
 │   ├── qa-tester.md              # CLI 테스팅 (Sonnet)
+│   ├── qa-tester-high.md         # 복잡한 테스팅 (Opus)
 │   ├── security-reviewer.md      # 보안 감사 (Opus)
 │   ├── security-reviewer-low.md  # 빠른 스캔 (Haiku)
 │   ├── build-fixer.md            # 빌드 에러 (Sonnet)
@@ -1051,7 +1052,7 @@ Files Found:
 - <파일:라인>
 ```
 
-### 6.2 완전한 Custom Droid 카탈로그 (32개 Droids)
+### 6.2 완전한 Custom Droid 카탈로그 (33개 Droids)
 
 > **Model ID 참고:**
 > - Opus: `claude-opus-4-5-20251101`
@@ -1100,6 +1101,7 @@ Files Found:
 | Droid | Model | 목적 | Tools |
 |-------|-------|------|-------|
 | `qa-tester` | `claude-sonnet-4-5-20250929` | 대화형 CLI 테스팅 | `["Read", "LS", "Grep", "Glob", "Execute"]` |
+| `qa-tester-high` | `claude-opus-4-5-20251101` | 복잡한 E2E/통합 테스팅 | `["Read", "LS", "Grep", "Glob", "Execute"]` |
 | `tdd-guide` | `claude-sonnet-4-5-20250929` | TDD 워크플로우 | `["Read", "LS", "Grep", "Glob", "Edit", "Create", "Execute"]` |
 | `tdd-guide-low` | `inherit` | 테스트 제안 | `read-only` |
 
@@ -1756,7 +1758,7 @@ try {
 ### 4단계: 전체 Custom Droids 카탈로그 (4주차)
 
 1. **모든 계층형 Custom Droids**
-   - 32개의 droid 정의 완료 (`droids/*.md`)
+   - 33개의 droid 정의 완료 (`droids/*.md`)
    - 템플릿 시스템
 
 2. **고급 Skills**
