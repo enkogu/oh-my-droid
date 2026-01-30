@@ -1,15 +1,16 @@
 {
   "name": "oh-my-droid",
-  "shortName": "omd",
-  "displayName": "Oh My Droid - Multi-Agent Orchestration",
-  "version": "1.0.0",
-  "description": "Transform Droid into an orchestration conductor with 33 specialized agents and 35 skills",
-  "categories": ["productivity", "automation", "development"],
-  "tags": ["agents", "orchestration", "parallel", "autopilot", "droids"],
-  "icon": "https://example.com/omd-icon.png",
-  "screenshots": [],
-  "author": {
+  "description": "Multi-agent orchestration plugin for Factory AI Droid CLI",
+  "owner": {
     "name": "Jio Kim",
-    "url": "https://github.com/MeroZemory"
-  }
+    "email": "merozemory@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "oh-my-droid",
+      "description": "Transform Droid into an orchestration conductor with 33 specialized agents and 35 skills",
+      "source": ".",
+      "category": "productivity"
+    }
+  ]
 }
