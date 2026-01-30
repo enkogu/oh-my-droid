@@ -6,12 +6,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${DROID_PLUGIN_ROOT}/scripts/keyword-detector.mjs\"",
+            "command": "node ${DROID_PLUGIN_ROOT}/scripts/keyword-detector.mjs",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "node \"${DROID_PLUGIN_ROOT}/scripts/skill-injector.mjs\"",
+            "command": "node ${DROID_PLUGIN_ROOT}/scripts/skill-injector.mjs",
             "timeout": 3
           }
         ]
@@ -22,7 +22,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${DROID_PLUGIN_ROOT}/scripts/session-start.mjs\"",
+            "command": "node ${DROID_PLUGIN_ROOT}/scripts/session-start.mjs",
             "timeout": 5
           }
         ]
@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${DROID_PLUGIN_ROOT}/scripts/pre-tool-enforcer.mjs\"",
+            "command": "node ${DROID_PLUGIN_ROOT}/scripts/pre-tool-enforcer.mjs",
             "timeout": 3
           }
         ]
@@ -46,12 +46,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${DROID_PLUGIN_ROOT}/scripts/post-tool-verifier.mjs\"",
+            "command": "node ${DROID_PLUGIN_ROOT}/scripts/post-tool-verifier.mjs",
             "timeout": 3
           },
           {
             "type": "command",
-            "command": "node \"${DROID_PLUGIN_ROOT}/scripts/error-recovery.mjs\"",
+            "command": "node ${DROID_PLUGIN_ROOT}/scripts/error-recovery.mjs",
             "timeout": 3
           }
         ]
@@ -62,7 +62,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${DROID_PLUGIN_ROOT}/scripts/pre-compact.mjs\"",
+            "command": "node ${DROID_PLUGIN_ROOT}/scripts/pre-compact.mjs",
             "timeout": 5
           }
         ]
@@ -73,7 +73,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${DROID_PLUGIN_ROOT}/scripts/persistent-mode.mjs\"",
+            "command": "node ${DROID_PLUGIN_ROOT}/scripts/persistent-mode.mjs",
             "timeout": 5
           }
         ]
@@ -84,7 +84,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${DROID_PLUGIN_ROOT}/scripts/persistent-mode.mjs\"",
+            "command": "node ${DROID_PLUGIN_ROOT}/scripts/persistent-mode.mjs",
             "timeout": 5
           }
         ]
@@ -95,7 +95,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${DROID_PLUGIN_ROOT}/scripts/session-end.mjs\"",
+            "command": "node ${DROID_PLUGIN_ROOT}/scripts/session-end.mjs",
             "timeout": 5
           }
         ]
@@ -106,7 +106,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${DROID_PLUGIN_ROOT}/scripts/session-idle.mjs\"",
+            "command": "node ${DROID_PLUGIN_ROOT}/scripts/session-idle.mjs",
             "timeout": 3
           }
         ]

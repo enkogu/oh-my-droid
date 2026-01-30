@@ -250,7 +250,7 @@ All core architecture, agent definitions, skills, and orchestration patterns are
 ## Requirements
 
 - [Factory Droid CLI](https://factory.ai)
-- Claude Max/Pro subscription OR Anthropic API key
+- Factory AI subscription (Team or Enterprise)
 
 ---
 
