@@ -8,8 +8,6 @@
  * - Codebase Patterns section at top (consolidated learnings)
  * - Per-story progress entries appended
  * - Learnings captured for future iterations
- *
- * Adapted from oh-my-claudecode.
  */
 
 import { existsSync, readFileSync, writeFileSync, appendFileSync, mkdirSync } from 'fs';
@@ -70,7 +68,7 @@ export function getProgressPath(directory: string): string {
 /**
  * Get the path to progress.txt in .omd subdirectory
  */
-export function getOmdProgressPath(directory: string): string {
+export function getOmcProgressPath(directory: string): string {
   return join(directory, '.omd', PROGRESS_FILENAME);
 }
 
@@ -83,9 +81,9 @@ export function findProgressPath(directory: string): string | null {
     return rootPath;
   }
 
-  const omdPath = getOmdProgressPath(directory);
-  if (existsSync(omdPath)) {
-    return omdPath;
+  const omcPath = getOmcProgressPath(directory);
+  if (existsSync(omcPath)) {
+    return omcPath;
   }
 
   return null;
@@ -236,7 +234,7 @@ export function initProgress(directory: string): boolean {
     }
   }
 
-  const progressPath = getOmdProgressPath(directory);
+  const progressPath = getOmcProgressPath(directory);
   const now = new Date().toISOString();
 
   const content = `# Ralph Progress Log
@@ -271,7 +269,7 @@ export function appendProgress(
     if (!initProgress(directory)) {
       return false;
     }
-    progressPath = getOmdProgressPath(directory);
+    progressPath = getOmcProgressPath(directory);
   }
 
   const now = new Date().toISOString();

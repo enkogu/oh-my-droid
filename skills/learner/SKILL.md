@@ -7,13 +7,13 @@ description: Extract a learned skill from the current conversation
 
 ## The Insight
 
-Reusable skills are not code snippets to copy-paste, but **principles and decision-making heuristics** that teach Claude HOW TO THINK about a class of problems.
+Reusable skills are not code snippets to copy-paste, but **principles and decision-making heuristics** that teach the agent HOW TO THINK about a class of problems.
 
 **The difference:**
-- BAD (mimicking): "When you see NetworkException, add this try/catch block"
-- GOOD (reusable skill): "In Android async network code, any I/O operation can fail independently due to app/server lifecycle mismatches. The principle: wrap each I/O operation separately, because failure between operations is the common case, not the exception."
+- BAD (mimicking): "When you see ConnectionResetError, add this try/except block"
+- GOOD (reusable skill): "In async network code, any I/O operation can fail independently due to client/server lifecycle mismatches. The principle: wrap each I/O operation separately, because failure between operations is the common case, not the exception."
 
-A good skill changes how Claude APPROACHES problems, not just what code it produces.
+A good skill changes how the agent APPROACHES problems, not just what code it produces.
 
 ## Why This Matters
 
@@ -27,7 +27,7 @@ If a potential skill fails any of these questions, it's not worth saving.
 ## Recognition Pattern
 
 Use /oh-my-droid:learner ONLY after:
-- Solving a tricky Android bug that required deep investigation
+- Solving a tricky bug that required deep investigation
 - Discovering a non-obvious workaround specific to this codebase
 - Finding a hidden gotcha that wastes time when forgotten
 - Uncovering undocumented behavior that affects this project
@@ -40,15 +40,15 @@ Use /oh-my-droid:learner ONLY after:
 
 - **Problem Statement**: The SPECIFIC error, symptom, or confusion that occurred
   - Include actual error messages, file paths, line numbers
-  - Example: "NullPointerException in MainActivity.kt:45 when viewModel is accessed after configuration change"
+  - Example: "TypeError in src/hooks/session.ts:45 when sessionId is undefined after restart"
 
 - **Solution**: The EXACT fix, not general advice
   - Include code snippets, file paths, configuration changes
-  - Example: "Add lifecycle observer in onCreate, clear observers in onDestroy"
+  - Example: "Add null check before accessing session.user, regenerate session on 401"
 
 - **Triggers**: Keywords that would appear when hitting this problem again
   - Use error message fragments, file names, symptom descriptions
-  - Example: ["viewModel null", "MainActivity.kt NullPointerException", "configuration change crash"]
+  - Example: ["sessionId undefined", "session.ts TypeError", "401 session"]
 
 - **Scope**: Almost always Project-level unless it's a truly universal insight
 
@@ -62,7 +62,7 @@ The system REJECTS skills that are:
 
 **Step 3: Save Location**
 
-- **User-level**: ~/.factory/skills/omd-learned/ - Rare. Only for truly portable insights.
+- **User-level**: ~/.factory/skills/omc-learned/ - Rare. Only for truly portable insights.
 - **Project-level**: .omd/skills/ - Default. Version-controlled with repo.
 
 ### What Makes a USEFUL Skill
@@ -70,28 +70,28 @@ The system REJECTS skills that are:
 **CRITICAL**: Not every solution is worth saving. A good skill is:
 
 1. **Non-Googleable**: Something you couldn't easily find via search
-   - BAD: "How to use RecyclerView in Android" ❌
-   - GOOD: "This codebase uses custom ViewHolder pooling requiring manual clear() in onViewRecycled" ✓
+   - BAD: "How to read files in TypeScript" ❌
+   - GOOD: "This codebase uses custom path resolution in ESM that requires fileURLToPath + specific relative paths" ✓
 
 2. **Context-Specific**: References actual files, error messages, or patterns from THIS codebase
    - BAD: "Use try/catch for error handling" ❌
-   - GOOD: "The Retrofit client in ApiService.kt:42 crashes on timeout - wrap enqueue in CoroutineExceptionHandler" ✓
+   - GOOD: "The aiohttp proxy in server.py:42 crashes on ClientDisconnectedError - wrap StreamResponse in try/except" ✓
 
 3. **Actionable with Precision**: Tells you exactly WHAT to do and WHERE
    - BAD: "Handle edge cases" ❌
-   - GOOD: "When seeing 'Cannot find R.id.xxx' after Gradle sync, check BuildConfig.java exists in build/generated" ✓
+   - GOOD: "When seeing 'Cannot find module' in dist/, check tsconfig.json moduleResolution matches package.json type field" ✓
 
-4. **Hard-Won**: Required significant debugging effort to discover
-   - BAD: Generic Android patterns ❌
-   - GOOD: "Race condition in WorkManager - Job scheduled at MainActivity:89 needs unique name to prevent duplicate runs" ✓
+4. **Hard-Won**: Took significant debugging effort to discover
+   - BAD: Generic programming patterns ❌
+   - GOOD: "Race condition in worker.ts - the Promise.all at line 89 needs await before the map callback returns" ✓
 
 ### Anti-Patterns (DO NOT EXTRACT)
 
-- Generic Android patterns (use documentation instead)
+- Generic programming patterns (use documentation instead)
 - Refactoring techniques (these are universal)
 - Library usage examples (use library docs)
 - Type definitions or boilerplate
-- Anything a junior Android dev could Google in 5 minutes
+- Anything a junior dev could Google in 5 minutes
 
 ## Skill Format
 
@@ -109,25 +109,25 @@ Standard metadata fields:
 
 ## The Insight
 What is the underlying PRINCIPLE you discovered? Not the code, but the mental model.
-Example: "Android lifecycle callbacks are unpredictable. Activity != ViewModel lifecycle."
+Example: "Async I/O operations are independently failable. Client lifecycle != server lifecycle."
 
 ## Why This Matters
 What goes wrong if you don't know this? What symptom led you here?
-Example: "App crashes on rotation because observer is registered twice."
+Example: "Proxy server crashes on client disconnect, taking down other requests."
 
 ## Recognition Pattern
 How do you know when this skill applies? What are the signs?
-Example: "Building any Activity with LiveData observers and configuration changes"
+Example: "Building any long-lived connection handler (proxy, websocket, SSE)"
 
 ## The Approach
-The decision-making heuristic, not just code. How should Claude THINK about this?
-Example: "For each observer, ask: does this survive configuration changes? Handle it in ViewModel."
+The decision-making heuristic, not just code. How should the agent THINK about this?
+Example: "For each I/O operation, ask: what if this fails right now? Handle it locally."
 
 ## Example (Optional)
 If code helps, show it - but as illustration of the principle, not copy-paste material.
 ```
 
-**Key**: A skill is REUSABLE if Claude can apply it to NEW situations, not just identical ones.
+**Key**: A skill is REUSABLE if the agent can apply it to NEW situations, not just identical ones.
 
 ## Related Commands
 

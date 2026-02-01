@@ -1,156 +1,65 @@
 ---
 name: help
-description: Show oh-my-droid usage guide and available features
+description: Guide on using oh-my-droid plugin
 ---
 
-# Help Skill
+# How OMC Works
 
-Display comprehensive usage guide for oh-my-droid.
+**You don't need to learn any commands!** OMC enhances Factory Droid with intelligent behaviors that activate automatically.
 
-## Usage
+## What Happens Automatically
 
-```
-/oh-my-droid:help
-```
-
-## Output
-
-```
-# oh-my-droid - Intelligent Android Development Multi-Agent System
-
-## Quick Start
-
-You don't need to learn commands. Just describe what you want to build:
-- "I want a login screen with Material Design"
-- "Build me a RecyclerView with swipe-to-delete"
-- "Create a ViewModel for user profile"
-
-Everything activates automatically based on your intent.
+| When You... | I Automatically... |
+|-------------|-------------------|
+| Give me a complex task | Parallelize and delegate to specialist agents |
+| Ask me to plan something | Start a planning interview |
+| Need something done completely | Persist until verified complete |
+| Work on UI/frontend | Activate design sensibility |
+| Say "stop" or "cancel" | Intelligently stop current operation |
 
 ## Magic Keywords (Optional Shortcuts)
 
-Include these in your requests for specific behaviors:
+You can include these words naturally in your request for explicit control:
 
 | Keyword | Effect | Example |
 |---------|--------|---------|
-| ralph | Persistence mode | "ralph: fix the rotation bug" |
-| ralplan | Iterative planning | "ralplan this feature" |
-| ulw | Max parallelism | "ulw implement all screens" |
-| eco | Token-efficient mode | "eco fix all lint errors" |
-| plan | Planning interview | "plan the new feature" |
+| **ralph** | Persistence mode | "ralph: fix all the bugs" |
+| **ralplan** | Iterative planning | "ralplan this feature" |
+| **ulw** | Max parallelism | "ulw refactor the API" |
+| **plan** | Planning interview | "plan the new endpoints" |
 
-Combine them: "ralph ulw: implement authentication"
+**ralph includes ultrawork:** When you activate ralph mode, it automatically includes ultrawork's parallel execution. No need to combine keywords.
 
-## Automatic Behaviors
+## Stopping Things
 
-### Multi-Agent Orchestration
-Complex Android tasks are automatically parallelized across specialized agents:
-- android-architect (system design)
-- kotlin-expert (code implementation)
-- layout-designer (XML/Compose UI)
-- gradle-expert (build configuration)
-- And 20+ more specialized agents
+Just say:
+- "stop"
+- "cancel"
+- "abort"
 
-### Intelligent Delegation
-Frontend work → layout-designer
-Complex debugging → android-architect
-Gradle issues → gradle-expert
-Testing → test-expert
+I'll figure out what to stop based on context.
 
-### Context-Aware Planning
-Vague requests trigger an interactive planning interview to clarify requirements.
+## First Time Setup
 
-## Available Skills
+If you haven't configured OMC yet:
 
-### Core Workflows
-- `/oh-my-droid:ralph` - Persistent development until verified complete
-- `/oh-my-droid:ultrawork` - Maximum parallel execution
-- `/oh-my-droid:plan` - Interactive planning session
-- `/oh-my-droid:ralplan` - Iterative planning with consensus
+```
+/oh-my-droid:omd-setup
+```
 
-### Analysis & Search
-- `/oh-my-droid:analyze` - Deep analysis and debugging
-- `/oh-my-droid:deepsearch` - Thorough codebase search
-- `/oh-my-droid:deepinit` - Generate AGENTS.md hierarchy
+This is the **only command** you need to know. It downloads the configuration and you're done.
 
-### Testing & QA
-- `/oh-my-droid:ultraqa` - Automated QA cycling
-- `/oh-my-droid:code-review` - Comprehensive code review
+## For 2.x Users
 
-### Knowledge Management
-- `/oh-my-droid:learner` - Extract reusable skills
-- `/oh-my-droid:note` - Save compaction-resistant notes
-- `/oh-my-droid:local-skills-setup` - Manage local skills
+Your old commands still work! `/ralph`, `/ultrawork`, `/plan`, etc. all function exactly as before.
 
-### Utilities
-- `/oh-my-droid:cancel` - Stop active modes
-- `/oh-my-droid:doctor` - Diagnose installation issues
-- `/oh-my-droid:hud` - Configure HUD display
-- `/oh-my-droid:omd-setup` - Initial setup wizard
-- `/oh-my-droid:help` - Show this guide
+But now you don't NEED them - everything is automatic.
 
-## Android-Specific Features
+## Need More Help?
 
-### Layout Design
-Automatically creates Material Design compliant layouts with proper:
-- ConstraintLayout usage
-- Material Components
-- Dark theme support
-- Accessibility attributes
-
-### Architecture Patterns
-Follows modern Android architecture:
-- MVVM with ViewModel
-- Repository pattern
-- Kotlin Coroutines
-- LiveData/StateFlow
-
-### Build Configuration
-Handles Gradle setup including:
-- Dependency management
-- Build variants
-- ProGuard rules
-- Version catalogs
-
-## Configuration
-
-### Project Setup
-Run `/oh-my-droid:omd-setup` for guided setup.
-
-### HUD Display
-Configure statusline with `/oh-my-droid:hud setup`.
-
-### MCP Servers
-Add external tools with `/oh-my-droid:mcp-setup`.
-
-## Learn More
-
-### Usage Patterns
-Run `/oh-my-droid:learn-about-omd` to analyze your usage and get recommendations.
-
-### Local Skills
-Run `/oh-my-droid:local-skills-setup` to manage project-specific knowledge.
-
-## Troubleshooting
-
-If something isn't working:
-1. Run `/oh-my-droid:doctor` for diagnostics
-2. Check `/oh-my-droid:hud status` for mode status
-3. Use `/oh-my-droid:cancel` to reset active modes
-
-## Support
-
-- GitHub: https://github.com/YOUR_REPO/oh-my-droid
-- Issues: https://github.com/YOUR_REPO/oh-my-droid/issues
+- **README**: https://github.com/MeroZemory/oh-my-droid
+- **Issues**: https://github.com/MeroZemory/oh-my-droid/issues
 
 ---
 
-*oh-my-droid - Making Android development with Claude Code effortless*
-```
-
-## Notes
-
-This skill should be invoked when:
-- User types `/oh-my-droid:help`
-- User asks "how do I use oh-my-droid?"
-- User needs guidance on available features
+*Version: 3.5.5*

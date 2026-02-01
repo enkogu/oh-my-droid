@@ -3,7 +3,7 @@
  * OMD HUD - Main Entry Point
  *
  * Statusline command that visualizes oh-my-droid state.
- * Receives stdin JSON from Factory and outputs formatted statusline.
+ * Receives stdin JSON from Factory Droid and outputs formatted statusline.
  */
 
 import { readStdin, getContextPercent, getModelName } from './stdin.js';
@@ -34,6 +34,11 @@ async function recordTokenUsage(
   transcriptData: any
 ): Promise<void> {
   try {
+    // Debug: Log stdin.context_window data
+    if (process.env.OMC_DEBUG) {
+      console.error('[TokenRecording] stdin.context_window:', JSON.stringify(stdin.context_window));
+    }
+
     // Get model name from stdin
     const modelName = getModelName(stdin);
 
@@ -41,11 +46,30 @@ async function recordTokenUsage(
     const runningAgents = transcriptData.agents?.filter((a: any) => a.status === 'running') ?? [];
     const agentName = runningAgents.length > 0 ? runningAgents[0].name : undefined;
 
+    if (process.env.OMC_DEBUG) {
+      console.error('[TokenRecording] agentName determined:', agentName);
+    }
+
     // Extract tokens (delta from previous)
     const extracted = extractTokens(stdin, previousSnapshot, modelName, agentName);
 
+    if (process.env.OMC_DEBUG) {
+      console.error('[TokenRecording] extracted tokens:', {
+        inputTokens: extracted.inputTokens,
+        outputTokens: extracted.outputTokens,
+        cacheCreationTokens: extracted.cacheCreationTokens,
+        cacheReadTokens: extracted.cacheReadTokens,
+        agentName: extracted.agentName,
+        modelName: extracted.modelName
+      });
+    }
+
     // Only record if there's actual token usage
     if (extracted.inputTokens > 0 || extracted.cacheCreationTokens > 0) {
+      if (process.env.OMC_DEBUG) {
+        console.error('[TokenRecording] Recording condition PASSED - recording usage');
+      }
+
       // Get session ID
       const sessionId = extractSessionId(stdin.transcript_path);
 
@@ -59,13 +83,23 @@ async function recordTokenUsage(
         cacheCreationTokens: extracted.cacheCreationTokens,
         cacheReadTokens: extracted.cacheReadTokens
       });
+
+      if (process.env.OMC_DEBUG) {
+        console.error('[TokenRecording] Successfully recorded usage for agent:', extracted.agentName);
+      }
+    } else {
+      if (process.env.OMC_DEBUG) {
+        console.error('[TokenRecording] Recording condition FAILED - no token delta detected');
+      }
     }
 
     // Update snapshot for next render
     previousSnapshot = createSnapshot(stdin);
   } catch (error) {
     // Silent failure - don't break HUD rendering
-    // console.error('[Analytics] Token recording failed:', error);
+    if (process.env.OMC_DEBUG) {
+      console.error('[Analytics] Token recording failed:', error);
+    }
   }
 }
 
@@ -143,8 +177,8 @@ async function calculateSessionHealth(
   const cacheCreationTokens = usage?.cache_creation_input_tokens ?? 0;
   const cacheReadTokens = usage?.cache_read_input_tokens ?? 0;
 
-  // Debug: log token data if OMD_DEBUG is set
-  if (process.env.OMD_DEBUG) {
+  // Debug: log token data if OMC_DEBUG is set
+  if (process.env.OMC_DEBUG) {
     console.error('[HUD DEBUG] current_usage:', JSON.stringify(usage));
     console.error('[HUD DEBUG] tokens:', { inputTokens, cacheCreationTokens, cacheReadTokens });
   }
@@ -188,8 +222,27 @@ async function calculateSessionHealth(
     } else if (sessionCost > 2.0 && health !== 'critical') {
       health = 'warning';
     }
-  } catch {
+  } catch (error) {
+    if (process.env.OMC_DEBUG) {
+      console.error('[HUD] Cost calculation failed:', error);
+    }
     // Cost calculation failed - continue with zeros
+  }
+
+  // Get top agents from tracker
+  let topAgents: Array<{ agent: string; cost: number }> = [];
+  try {
+    const sessionId = extractSessionId(stdin.transcript_path);
+    if (sessionId) {
+      const tracker = getTokenTracker(sessionId);
+      const agents = await tracker.getTopAgents(3);
+      topAgents = agents.map(a => ({ agent: a.agent, cost: a.cost }));
+    }
+  } catch (error) {
+    if (process.env.OMC_DEBUG) {
+      console.error('[HUD] Top agents fetch failed:', error);
+    }
+    // Top agents fetch failed - continue with empty
   }
 
   return {
@@ -199,7 +252,7 @@ async function calculateSessionHealth(
     sessionCost,
     totalTokens,
     cacheHitRate,
-    topAgents: [],
+    topAgents,
     costPerHour,
     isEstimated
   };
@@ -213,7 +266,7 @@ async function main(): Promise<void> {
     // Initialize HUD state (cleanup stale/orphaned tasks)
     await initializeHUDState();
 
-    // Read stdin from Factory
+    // Read stdin from Factory Droid
     const stdin = await readStdin();
 
     if (!stdin) {
@@ -224,8 +277,13 @@ async function main(): Promise<void> {
 
     const cwd = stdin.cwd || process.cwd();
 
+    // Read configuration (before transcript parsing so we can use staleTaskThresholdMinutes)
+    const config = readHudConfig();
+
     // Parse transcript for agents and todos
-    const transcriptData = await parseTranscript(stdin.transcript_path);
+    const transcriptData = await parseTranscript(stdin.transcript_path, {
+      staleTaskThresholdMinutes: config.staleTaskThresholdMinutes,
+    });
 
     // Record token usage (auto-tracking)
     await recordTokenUsage(stdin, transcriptData);
@@ -239,9 +297,6 @@ async function main(): Promise<void> {
     // Read HUD state for background tasks
     const hudState = readHudState(cwd);
     const backgroundTasks = hudState?.backgroundTasks || [];
-
-    // Read configuration
-    const config = readHudConfig();
 
     // Fetch rate limits from OAuth API (if available)
     const rateLimits = config.elements.rateLimits !== false
@@ -271,8 +326,8 @@ async function main(): Promise<void> {
       )
     };
 
-    // Debug: log data if OMD_DEBUG is set
-    if (process.env.OMD_DEBUG) {
+    // Debug: log data if OMC_DEBUG is set
+    if (process.env.OMC_DEBUG) {
       console.error('[HUD DEBUG] stdin.context_window:', JSON.stringify(stdin.context_window));
       console.error('[HUD DEBUG] sessionHealth:', JSON.stringify(context.sessionHealth));
     }

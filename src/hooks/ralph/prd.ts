@@ -10,8 +10,6 @@
  * - priority: Execution order (1 = highest)
  * - passes: Boolean indicating completion
  * - notes: Optional notes from implementation
- *
- * Adapted from oh-my-claudecode.
  */
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
@@ -85,7 +83,7 @@ export function getPrdPath(directory: string): string {
 /**
  * Get the path to the prd.json in .omd subdirectory
  */
-export function getOmdPrdPath(directory: string): string {
+export function getOmcPrdPath(directory: string): string {
   return join(directory, '.omd', PRD_FILENAME);
 }
 
@@ -98,9 +96,9 @@ export function findPrdPath(directory: string): string | null {
     return rootPath;
   }
 
-  const omdPath = getOmdPrdPath(directory);
-  if (existsSync(omdPath)) {
-    return omdPath;
+  const omcPath = getOmcPrdPath(directory);
+  if (existsSync(omcPath)) {
+    return omcPath;
   }
 
   return null;
@@ -146,7 +144,7 @@ export function writePrd(directory: string, prd: PRD): boolean {
         return false;
       }
     }
-    prdPath = getOmdPrdPath(directory);
+    prdPath = getOmcPrdPath(directory);
   }
 
   try {
@@ -429,7 +427,7 @@ ${story.acceptanceCriteria.map((c, i) => `${i + 1}. ${c}`).join('\n')}
 2. Verify ALL acceptance criteria are met
 3. Run quality checks (tests, typecheck, lint)
 4. When complete, mark story as passes: true in prd.json
-5. If ALL stories are done, output: <promise>DONE</promise>
+5. If ALL stories are done, run \`/oh-my-droid:cancel\` to cleanly exit ralph mode and clean up all state files
 
 </current-story>
 

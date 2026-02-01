@@ -1,18 +1,17 @@
 /**
  * Ralph Hook
  *
- * Self-referential work loop that continues until a completion promise is detected.
+ * Self-referential work loop that continues until cancelled via /oh-my-droid:cancel.
  * Named after the character who keeps working until the job is done.
  *
  * Enhanced with PRD (Product Requirements Document) support for structured task tracking.
  * When a prd.json exists, completion is based on all stories having passes: true.
  *
- * Adapted from oh-my-claudecode.
+ * Ported from oh-my-opencode's ralph hook.
  */
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync, unlinkSync } from 'fs';
 import { join } from 'path';
-import { homedir } from 'os';
 import {
   readPrd,
   getPrdStatus,
@@ -36,7 +35,7 @@ import {
 // Forward declaration to avoid circular import - check ultraqa state file directly
 export function isUltraQAActive(directory: string): boolean {
   const omdDir = join(directory, '.omd');
-  const stateFile = join(omdDir, 'ultraqa-state.json');
+  const stateFile = join(omdDir, 'state', 'ultraqa-state.json');
   if (!existsSync(stateFile)) {
     return false;
   }
@@ -56,8 +55,6 @@ export interface RalphLoopState {
   iteration: number;
   /** Maximum iterations before stopping */
   max_iterations: number;
-  /** The promise phrase to detect for completion */
-  completion_promise: string;
   /** When the loop started */
   started_at: string;
   /** The original prompt/task */
@@ -76,8 +73,6 @@ export interface RalphLoopState {
 export interface RalphLoopOptions {
   /** Maximum iterations (default: 10) */
   maxIterations?: number;
-  /** Custom completion promise (default: "TASK_COMPLETE") */
-  completionPromise?: string;
   /** Disable auto-activation of ultrawork (default: false - ultrawork is enabled) */
   disableUltrawork?: boolean;
 }
@@ -89,23 +84,22 @@ export interface RalphLoopHook {
 }
 
 const DEFAULT_MAX_ITERATIONS = 10;
-const DEFAULT_COMPLETION_PROMISE = 'TASK_COMPLETE';
 
 /**
  * Get the state file path for Ralph Loop
  */
 function getStateFilePath(directory: string): string {
   const omdDir = join(directory, '.omd');
-  return join(omdDir, 'ralph-state.json');
+  return join(omdDir, 'state', 'ralph-state.json');
 }
 
 /**
  * Ensure the .omd directory exists
  */
 function ensureStateDir(directory: string): void {
-  const omdDir = join(directory, '.omd');
-  if (!existsSync(omdDir)) {
-    mkdirSync(omdDir, { recursive: true });
+  const stateDir = join(directory, '.omd', 'state');
+  if (!existsSync(stateDir)) {
+    mkdirSync(stateDir, { recursive: true });
   }
 }
 
@@ -172,7 +166,7 @@ export function clearLinkedUltraworkState(directory: string): boolean {
   }
 
   const omdDir = join(directory, '.omd');
-  const stateFile = join(omdDir, 'ultrawork-state.json');
+  const stateFile = join(omdDir, 'state', 'ultrawork-state.json');
   try {
     unlinkSync(stateFile);
     return true;
@@ -201,45 +195,6 @@ export function incrementRalphIteration(directory: string): RalphLoopState | nul
 }
 
 /**
- * Detect completion promise in session transcript
- */
-export function detectCompletionPromise(
-  sessionId: string,
-  promise: string
-): boolean {
-  // Try to find transcript in Factory's session directory
-  const factoryDir = join(homedir(), '.factory', 'omd');
-  const possiblePaths = [
-    join(factoryDir, 'sessions', sessionId, 'transcript.md'),
-    join(factoryDir, 'sessions', sessionId, 'messages.json'),
-    join(factoryDir, 'transcripts', `${sessionId}.md`)
-  ];
-
-  for (const transcriptPath of possiblePaths) {
-    if (existsSync(transcriptPath)) {
-      try {
-        const content = readFileSync(transcriptPath, 'utf-8');
-        const pattern = new RegExp(`<promise>\\s*${escapeRegex(promise)}\\s*</promise>`, 'is');
-        if (pattern.test(content)) {
-          return true;
-        }
-      } catch {
-        continue;
-      }
-    }
-  }
-
-  return false;
-}
-
-/**
- * Escape regex special characters
- */
-function escapeRegex(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-/**
  * Create a Ralph Loop hook instance
  */
 export function createRalphLoopHook(directory: string): RalphLoopHook {
@@ -261,7 +216,6 @@ export function createRalphLoopHook(directory: string): RalphLoopHook {
       active: true,
       iteration: 1,
       max_iterations: options?.maxIterations ?? DEFAULT_MAX_ITERATIONS,
-      completion_promise: options?.completionPromise ?? DEFAULT_COMPLETION_PROMISE,
       started_at: now,
       prompt,
       session_id: sessionId,

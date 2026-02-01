@@ -14,14 +14,14 @@ describe.skip('delegation-enforcer integration', () => {
   let originalDebugEnv: string | undefined;
 
   beforeEach(() => {
-    originalDebugEnv = process.env.OMD_DEBUG;
+    originalDebugEnv = process.env.OMC_DEBUG;
   });
 
   afterEach(() => {
     if (originalDebugEnv === undefined) {
-      delete process.env.OMD_DEBUG;
+      delete process.env.OMC_DEBUG;
     } else {
-      process.env.OMD_DEBUG = originalDebugEnv;
+      process.env.OMC_DEBUG = originalDebugEnv;
     }
   });
 
@@ -146,8 +146,8 @@ describe.skip('delegation-enforcer integration', () => {
       }
     });
 
-    it('does not log warning when OMD_DEBUG not set', async () => {
-      delete process.env.OMD_DEBUG;
+    it('does not log warning when OMC_DEBUG not set', async () => {
+      delete process.env.OMC_DEBUG;
 
       const consoleWarnSpy = vi.spyOn(console, 'warn');
 
@@ -167,8 +167,8 @@ describe.skip('delegation-enforcer integration', () => {
       consoleWarnSpy.mockRestore();
     });
 
-    it('logs warning when OMD_DEBUG=true', async () => {
-      process.env.OMD_DEBUG = 'true';
+    it('logs warning when OMC_DEBUG=true', async () => {
+      process.env.OMC_DEBUG = 'true';
 
       const consoleWarnSpy = vi.spyOn(console, 'warn');
 

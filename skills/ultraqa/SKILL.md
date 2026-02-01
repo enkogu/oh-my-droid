@@ -91,7 +91,7 @@ Output progress each cycle:
 
 ## State Tracking
 
-Track state in `.omc/ultraqa-state.json`:
+Track state in `.omd/ultraqa-state.json`:
 ```json
 {
   "active": true,
@@ -116,6 +116,19 @@ User can cancel with `/oh-my-droid:cancel` which clears the state file.
 3. **EARLY EXIT on pattern** - 3x same failure = stop and surface
 4. **CLEAR OUTPUT** - User should always know current cycle and status
 5. **CLEAN UP** - Clear state file on completion or cancellation
+
+## STATE CLEANUP ON COMPLETION
+
+**IMPORTANT: Delete state files on completion - do NOT just set `active: false`**
+
+When goal is met OR max cycles reached OR exiting early:
+
+```bash
+# Delete ultraqa state file
+rm -f .omd/state/ultraqa-state.json
+```
+
+This ensures clean state for future sessions. Stale state files with `active: false` should not be left behind.
 
 ---
 

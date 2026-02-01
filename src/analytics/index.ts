@@ -1,7 +1,7 @@
 /**
  * Analytics Module
  *
- * Comprehensive token tracking, cost estimation, and session analytics for Claude API usage
+ * Comprehensive token tracking, cost estimation, and session analytics for API usage
  */
 
 export * from './types.js';

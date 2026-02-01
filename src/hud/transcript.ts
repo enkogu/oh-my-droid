@@ -1,8 +1,8 @@
 /**
  * OMD HUD - Transcript Parser
  *
- * Parse JSONL transcript from Factory to extract agents and todos.
- * Based on claude-hud reference implementation.
+ * Parse JSONL transcript from Factory Droid to extract agents and todos.
+ * Based on droid-hud reference.
  *
  * Performance optimizations:
  * - Tail-based parsing: reads only the last ~500KB of large transcripts
@@ -21,7 +21,7 @@ const MAX_AGENT_MAP_SIZE = 50; // Cap agent tracking
 const MIN_RUNNING_AGENTS_THRESHOLD = 10; // Early termination threshold
 
 /**
- * Tools known to require permission approval in Factory.
+ * Tools known to require permission approval in Factory Droid.
  * Only these tools will trigger the "APPROVE?" indicator.
  */
 const PERMISSION_TOOLS = [
@@ -53,13 +53,18 @@ const THINKING_PART_TYPES = ['thinking', 'reasoning'] as const;
 const THINKING_RECENCY_MS = 30_000; // 30 seconds
 
 /**
- * Parse a Factory transcript JSONL file.
+ * Parse a Factory Droid transcript JSONL file.
  * Extracts running agents and latest todo list.
  *
  * For large files (>500KB), only parses the tail portion for performance.
  */
+export interface ParseTranscriptOptions {
+  staleTaskThresholdMinutes?: number;
+}
+
 export async function parseTranscript(
-  transcriptPath: string | undefined
+  transcriptPath: string | undefined,
+  options?: ParseTranscriptOptions
 ): Promise<TranscriptData> {
   // IMPORTANT: Clear module-level state at the start of each parse
   // to prevent stale data from previous HUD invocations
@@ -119,8 +124,9 @@ export async function parseTranscript(
     // Return partial results on error
   }
 
-  // Filter out stale agents (running for more than 30 minutes are likely abandoned)
-  const STALE_AGENT_THRESHOLD_MS = 30 * 60 * 1000; // 30 minutes
+  // Filter out stale agents (running for more than threshold minutes are likely abandoned)
+  const staleMinutes = options?.staleTaskThresholdMinutes ?? 30;
+  const STALE_AGENT_THRESHOLD_MS = staleMinutes * 60 * 1000;
   const now = Date.now();
 
   for (const agent of agentMap.values()) {

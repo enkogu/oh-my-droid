@@ -2,9 +2,7 @@
  * Verification Module Usage Examples
  *
  * This file demonstrates how to use the verification module
- * in different OMD workflows.
- *
- * Ported from oh-my-claudecode with adaptations for oh-my-droid.
+ * in different OMC workflows.
  */
 
 import {
@@ -55,7 +53,8 @@ export async function exampleRalphVerification(): Promise<void> {
   const validation = await validateChecklist(checklist);
 
   if (validation.valid) {
-    console.log('<promise>TASK_COMPLETE</promise>');
+    // All checks passed - use cancel to cleanly exit the ralph loop
+    console.log('[RALPH VERIFIED] All checks passed. Run /oh-my-droid:cancel to exit.');
   } else {
     console.log('Verification failed:');
     console.log(validation.issues.join('\n'));
@@ -180,7 +179,8 @@ export async function exampleAutopilotValidation(): Promise<void> {
   console.log(report);
 
   if (checklist.summary?.verdict === 'approved') {
-    console.log('<promise>AUTOPILOT_COMPLETE</promise>');
+    // All checks passed - use cancel to cleanly exit autopilot
+    console.log('[AUTOPILOT VERIFIED] All checks passed. Run /oh-my-droid:cancel to exit.');
   }
 }
 

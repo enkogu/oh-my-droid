@@ -15,14 +15,14 @@ describe('delegation-enforcer', () => {
   let originalDebugEnv: string | undefined;
 
   beforeEach(() => {
-    originalDebugEnv = process.env.OMD_DEBUG;
+    originalDebugEnv = process.env.OMC_DEBUG;
   });
 
   afterEach(() => {
     if (originalDebugEnv === undefined) {
-      delete process.env.OMD_DEBUG;
+      delete process.env.OMC_DEBUG;
     } else {
-      process.env.OMD_DEBUG = originalDebugEnv;
+      process.env.OMC_DEBUG = originalDebugEnv;
     }
   });
 
@@ -79,7 +79,7 @@ describe('delegation-enforcer', () => {
       expect(() => enforceModel(input)).toThrow('Unknown agent type');
     });
 
-    it('logs warning only when OMD_DEBUG=true', () => {
+    it('logs warning only when OMC_DEBUG=true', () => {
       const input: AgentInput = {
         description: 'Test task',
         prompt: 'Do something',
@@ -87,12 +87,12 @@ describe('delegation-enforcer', () => {
       };
 
       // Without debug flag
-      delete process.env.OMD_DEBUG;
+      delete process.env.OMC_DEBUG;
       const resultWithoutDebug = enforceModel(input);
       expect(resultWithoutDebug.warning).toBeUndefined();
 
       // With debug flag
-      process.env.OMD_DEBUG = 'true';
+      process.env.OMC_DEBUG = 'true';
       const resultWithDebug = enforceModel(input);
       expect(resultWithDebug.warning).toBeDefined();
       expect(resultWithDebug.warning).toContain('Auto-injecting model');
@@ -100,14 +100,14 @@ describe('delegation-enforcer', () => {
       expect(resultWithDebug.warning).toContain('executor');
     });
 
-    it('does not log warning when OMD_DEBUG is false', () => {
+    it('does not log warning when OMC_DEBUG is false', () => {
       const input: AgentInput = {
         description: 'Test task',
         prompt: 'Do something',
         subagent_type: 'executor'
       };
 
-      process.env.OMD_DEBUG = 'false';
+      process.env.OMC_DEBUG = 'false';
       const result = enforceModel(input);
       expect(result.warning).toBeUndefined();
     });
@@ -217,7 +217,7 @@ describe('delegation-enforcer', () => {
       expect(result.warning).toBeUndefined();
     });
 
-    it('logs warning only when OMD_DEBUG=true and model injected', () => {
+    it('logs warning only when OMC_DEBUG=true and model injected', () => {
       const toolInput: AgentInput = {
         description: 'Test',
         prompt: 'Test',
@@ -225,12 +225,12 @@ describe('delegation-enforcer', () => {
       };
 
       // Without debug
-      delete process.env.OMD_DEBUG;
+      delete process.env.OMC_DEBUG;
       const resultWithoutDebug = processPreToolUse('Agent', toolInput);
       expect(resultWithoutDebug.warning).toBeUndefined();
 
       // With debug
-      process.env.OMD_DEBUG = 'true';
+      process.env.OMC_DEBUG = 'true';
       const resultWithDebug = processPreToolUse('Agent', toolInput);
       expect(resultWithDebug.warning).toBeDefined();
     });

@@ -1,32 +1,32 @@
 ---
 name: pipeline
-description: Chain droids together in sequential or branching workflows with data passing for Android development
+description: Chain agents together in sequential or branching workflows with data passing
 ---
 
 # Pipeline Skill
 
 ## Overview
 
-The pipeline skill enables chaining multiple droids together in defined workflows where the output of one droid becomes the input to the next. This creates powerful droid pipelines similar to Unix pipes but designed for AI droid orchestration.
+The pipeline skill enables chaining multiple agents together in defined workflows where the output of one agent becomes the input to the next. This creates powerful agent pipelines similar to Unix pipes but designed for AI agent orchestration.
 
 ## Core Concepts
 
 ### 1. Sequential Pipelines
 
-The simplest form: Droid A's output flows to Droid B, which flows to Droid C.
+The simplest form: Agent A's output flows to Agent B, which flows to Agent C.
 
 ```
 explore -> architect -> executor
 ```
 
 **Flow:**
-1. Explore droid searches codebase and produces findings
+1. Explore agent searches codebase and produces findings
 2. Architect receives findings and produces analysis/recommendations
 3. Executor receives recommendations and implements changes
 
 ### 2. Branching Pipelines
 
-Route to different droids based on output conditions.
+Route to different agents based on output conditions.
 
 ```
 explore -> {
@@ -38,7 +38,7 @@ explore -> {
 
 ### 3. Parallel-Then-Merge Pipelines
 
-Run multiple droids in parallel, merge their outputs.
+Run multiple agents in parallel, merge their outputs.
 
 ```
 parallel(explore, researcher) -> architect -> executor
@@ -91,7 +91,7 @@ parallel(explore, researcher) -> architect -> executor
 2. `architect` - Analyze root cause
 3. `build-fixer` - Apply fixes and verify
 
-**Use for:** Bugs, build errors, test failures, Gradle issues
+**Use for:** Bugs, build errors, test failures
 
 ---
 
@@ -107,7 +107,7 @@ parallel(explore, researcher) -> architect -> executor
 2. `architect` - Synthesize findings
 3. `writer` - Document recommendations
 
-**Use for:** Technology decisions, API integrations, library evaluations
+**Use for:** Technology decisions, API integrations
 
 ---
 
@@ -124,7 +124,7 @@ parallel(explore, researcher) -> architect -> executor
 3. `executor-high` - Execute refactoring
 4. `qa-tester` - Verify no regressions
 
-**Use for:** Architectural changes, API redesigns, module restructuring
+**Use for:** Architectural changes, API redesigns
 
 ---
 
@@ -141,23 +141,7 @@ parallel(explore, researcher) -> architect -> executor
 3. `executor` - Implement fixes
 4. `security-reviewer-low` - Re-verify
 
-**Use for:** Security reviews, vulnerability fixes, permission audits
-
----
-
-### Build Pipeline
-**Purpose:** Fix build issues systematically
-
-```
-/pipeline build <issue>
-```
-
-**Stages:**
-1. `explore` - Identify build configuration issues
-2. `build-fixer` - Fix Gradle and dependency issues
-3. `qa-tester` - Verify build succeeds
-
-**Use for:** Gradle sync errors, dependency conflicts, build configuration
+**Use for:** Security reviews, vulnerability fixes
 
 ---
 
@@ -166,12 +150,12 @@ parallel(explore, researcher) -> architect -> executor
 ### Basic Sequential
 
 ```
-/pipeline droid1 -> droid2 -> droid3 "task description"
+/pipeline agent1 -> agent2 -> agent3 "task description"
 ```
 
 **Example:**
 ```
-/pipeline explore -> architect -> executor "add offline sync"
+/pipeline explore -> architect -> executor "add authentication"
 ```
 
 ### With Model Specification
@@ -193,12 +177,12 @@ parallel(explore, researcher) -> architect -> executor
 ### With Parallel Stages
 
 ```
-/pipeline [explore, researcher] -> architect -> executor "implement GraphQL"
+/pipeline [explore, researcher] -> architect -> executor "implement OAuth"
 ```
 
 ## Data Passing Protocol
 
-Each droid in the pipeline receives structured context from the previous stage:
+Each agent in the pipeline receives structured context from the previous stage:
 
 ```json
 {
@@ -206,16 +190,16 @@ Each droid in the pipeline receives structured context from the previous stage:
     "original_task": "user's original request",
     "previous_stages": [
       {
-        "droid": "explore",
+        "agent": "explore",
         "model": "haiku",
         "findings": "...",
-        "files_identified": ["app/src/main/java/com/app/MainActivity.kt"]
+        "files_identified": ["src/auth.ts", "src/user.ts"]
       }
     ],
     "current_stage": "architect",
     "next_stage": "executor"
   },
-  "task": "specific task for this droid"
+  "task": "specific task for this agent"
 }
 ```
 
@@ -223,12 +207,12 @@ Each droid in the pipeline receives structured context from the previous stage:
 
 ### Retry Logic
 
-When a droid fails, the pipeline can:
+When an agent fails, the pipeline can:
 
-1. **Retry** - Re-run the same droid (up to 3 times)
+1. **Retry** - Re-run the same agent (up to 3 times)
 2. **Skip** - Continue to next stage with partial output
 3. **Abort** - Stop entire pipeline
-4. **Fallback** - Route to alternative droid
+4. **Fallback** - Route to alternative agent
 
 **Configuration:**
 
@@ -266,27 +250,27 @@ Pipelines maintain state in `.omd/pipeline-state.json`:
   "stages": [
     {
       "name": "explore",
-      "droid": "explore",
+      "agent": "explore",
       "model": "haiku",
       "status": "completed",
       "output": "..."
     },
     {
       "name": "architect",
-      "droid": "architect",
+      "agent": "architect",
       "model": "opus",
       "status": "in_progress",
-      "started_at": "2026-01-26T10:30:00Z"
+      "started_at": "2026-01-23T10:30:00Z"
     },
     {
       "name": "executor",
-      "droid": "executor",
+      "agent": "executor",
       "model": "sonnet",
       "status": "pending"
     }
   ],
   "task": "original user task",
-  "created_at": "2026-01-26T10:25:00Z"
+  "created_at": "2026-01-23T10:25:00Z"
 }
 ```
 
@@ -299,13 +283,12 @@ Before pipeline completion, verify:
 - [ ] No unhandled errors in any stage
 - [ ] All files modified pass lsp_diagnostics
 - [ ] Tests pass (if applicable)
-- [ ] App builds successfully (./gradlew assembleDebug)
 
 ## Advanced Features
 
 ### Conditional Branching
 
-Based on droid output, route to different paths:
+Based on agent output, route to different paths:
 
 ```
 explore -> {
@@ -326,7 +309,7 @@ repeat_until(tests_pass) {
 
 ### Merge Strategies
 
-When parallel droids complete:
+When parallel agents complete:
 
 - **concat**: Concatenate all outputs
 - **summarize**: Use architect to summarize findings
@@ -336,24 +319,24 @@ When parallel droids complete:
 
 ### Example 1: Feature Implementation
 ```
-/pipeline review "add pull-to-refresh with Material Design"
+/pipeline review "add rate limiting to API"
 ```
 → Triggers: explore → architect → critic → executor
 
 ### Example 2: Bug Fix
 ```
-/pipeline debug "app crashes on rotation"
+/pipeline debug "login fails with OAuth"
 ```
 → Triggers: explore → architect → build-fixer
 
 ### Example 3: Custom Chain
 ```
-/pipeline explore:haiku -> architect:opus -> executor:sonnet -> tdd-guide:sonnet "refactor ViewModel layer"
+/pipeline explore:haiku -> architect:opus -> executor:sonnet -> tdd-guide:sonnet "refactor auth module"
 ```
 
 ### Example 4: Research-Driven Implementation
 ```
-/pipeline research "implement WorkManager for background sync"
+/pipeline research "implement GraphQL subscriptions"
 ```
 → Triggers: parallel(researcher, explore) → architect → writer
 
@@ -379,7 +362,7 @@ Pipelines can be used within other skills:
 
 1. **Start with presets** - Use built-in pipelines before creating custom ones
 2. **Match model to complexity** - Don't waste opus on simple tasks
-3. **Keep stages focused** - Each droid should have one clear responsibility
+3. **Keep stages focused** - Each agent should have one clear responsibility
 4. **Use parallel stages** - Run independent work simultaneously
 5. **Verify at checkpoints** - Use architect or critic to verify progress
 6. **Document custom pipelines** - Save successful patterns for reuse
@@ -391,36 +374,49 @@ Pipelines can be used within other skills:
 **Check:** `.omd/pipeline-state.json` for current stage
 **Fix:** Resume with `/pipeline resume` or cancel and restart
 
-### Droid Fails Repeatedly
+### Agent Fails Repeatedly
 
 **Check:** Retry count and error messages
-**Fix:** Route to higher-tier droid or add architect consultation
+**Fix:** Route to higher-tier agent or add architect consultation
 
 ### Output Not Flowing
 
-**Check:** Data passing structure in droid prompts
-**Fix:** Ensure each droid is prompted with `pipeline_context`
+**Check:** Data passing structure in agent prompts
+**Fix:** Ensure each agent is prompted with `pipeline_context`
 
 ## Technical Implementation
 
 The pipeline orchestrator:
 
-1. **Parses pipeline definition** - Validates syntax and droid names
+1. **Parses pipeline definition** - Validates syntax and agent names
 2. **Initializes state** - Creates pipeline-state.json
-3. **Executes stages sequentially** - Spawns droids with Task tool
-4. **Passes context between stages** - Structures output for next droid
+3. **Executes stages sequentially** - Spawns agents with Task tool
+4. **Passes context between stages** - Structures output for next agent
 5. **Handles branching logic** - Evaluates conditions and routes
-6. **Manages parallel execution** - Spawns concurrent droids and merges
+6. **Manages parallel execution** - Spawns concurrent agents and merges
 7. **Persists state** - Updates state file after each stage
 8. **Enforces verification** - Runs checks before completion
+
+## STATE CLEANUP ON COMPLETION
+
+**IMPORTANT: Delete state files on completion - do NOT just set `active: false`**
+
+When pipeline completes (all stages done or cancelled):
+
+```bash
+# Delete pipeline state file
+rm -f .omd/state/pipeline-state.json
+```
+
+This ensures clean state for future sessions. Stale state files with `active: false` should not be left behind.
 
 ## Skill Invocation
 
 This skill activates when:
 
 - User types `/pipeline` command
-- User mentions "droid chain", "workflow", "pipe droids"
-- Pattern detected: "X then Y then Z" with droid names
+- User mentions "agent chain", "workflow", "pipe agents"
+- Pattern detected: "X then Y then Z" with agent names
 
 **Explicit invocation:**
 ```

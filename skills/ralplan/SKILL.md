@@ -7,7 +7,7 @@ description: Iterative planning with Planner, Architect, and Critic until consen
 
 **This is an alias for `/plan --consensus`**
 
-Ralplan orchestrates three specialized droids—Planner, Architect, and Critic—in an iterative loop until consensus is reached on a comprehensive work plan.
+Ralplan orchestrates three specialized agents—Planner, Architect, and Critic—in an iterative loop until consensus is reached on a comprehensive work plan.
 
 ## Usage
 
@@ -18,9 +18,9 @@ Ralplan orchestrates three specialized droids—Planner, Architect, and Critic�
 ## What It Does
 
 Invokes the plan skill with --consensus mode, which:
-1. Creates initial plan with Planner droid
+1. Creates initial plan with Planner agent
 2. Consults Architect for architectural questions
-3. Reviews with Critic droid
+3. Reviews with Critic agent
 4. Iterates until Critic approves (max 5 iterations)
 
 ## Implementation

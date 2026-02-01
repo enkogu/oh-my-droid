@@ -5,6 +5,7 @@
  */
 
 import type { HudRenderContext, HudConfig } from './types.js';
+import { DEFAULT_HUD_CONFIG } from './types.js';
 import { bold, dim } from './colors.js';
 import { renderRalph } from './elements/ralph.js';
 import { renderAgentsByFormat, renderAgentsMultiLine } from './elements/agents.js';
@@ -18,14 +19,65 @@ import { renderPermission } from './elements/permission.js';
 import { renderThinking } from './elements/thinking.js';
 import { renderSession } from './elements/session.js';
 import { renderAutopilot } from './elements/autopilot.js';
+import { renderCwd } from './elements/cwd.js';
 import {
   getAnalyticsDisplay,
-  renderAnalyticsLine,
+  renderAnalyticsLineWithConfig,
   getSessionInfo,
-  renderSessionHealthAnalytics,
+  getSessionHealthAnalyticsData,
   renderBudgetWarning,
   renderCacheEfficiency
 } from './analytics-display.js';
+import type { SessionHealth, HudElementConfig } from './types.js';
+
+/**
+ * Limit output lines to prevent input field shrinkage (Issue #222).
+ * Trims lines from the end while preserving the first (header) line.
+ *
+ * @param lines - Array of output lines
+ * @param maxLines - Maximum number of lines to output (uses DEFAULT_HUD_CONFIG if not specified)
+ * @returns Trimmed array of lines
+ */
+export function limitOutputLines(lines: string[], maxLines?: number): string[] {
+  const limit = Math.max(1, maxLines ?? DEFAULT_HUD_CONFIG.elements.maxOutputLines);
+  if (lines.length <= limit) {
+    return lines;
+  }
+  const truncatedCount = lines.length - limit + 1;
+  return [...lines.slice(0, limit - 1), `... (+${truncatedCount} lines)`];
+}
+
+/**
+ * Render session health analytics respecting config toggles.
+ * Composes output from getSessionHealthAnalyticsData() based on showCache/showCost flags.
+ */
+function renderSessionHealthAnalyticsWithConfig(
+  sessionHealth: SessionHealth,
+  enabledElements: HudElementConfig
+): string {
+  const data = getSessionHealthAnalyticsData(sessionHealth);
+  const parts: string[] = [];
+
+  // Cost indicator and cost amount (respects showCost)
+  if (enabledElements.showCost) {
+    parts.push(data.costIndicator, data.cost);
+  }
+
+  // Tokens always shown (not a cost/cache thing)
+  parts.push(data.tokens);
+
+  // Cache (respects showCache)
+  if (enabledElements.showCache) {
+    parts.push(`Cache: ${data.cache}`);
+  }
+
+  // Cost per hour (respects showCost)
+  if (enabledElements.showCost && data.costHour) {
+    parts.push(data.costHour);
+  }
+
+  return parts.join(' | ');
+}
 
 /**
  * Render the complete statusline (single or multi-line)
@@ -41,18 +93,24 @@ export async function render(context: HudRenderContext, config: HudConfig): Prom
     const sessionInfo = await getSessionInfo();
 
     // Render analytics-focused layout
-    const lines = [sessionInfo, renderAnalyticsLine(analytics)];
+    const lines = [sessionInfo, renderAnalyticsLineWithConfig(analytics, enabledElements.showCost, enabledElements.showCache)];
 
     // Add SessionHealth analytics if available
     if (context.sessionHealth) {
-      const healthAnalytics = renderSessionHealthAnalytics(context.sessionHealth);
+      const healthAnalytics = renderSessionHealthAnalyticsWithConfig(context.sessionHealth, enabledElements);
       if (healthAnalytics) lines.push(healthAnalytics);
 
-      const cacheEfficiency = renderCacheEfficiency(context.sessionHealth);
-      if (cacheEfficiency) lines.push(cacheEfficiency);
+      // Cache efficiency (respects showCache)
+      if (enabledElements.showCache) {
+        const cacheEfficiency = renderCacheEfficiency(context.sessionHealth);
+        if (cacheEfficiency) lines.push(cacheEfficiency);
+      }
 
-      const budgetWarning = renderBudgetWarning(context.sessionHealth);
-      if (budgetWarning) lines.push(budgetWarning);
+      // Budget warning (respects showCost)
+      if (enabledElements.showCost) {
+        const budgetWarning = renderBudgetWarning(context.sessionHealth);
+        if (budgetWarning) lines.push(budgetWarning);
+      }
     }
 
     // Add agents if available
@@ -67,7 +125,13 @@ export async function render(context: HudRenderContext, config: HudConfig): Prom
       if (todos) lines.push(todos);
     }
 
-    return lines.join('\n');
+    return limitOutputLines(lines, config.elements.maxOutputLines).join('\n');
+  }
+
+  // Working directory (first element)
+  if (enabledElements.cwd) {
+    const cwdElement = renderCwd(context.cwd, enabledElements.cwdFormat || 'relative');
+    if (cwdElement) elements.push(cwdElement);
   }
 
   // [OMD] label
@@ -91,7 +155,7 @@ export async function render(context: HudRenderContext, config: HudConfig): Prom
 
   // Extended thinking indicator
   if (enabledElements.thinking && context.thinkingState) {
-    const thinking = renderThinking(context.thinkingState);
+    const thinking = renderThinking(context.thinkingState, enabledElements.thinkingFormat || 'text');
     if (thinking) elements.push(thinking);
   }
 
@@ -100,13 +164,15 @@ export async function render(context: HudRenderContext, config: HudConfig): Prom
     const session = renderSession(context.sessionHealth);
     if (session) elements.push(session);
 
-    // Add analytics inline if available
-    const analytics = renderSessionHealthAnalytics(context.sessionHealth);
+    // Add analytics inline if available (respects showCache/showCost)
+    const analytics = renderSessionHealthAnalyticsWithConfig(context.sessionHealth, enabledElements);
     if (analytics) elements.push(analytics);
 
-    // Add budget warning to detail lines if needed
-    const warning = renderBudgetWarning(context.sessionHealth);
-    if (warning) detailLines.push(warning);
+    // Add budget warning to detail lines if needed (respects showCost)
+    if (enabledElements.showCost) {
+      const warning = renderBudgetWarning(context.sessionHealth);
+      if (warning) detailLines.push(warning);
+    }
   }
 
   // Ralph loop state
@@ -187,10 +253,10 @@ export async function render(context: HudRenderContext, config: HudConfig): Prom
   if (config.preset === 'full' || config.preset === 'dense') {
     try {
       const analytics = await getAnalyticsDisplay();
-      detailLines.push(renderAnalyticsLine(analytics));
+      detailLines.push(renderAnalyticsLineWithConfig(analytics, enabledElements.showCost, enabledElements.showCache));
 
-      // Also add cache efficiency if SessionHealth available
-      if (context.sessionHealth?.cacheHitRate !== undefined) {
+      // Also add cache efficiency if SessionHealth available (respects showCache)
+      if (enabledElements.showCache && context.sessionHealth?.cacheHitRate !== undefined) {
         const cacheEfficiency = renderCacheEfficiency(context.sessionHealth);
         if (cacheEfficiency) detailLines.push(cacheEfficiency);
       }
@@ -199,10 +265,5 @@ export async function render(context: HudRenderContext, config: HudConfig): Prom
     }
   }
 
-  // If we have detail lines, output multi-line
-  if (detailLines.length > 0) {
-    return [headerLine, ...detailLines].join('\n');
-  }
-
-  return headerLine;
+  return limitOutputLines([headerLine, ...detailLines], config.elements.maxOutputLines).join('\n');
 }

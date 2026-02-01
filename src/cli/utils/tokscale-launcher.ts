@@ -3,7 +3,7 @@ import { spawn } from 'child_process';
 export interface TokscaleLaunchOptions {
   light?: boolean;
   view?: 'overview' | 'models' | 'daily' | 'stats';
-  claude?: boolean; // Default true for OMD
+  droid?: boolean; // Default true for OMC
 }
 
 /**
@@ -29,9 +29,9 @@ export async function isTokscaleCLIAvailable(): Promise<boolean> {
 export async function launchTokscaleTUI(options: TokscaleLaunchOptions = {}): Promise<void> {
   const args = ['tokscale@latest'];
 
-  // Always use --claude flag for OMD (Claude-focused) unless explicitly disabled
-  if (options.claude !== false) {
-    args.push('--claude');
+  // Always use --claude flag for OMC (Droid-focused) unless explicitly disabled
+  if (options.droid !== false) {
+    args.push('--droid');
   }
 
   if (options.light) {

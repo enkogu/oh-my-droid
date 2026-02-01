@@ -2,7 +2,8 @@
  * Preemptive Compaction Constants
  *
  * Thresholds and messages for context usage monitoring.
- * Adapted from oh-my-claudecode.
+ *
+ * Adapted from oh-my-opencode's preemptive-compaction hook.
  */
 
 /**
@@ -31,7 +32,7 @@ export const COMPACTION_COOLDOWN_MS = 60_000;
 export const MAX_WARNINGS = 3;
 
 /**
- * Default context limits for Claude models
+ * Default context limits for models
  */
 export const CLAUDE_DEFAULT_CONTEXT_LIMIT =
   process.env.ANTHROPIC_1M_CONTEXT === 'true' ||

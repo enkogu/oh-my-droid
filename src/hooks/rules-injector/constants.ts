@@ -3,14 +3,14 @@
  *
  * Constants for rule file discovery and matching.
  *
- * Adapted from oh-my-claudecode.
+ * Ported from oh-my-opencode's rules-injector hook.
  */
 
 import { join } from 'path';
 import { homedir } from 'os';
 
 /** Storage directory for rules injector state */
-export const OMD_STORAGE_DIR = join(homedir(), '.factory', 'omd');
+export const OMD_STORAGE_DIR = join(homedir(), '.omd');
 export const RULES_INJECTOR_STORAGE = join(OMD_STORAGE_DIR, 'rules-injector');
 
 /** Project marker files that indicate a project root */
@@ -39,7 +39,7 @@ export const PROJECT_RULE_FILES: string[] = [
 export const GITHUB_INSTRUCTIONS_PATTERN = /\.instructions\.md$/;
 
 /** User-level rule directory */
-export const USER_RULE_DIR = '.factory/omd/rules';
+export const USER_RULE_DIR = '.factory/rules';
 
 /** Valid rule file extensions */
 export const RULE_EXTENSIONS = ['.md', '.mdc'];

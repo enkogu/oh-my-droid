@@ -1,7 +1,7 @@
 /**
  * OMD HUD - State Readers
  *
- * Read ralph, ultrawork, and PRD state from existing OMD files.
+ * Read ralph, ultrawork, and PRD state from existing OMC files.
  * These are read-only functions that don't modify the state files.
  */
 
@@ -33,6 +33,18 @@ function isStateFileStale(filePath: string): boolean {
   }
 }
 
+/**
+ * Resolve state file path with fallback from .omd/state/ to .omd/
+ * Returns null if file doesn't exist in either location.
+ */
+function resolveStatePath(directory: string, filename: string): string | null {
+  const newPath = join(directory, '.omd', 'state', filename);
+  const legacyPath = join(directory, '.omd', filename);
+  if (existsSync(newPath)) return newPath;
+  if (existsSync(legacyPath)) return legacyPath;
+  return null;
+}
+
 // ============================================================================
 // Ralph State
 // ============================================================================
@@ -50,9 +62,9 @@ interface RalphLoopState {
  * Returns null if no state file exists or on error.
  */
 export function readRalphStateForHud(directory: string): RalphStateForHud | null {
-  const stateFile = join(directory, '.omd', 'ralph-state.json');
+  const stateFile = resolveStatePath(directory, 'ralph-state.json');
 
-  if (!existsSync(stateFile)) {
+  if (!stateFile) {
     return null;
   }
 
@@ -92,50 +104,33 @@ interface UltraworkState {
 
 /**
  * Read Ultrawork state for HUD display.
- * Checks both local .omd and global ~/.factory/omd locations.
+ * Checks only local .omd/state location.
  */
 export function readUltraworkStateForHud(
   directory: string
 ): UltraworkStateForHud | null {
-  // Check local state first
-  const localFile = join(directory, '.omd', 'ultrawork-state.json');
-  let state: UltraworkState | null = null;
-  let stateFile: string | null = null;
+  // Check local state only (with new path fallback)
+  const localFile = resolveStatePath(directory, 'ultrawork-state.json');
 
-  if (existsSync(localFile) && !isStateFileStale(localFile)) {
-    try {
-      const content = readFileSync(localFile, 'utf-8');
-      state = JSON.parse(content) as UltraworkState;
-      stateFile = localFile;
-    } catch {
-      // Try global
-    }
-  }
-
-  // Check global state if local not found or stale
-  if (!state) {
-    const homeDir = process.env.HOME || process.env.USERPROFILE || '';
-    const globalFile = join(homeDir, '.factory', 'omd', 'ultrawork-state.json');
-
-    if (existsSync(globalFile) && !isStateFileStale(globalFile)) {
-      try {
-        const content = readFileSync(globalFile, 'utf-8');
-        state = JSON.parse(content) as UltraworkState;
-        stateFile = globalFile;
-      } catch {
-        return null;
-      }
-    }
-  }
-
-  if (!state || !state.active) {
+  if (!localFile || isStateFileStale(localFile)) {
     return null;
   }
 
-  return {
-    active: state.active,
-    reinforcementCount: state.reinforcement_count,
-  };
+  try {
+    const content = readFileSync(localFile, 'utf-8');
+    const state = JSON.parse(content) as UltraworkState;
+
+    if (!state.active) {
+      return null;
+    }
+
+    return {
+      active: state.active,
+      reinforcementCount: state.reinforcement_count,
+    };
+  } catch {
+    return null;
+  }
 }
 
 // ============================================================================
@@ -161,7 +156,7 @@ export function readPrdStateForHud(directory: string): PrdStateForHud | null {
   let prdPath = join(directory, 'prd.json');
 
   if (!existsSync(prdPath)) {
-    // Check .omd
+    // Check .omc
     prdPath = join(directory, '.omd', 'prd.json');
 
     if (!existsSync(prdPath)) {
@@ -217,9 +212,9 @@ interface AutopilotStateFile {
  * Returns shape matching AutopilotStateForHud from elements/autopilot.ts.
  */
 export function readAutopilotStateForHud(directory: string): AutopilotStateForHud | null {
-  const stateFile = join(directory, '.omd', 'autopilot-state.json');
+  const stateFile = resolveStatePath(directory, 'autopilot-state.json');
 
-  if (!existsSync(stateFile)) {
+  if (!stateFile) {
     return null;
   }
 

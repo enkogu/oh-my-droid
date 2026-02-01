@@ -16,7 +16,7 @@ import {
 
 program
   .name('omd-analytics')
-  .description('OMD Analytics CLI - Token tracking, cost reports, and session management')
+  .description('OMC Analytics CLI - Token tracking, cost reports, and session management')
   .version('1.0.0');
 
 // Stats command
@@ -93,7 +93,7 @@ program
   .option('--models', 'Show models view')
   .option('--daily', 'Show daily view')
   .option('--stats', 'Show stats view')
-  .option('--no-claude', 'Show all providers (not just Claude)')
+  .option('--no-droid', 'Show all providers (not just Claude)')
   .action(async (options) => {
     const available = await isTokscaleCLIAvailable();
 
@@ -112,7 +112,7 @@ program
       await launchTokscaleTUI({
         light: options.light,
         view,
-        claude: options.claude
+        droid: options.droid
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

@@ -22,7 +22,7 @@ Save important context to `.omd/notepad.md` that survives conversation compactio
 
 ### Priority Context (500 char limit)
 - **Always** injected on session start
-- Use for critical facts: "Project uses Kotlin", "API client in app/src/main/java/api/Client.kt"
+- Use for critical facts: "Project uses pnpm", "API in src/api/client.ts"
 - Keep it SHORT - this eats into your context budget
 
 ### Working Memory
@@ -38,9 +38,9 @@ Save important context to `.omd/notepad.md` that survives conversation compactio
 ## Examples
 
 ```
-/oh-my-droid:note Found auth bug in LoginViewModel - missing viewModelScope launch
-/oh-my-droid:note --priority Project uses Kotlin strict mode, all files in app/src/main/
-/oh-my-droid:note --manual Contact: android-team@company.com for native module questions
+/oh-my-droid:note Found auth bug in UserContext - missing useEffect dependency
+/oh-my-droid:note --priority Project uses TypeScript strict mode, all files in src/
+/oh-my-droid:note --manual Contact: api-team@company.com for backend questions
 /oh-my-droid:note --show
 /oh-my-droid:note --prune
 ```

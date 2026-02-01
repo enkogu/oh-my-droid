@@ -13,7 +13,7 @@ Automate the release process for oh-my-droid.
 /oh-my-droid:release <version>
 ```
 
-Example: `/oh-my-droid:release 1.0.0` or `/oh-my-droid:release patch` or `/oh-my-droid:release minor`
+Example: `/oh-my-droid:release 2.4.0` or `/oh-my-droid:release patch` or `/oh-my-droid:release minor`
 
 ## Release Checklist
 
@@ -31,7 +31,7 @@ Update version in all locations:
 ```bash
 npm run test:run
 ```
-All tests must pass before proceeding.
+All 231+ tests must pass before proceeding.
 
 ### 3. Commit Version Bump
 ```bash
@@ -58,7 +58,7 @@ gh release create v<version> --title "v<version> - <title>" --notes "<release no
 
 ### 7. Verify
 - [ ] npm: https://www.npmjs.com/package/oh-my-droid
-- [ ] GitHub: https://github.com/YOUR_REPO/oh-my-droid/releases
+- [ ] GitHub: https://github.com/MeroZemory/oh-my-droid/releases
 
 ## Version Files Reference
 

@@ -1,15 +1,15 @@
 ---
 name: deepinit
-description: Deep codebase initialization with hierarchical DROIDS.md documentation
+description: Deep codebase initialization with hierarchical AGENTS.md documentation
 ---
 
 # Deep Init Skill
 
-Creates comprehensive, hierarchical DROIDS.md documentation across the entire codebase.
+Creates comprehensive, hierarchical AGENTS.md documentation across the entire codebase.
 
 ## Core Concept
 
-DROIDS.md files serve as **AI-readable documentation** that helps droids understand:
+AGENTS.md files serve as **AI-readable documentation** that helps agents understand:
 - What each directory contains
 - How components relate to each other
 - Special instructions for working in that area
@@ -17,25 +17,25 @@ DROIDS.md files serve as **AI-readable documentation** that helps droids underst
 
 ## Hierarchical Tagging System
 
-Every DROIDS.md (except root) includes a parent reference tag:
+Every AGENTS.md (except root) includes a parent reference tag:
 
 ```markdown
-<!-- Parent: ../DROIDS.md -->
+<!-- Parent: ../AGENTS.md -->
 ```
 
 This creates a navigable hierarchy:
 ```
-/DROIDS.md                          ← Root (no parent tag)
-├── src/DROIDS.md                   ← <!-- Parent: ../DROIDS.md -->
-│   ├── src/components/DROIDS.md    ← <!-- Parent: ../DROIDS.md -->
-│   └── src/utils/DROIDS.md         ← <!-- Parent: ../DROIDS.md -->
-└── docs/DROIDS.md                  ← <!-- Parent: ../DROIDS.md -->
+/AGENTS.md                          ← Root (no parent tag)
+├── src/AGENTS.md                   ← <!-- Parent: ../AGENTS.md -->
+│   ├── src/components/AGENTS.md    ← <!-- Parent: ../AGENTS.md -->
+│   └── src/utils/AGENTS.md         ← <!-- Parent: ../AGENTS.md -->
+└── docs/AGENTS.md                  ← <!-- Parent: ../AGENTS.md -->
 ```
 
-## DROIDS.md Template
+## AGENTS.md Template
 
 ```markdown
-<!-- Parent: {relative_path_to_parent}/DROIDS.md -->
+<!-- Parent: {relative_path_to_parent}/AGENTS.md -->
 <!-- Generated: {timestamp} | Updated: {timestamp} -->
 
 # {Directory Name}
@@ -55,12 +55,12 @@ This creates a navigable hierarchy:
 
 | Directory | Purpose |
 |-----------|---------|
-| `subdir/` | What it contains (see `subdir/DROIDS.md`) |
+| `subdir/` | What it contains (see `subdir/AGENTS.md`) |
 
-## For AI Droids
+## For AI Agents
 
 ### Working In This Directory
-{Special instructions for AI droids modifying files here}
+{Special instructions for AI agents modifying files here}
 
 ### Testing Requirements
 {How to test changes in this directory}
@@ -106,12 +106,12 @@ Level 2: /src/components, /src/utils, /docs/api
 For each directory:
 1. Read all files in the directory
 2. Analyze purpose and relationships
-3. Generate DROIDS.md content
+3. Generate AGENTS.md content
 4. Write file with proper parent reference
 
 ### Step 4: Compare and Update (if exists)
 
-When DROIDS.md already exists:
+When AGENTS.md already exists:
 
 1. **Read existing content**
 2. **Identify sections**:
@@ -132,28 +132,28 @@ After generation, run validation checks:
 
 | Check | How to Verify | Corrective Action |
 |-------|--------------|-------------------|
-| Parent references resolve | Read each DROIDS.md, check `<!-- Parent: -->` path exists | Fix path or remove orphan |
-| No orphaned DROIDS.md | Compare DROIDS.md locations to directory structure | Delete orphaned files |
-| Completeness | List all directories, check for DROIDS.md | Generate missing files |
+| Parent references resolve | Read each AGENTS.md, check `<!-- Parent: -->` path exists | Fix path or remove orphan |
+| No orphaned AGENTS.md | Compare AGENTS.md locations to directory structure | Delete orphaned files |
+| Completeness | List all directories, check for AGENTS.md | Generate missing files |
 | Timestamps current | Check `<!-- Generated: -->` dates | Regenerate outdated files |
 
 Validation script pattern:
 ```bash
-# Find all DROIDS.md files
-find . -name "DROIDS.md" -type f
+# Find all AGENTS.md files
+find . -name "AGENTS.md" -type f
 
 # Check parent references
-grep -r "<!-- Parent:" --include="DROIDS.md" .
+grep -r "<!-- Parent:" --include="AGENTS.md" .
 ```
 
 ## Smart Delegation
 
-| Task | Droid |
+| Task | Agent |
 |------|-------|
 | Directory mapping | `explore` |
 | File analysis | `architect-low` |
 | Content generation | `writer` |
-| DROIDS.md writes | `writer` |
+| AGENTS.md writes | `writer` |
 
 ## Empty Directory Handling
 
@@ -161,14 +161,14 @@ When encountering empty or near-empty directories:
 
 | Condition | Action |
 |-----------|--------|
-| No files, no subdirectories | **Skip** - do not create DROIDS.md |
-| No files, has subdirectories | Create minimal DROIDS.md with subdirectory listing only |
-| Has only generated files (*.min.js, *.map) | Skip or minimal DROIDS.md |
-| Has only config files | Create DROIDS.md describing configuration purpose |
+| No files, no subdirectories | **Skip** - do not create AGENTS.md |
+| No files, has subdirectories | Create minimal AGENTS.md with subdirectory listing only |
+| Has only generated files (*.min.js, *.map) | Skip or minimal AGENTS.md |
+| Has only config files | Create AGENTS.md describing configuration purpose |
 
-Example minimal DROIDS.md for directory-only containers:
+Example minimal AGENTS.md for directory-only containers:
 ```markdown
-<!-- Parent: ../DROIDS.md -->
+<!-- Parent: ../AGENTS.md -->
 # {Directory Name}
 
 ## Purpose
@@ -177,15 +177,15 @@ Container directory for organizing related modules.
 ## Subdirectories
 | Directory | Purpose |
 |-----------|---------|
-| `subdir/` | Description (see `subdir/DROIDS.md`) |
+| `subdir/` | Description (see `subdir/AGENTS.md`) |
 ```
 
 ## Parallelization Rules
 
 1. **Same-level directories**: Process in parallel
 2. **Different levels**: Sequential (parent first)
-3. **Large directories**: Spawn dedicated droid per directory
-4. **Small directories**: Batch multiple into one droid
+3. **Large directories**: Spawn dedicated agent per directory
+4. **Small directories**: Batch multiple into one agent
 
 ## Quality Standards
 
@@ -193,7 +193,7 @@ Container directory for organizing related modules.
 - [ ] Accurate file descriptions
 - [ ] Correct parent references
 - [ ] Subdirectory links
-- [ ] AI droid instructions
+- [ ] AI agent instructions
 
 ### Must Avoid
 - [ ] Generic boilerplate
@@ -203,7 +203,7 @@ Container directory for organizing related modules.
 
 ## Example Output
 
-### Root DROIDS.md
+### Root AGENTS.md
 ```markdown
 <!-- Generated: 2024-01-15 | Updated: 2024-01-15 -->
 
@@ -222,11 +222,11 @@ A web application for managing user tasks with real-time collaboration features.
 ## Subdirectories
 | Directory | Purpose |
 |-----------|---------|
-| `src/` | Application source code (see `src/DROIDS.md`) |
-| `docs/` | Documentation (see `docs/DROIDS.md`) |
-| `tests/` | Test suites (see `tests/DROIDS.md`) |
+| `src/` | Application source code (see `src/AGENTS.md`) |
+| `docs/` | Documentation (see `docs/AGENTS.md`) |
+| `tests/` | Test suites (see `tests/AGENTS.md`) |
 
-## For AI Droids
+## For AI Agents
 
 ### Working In This Directory
 - Always run `npm install` after modifying package.json
@@ -251,9 +251,9 @@ A web application for managing user tasks with real-time collaboration features.
 <!-- MANUAL: Custom project notes can be added below -->
 ```
 
-### Nested DROIDS.md
+### Nested AGENTS.md
 ```markdown
-<!-- Parent: ../DROIDS.md -->
+<!-- Parent: ../AGENTS.md -->
 <!-- Generated: 2024-01-15 | Updated: 2024-01-15 -->
 
 # components
@@ -271,10 +271,10 @@ Reusable React components organized by feature and complexity.
 ## Subdirectories
 | Directory | Purpose |
 |-----------|---------|
-| `forms/` | Form-related components (see `forms/DROIDS.md`) |
-| `layout/` | Layout components (see `layout/DROIDS.md`) |
+| `forms/` | Form-related components (see `forms/AGENTS.md`) |
+| `layout/` | Layout components (see `layout/AGENTS.md`) |
 
-## For AI Droids
+## For AI Agents
 
 ### Working In This Directory
 - Each component has its own file
@@ -304,7 +304,7 @@ Reusable React components organized by feature and complexity.
 
 ## Triggering Update Mode
 
-When running on an existing codebase with DROIDS.md files:
+When running on an existing codebase with AGENTS.md files:
 
 1. Detect existing files first
 2. Read and parse existing content
@@ -317,4 +317,4 @@ When running on an existing codebase with DROIDS.md files:
 - **Cache directory listings** - Don't re-scan same directories
 - **Batch small directories** - Process multiple at once
 - **Skip unchanged** - If directory hasn't changed, skip regeneration
-- **Parallel writes** - Multiple droids writing different files simultaneously
+- **Parallel writes** - Multiple agents writing different files simultaneously

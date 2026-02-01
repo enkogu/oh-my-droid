@@ -35,7 +35,7 @@ When `--prd` flag detected:
       "id": "US-001",
       "title": "[Short title]",
       "description": "As a [user], I want to [action] so that [benefit].",
-      "acceptanceCriteria": ["Criterion 1", "App builds successfully"],
+      "acceptanceCriteria": ["Criterion 1", "Typecheck passes"],
       "priority": 1,
       "passes": false
     }
@@ -57,19 +57,19 @@ Started: [ISO timestamp]
 
 5. **Guidelines for PRD creation**:
    - Right-sized stories: Each completable in one focused session
-   - Verifiable criteria: Include "App builds successfully", "Tests pass"
+   - Verifiable criteria: Include "Typecheck passes", "Tests pass"
    - Independent stories: Minimize dependencies
-   - Priority order: Foundational work (Models, Gradle) before UI
+   - Priority order: Foundational work (DB, types) before UI
 
 6. **After PRD created**: Proceed to normal ralph loop execution using the user stories as your task list
 
 ### Example Usage
 
-User input: `--prd build a todo app with Kotlin and Jetpack Compose`
+User input: `--prd build a todo app with React and TypeScript`
 
 Your workflow:
 1. Detect `--prd` flag
-2. Extract task: "build a todo app with Kotlin and Jetpack Compose"
+2. Extract task: "build a todo app with React and TypeScript"
 3. Create `.omd/prd.json` with user stories
 4. Create `.omd/progress.txt`
 5. Begin ralph loop using user stories as task breakdown
@@ -81,7 +81,7 @@ Ralph automatically activates Ultrawork for maximum parallel execution. You MUST
 ### Parallel Execution Rules
 - **PARALLEL**: Fire independent calls simultaneously - NEVER wait sequentially
 - **BACKGROUND FIRST**: Use Task(run_in_background=true) for long operations (10+ concurrent)
-- **DELEGATE**: Route tasks to specialist droids immediately
+- **DELEGATE**: Route tasks to specialist agents immediately
 
 ### Smart Model Routing (SAVE TOKENS)
 
@@ -91,7 +91,7 @@ Ralph automatically activates Ultrawork for maximum parallel execution. You MUST
 | Standard work | MEDIUM (sonnet) | "Add error handling", "Implement this feature" |
 | Complex analysis | HIGH (opus) | "Debug this race condition", "Refactor auth module" |
 
-### Available Droids by Tier
+### Available Agents by Tier
 
 | Domain | LOW (Haiku) | MEDIUM (Sonnet) | HIGH (Opus) |
 |--------|-------------|-----------------|-------------|
@@ -121,10 +121,10 @@ Task(subagent_type="oh-my-droid:architect", model="opus", prompt="...")
 ### Background Execution Rules
 
 **Run in Background** (set `run_in_background: true`):
-- Package installation: npm install, pip install, gradle build
-- Build processes: ./gradlew assembleDebug, npm run build
-- Test suites: ./gradlew test, npm test, pytest
-- APK/AAB builds: ./gradlew assembleRelease, bundleRelease
+- Package installation: npm install, pip install, cargo build
+- Build processes: npm run build, make, tsc
+- Test suites: npm test, pytest, cargo test
+- Docker operations: docker build, docker pull
 
 **Run Blocking** (foreground):
 - Quick status checks: git status, ls, pwd
@@ -139,7 +139,6 @@ Before claiming completion, you MUST:
 3. Check that code compiles/runs without errors
 4. Verify tests pass (if applicable)
 5. TODO LIST: Zero pending/in_progress tasks
-6. APK/AAB: Builds successfully (for Android projects)
 
 ## VERIFICATION BEFORE COMPLETION (IRON LAW)
 
@@ -160,7 +159,7 @@ Before outputting the completion promise:
 
 ### Evidence Chain
 1. Fresh test run output showing pass
-2. Fresh build output showing success (./gradlew assembleDebug for Android)
+2. Fresh build output showing success
 3. lsp_diagnostics showing 0 errors
 4. THEN Architect verification
 5. THEN completion promise
@@ -177,10 +176,10 @@ When you believe the task is complete:
 
 2. **Wait for Architect's assessment**
 
-3. **If Architect approves**: Output `<promise>{{PROMISE}}</promise>`
+3. **If Architect approves**: Run `/oh-my-droid:cancel` to cleanly exit ralph mode
 4. **If Architect finds issues**: Fix them, then repeat verification
 
-DO NOT output the completion promise without Architect verification.
+DO NOT exit without Architect verification.
 
 ## ZERO TOLERANCE
 
@@ -189,12 +188,23 @@ DO NOT output the completion promise without Architect verification.
 - NO Premature Stopping - ALL TODOs must be complete
 - NO TEST DELETION - fix code, not tests
 
+## STATE CLEANUP ON COMPLETION
+
+**IMPORTANT: Use the cancel skill for proper state cleanup**
+
+When work is complete and Architect verification passes, run `/oh-my-droid:cancel` to cleanly exit ralph mode. This handles:
+- Deletion of ralph state files (both local and global)
+- Cleanup of linked ultrawork or ecomode state
+- Proper termination of the ralph loop
+
+This ensures clean state for future sessions without leaving stale state files behind.
+
 ## INSTRUCTIONS
 
 - Review your progress so far
 - Continue from where you left off
 - Use parallel execution and background tasks
-- When FULLY complete AND Architect verified, output: <promise>{{PROMISE}}</promise>
+- When FULLY complete AND Architect verified: Run `/oh-my-droid:cancel` to cleanly exit and clean up all state files
 - Do not stop until the task is truly done
 
 Original task:

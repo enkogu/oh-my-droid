@@ -1,11 +1,11 @@
 ---
 name: autopilot
-description: Full autonomous execution from idea to working Android app
+description: Full autonomous execution from idea to working code
 ---
 
 # Autopilot Skill
 
-Full autonomous execution from idea to working Android app.
+Full autonomous execution from idea to working code.
 
 ## Overview
 
@@ -14,7 +14,7 @@ Autopilot is the ultimate hands-off mode. Give it a brief product idea (2-3 line
 1. **Understands** your requirements (Analyst)
 2. **Designs** the technical approach (Architect)
 3. **Plans** the implementation (Critic-validated)
-4. **Builds** with parallel droids (Ralph + Ultrawork)
+4. **Builds** with parallel agents (Ralph + Ultrawork)
 5. **Tests** until everything passes (UltraQA)
 6. **Validates** quality and security (Multi-architect review)
 
@@ -22,8 +22,8 @@ Autopilot is the ultimate hands-off mode. Give it a brief product idea (2-3 line
 
 ```
 /oh-my-droid:autopilot <your idea>
-/oh-my-droid:ap "A todo list app with Material Design 3"
-/oh-my-droid:autopilot Add offline sync to the app
+/oh-my-droid:ap "A CLI tool that tracks daily habits"
+/oh-my-droid:autopilot Add dark mode to the app
 ```
 
 ## Magic Keywords
@@ -40,7 +40,7 @@ These phrases auto-activate autopilot:
 
 **Goal:** Turn vague idea into detailed spec
 
-**Droids:**
+**Agents:**
 - Analyst (Opus) - Extract requirements
 - Architect (Opus) - Technical specification
 
@@ -50,7 +50,7 @@ These phrases auto-activate autopilot:
 
 **Goal:** Create implementation plan from spec
 
-**Droids:**
+**Agents:**
 - Architect (Opus) - Create plan (direct mode, no interview)
 - Critic (Opus) - Validate plan
 
@@ -62,21 +62,21 @@ These phrases auto-activate autopilot:
 
 **Mode:** Ralph + Ultrawork (persistence + parallelism)
 
-**Droids:**
+**Agents:**
 - Executor-low (Haiku) - Simple tasks
 - Executor (Sonnet) - Standard tasks
 - Executor-high (Opus) - Complex tasks
 
 ### Phase 3: QA
 
-**Goal:** All tests pass and app builds
+**Goal:** All tests pass
 
 **Mode:** UltraQA
 
 **Cycle:**
-1. Build (./gradlew assembleDebug)
-2. Lint (./gradlew lint)
-3. Test (./gradlew test)
+1. Build
+2. Lint
+3. Test
 4. Fix failures
 5. Repeat (max 5 cycles)
 
@@ -84,7 +84,7 @@ These phrases auto-activate autopilot:
 
 **Goal:** Multi-perspective approval
 
-**Droids (parallel):**
+**Agents (parallel):**
 - Architect - Functional completeness
 - Security-reviewer - Vulnerability check
 - Code-reviewer - Quality review
@@ -93,7 +93,7 @@ These phrases auto-activate autopilot:
 
 ## Configuration
 
-Optional settings in `.claude/settings.json`:
+Optional settings in `.factory/settings.json`:
 
 ```json
 {
@@ -129,25 +129,41 @@ If autopilot was cancelled or failed, just run `/oh-my-droid:autopilot` again to
 
 **New Project:**
 ```
-/oh-my-droid:autopilot A weather app with location tracking and Material Design 3
+/oh-my-droid:autopilot A REST API for a bookstore inventory with CRUD operations
 ```
 
 **Feature Addition:**
 ```
-/oh-my-droid:autopilot Add dark theme support with system preference detection
+/oh-my-droid:autopilot Add user authentication with JWT tokens
 ```
 
 **Enhancement:**
 ```
-/oh-my-droid:ap Add offline-first architecture with Room database
+/oh-my-droid:ap Add dark mode support with system preference detection
 ```
 
 ## Best Practices
 
-1. **Be specific about the platform** - "Android app", "Jetpack Compose"
-2. **Mention key features** - "with Room", "with Retrofit", "Material Design 3"
-3. **Specify constraints** - "using Kotlin", "targeting API 26+"
+1. **Be specific about the domain** - "bookstore" not "store"
+2. **Mention key features** - "with CRUD", "with authentication"
+3. **Specify constraints** - "using TypeScript", "with PostgreSQL"
 4. **Let it run** - Don't interrupt unless truly needed
+
+## STATE CLEANUP ON COMPLETION
+
+**IMPORTANT: Delete ALL state files on successful completion**
+
+When autopilot reaches the `complete` phase (all validation passed):
+
+```bash
+# Delete autopilot and all sub-mode state files
+rm -f .omd/state/autopilot-state.json
+rm -f .omd/state/ralph-state.json
+rm -f .omd/state/ultrawork-state.json
+rm -f .omd/state/ultraqa-state.json
+```
+
+This ensures clean state for future sessions.
 
 ## Troubleshooting
 
@@ -165,8 +181,3 @@ If autopilot was cancelled or failed, just run `/oh-my-droid:autopilot` again to
 - Same error 3 times = fundamental issue
 - Review the error pattern
 - May need manual intervention
-
-**Build failures?**
-- Check Gradle sync status
-- Review build.gradle dependencies
-- Verify SDK versions in local.properties

@@ -1,18 +1,18 @@
 ---
 name: learn-about-omd
-description: Analyze your OMD usage patterns and get personalized Android development recommendations
+description: Analyze your OMC usage patterns and get personalized recommendations
 ---
 
-# Learn About OMD
+# Learn About OMC
 
-Analyzes your oh-my-droid usage and provides tailored recommendations to improve your Android development workflow.
+Analyzes your oh-my-droid usage and provides tailored recommendations to improve your workflow.
 
 ## What It Does
 
 1. Reads token tracking from `~/.omd/state/token-tracking.jsonl`
 2. Reads session history from `.omd/state/session-history.json`
-3. Analyzes Android agent usage patterns
-4. Identifies underutilized Android-specific features
+3. Analyzes agent usage patterns
+4. Identifies underutilized features
 5. Recommends configuration changes
 
 ## Implementation
@@ -25,7 +25,7 @@ TOKEN_FILE="$HOME/.omd/state/token-tracking.jsonl"
 SESSION_FILE=".omd/state/session-history.json"
 CONFIG_FILE="$HOME/.factory/.omd-config.json"
 
-echo "📊 Analyzing OMD Usage..."
+echo "📊 Analyzing OMC Usage..."
 echo ""
 
 # Check what data is available
@@ -52,12 +52,12 @@ if [[ -f "$CONFIG_FILE" ]]; then
 fi
 ```
 
-### Step 2: Analyze Android Agent Usage (if token data exists)
+### Step 2: Analyze Agent Usage (if token data exists)
 
 ```bash
 if [[ "$HAS_TOKENS" == "true" ]]; then
   echo ""
-  echo "TOP ANDROID AGENTS BY USAGE:"
+  echo "TOP AGENTS BY USAGE:"
   cat "$TOKEN_FILE" | jq -r '.agentName // "main"' | sort | uniq -c | sort -rn | head -10
 
   echo ""
@@ -66,21 +66,18 @@ if [[ "$HAS_TOKENS" == "true" ]]; then
 fi
 ```
 
-### Step 3: Generate Android-Specific Recommendations
+### Step 3: Generate Recommendations
 
 Based on patterns found, output recommendations:
 
 **If high Opus usage (>40%) and no ecomode:**
-- "Consider using ecomode for routine Android tasks to save tokens"
+- "Consider using ecomode for routine tasks to save tokens"
 
-**If no layout-designer usage:**
-- "Try delegating UI work to layout-designer agent"
+**If no pipeline usage:**
+- "Try /pipeline for code review workflows"
 
-**If no gradle-expert usage:**
-- "Use gradle-expert for build configuration issues"
-
-**If no test-expert usage:**
-- "Use test-expert for Android testing strategies"
+**If no security-reviewer usage:**
+- "Use security-reviewer after auth/API changes"
 
 **If defaultExecutionMode not set:**
 - "Set defaultExecutionMode in /omd-setup for consistent behavior"
@@ -89,8 +86,8 @@ Based on patterns found, output recommendations:
 
 Format a nice summary with:
 - Token summary (total, by model)
-- Top Android agents used
-- Underutilized Android-specific features
+- Top agents used
+- Underutilized features
 - Personalized recommendations
 
 ### Graceful Degradation
@@ -101,43 +98,31 @@ If no data found:
 
 No token tracking found. To enable tracking:
 1. Ensure ~/.omd/state/ directory exists
-2. Run any OMD command to start tracking
+2. Run any OMC command to start tracking
 
-Tip: Run /omd-setup to configure OMD properly.
+Tip: Run /omd-setup to configure OMC properly.
 ```
 
 ## Example Output
 
 ```
-📊 Your OMD Usage Analysis
+📊 Your OMC Usage Analysis
 
 TOKEN SUMMARY:
 - Total records: 1,234
 - By Model: opus 45%, sonnet 40%, haiku 15%
 
-TOP ANDROID AGENTS:
-1. kotlin-expert (234 uses)
-2. android-architect (89 uses)
-3. layout-designer (67 uses)
-4. gradle-expert (45 uses)
+TOP AGENTS:
+1. executor (234 uses)
+2. architect (89 uses)
+3. explore (67 uses)
 
 UNDERUTILIZED FEATURES:
-- ecomode: 0 uses (could save ~30% on routine Android tasks)
-- test-expert: 2 uses (improve testing coverage)
-- compose-expert: 0 uses (for Jetpack Compose work)
+- ecomode: 0 uses (could save ~30% on routine tasks)
+- pipeline: 0 uses (great for review workflows)
 
 RECOMMENDATIONS:
 1. Set defaultExecutionMode: "ecomode" to save tokens
-2. Use layout-designer for all UI work
-3. Delegate Gradle issues to gradle-expert
-4. Try test-expert for comprehensive testing strategies
+2. Try /pipeline review for PR reviews
+3. Use explore agent before architect to save context
 ```
-
-## Android-Specific Insights
-
-The analysis looks for:
-- Balance between architecture and implementation agents
-- UI/layout work delegation patterns
-- Gradle and build configuration usage
-- Testing agent utilization
-- Lifecycle and debugging patterns

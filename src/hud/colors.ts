@@ -2,7 +2,7 @@
  * OMD HUD - ANSI Color Utilities
  *
  * Terminal color codes for statusline rendering.
- * Based on claude-hud reference implementation.
+ * Based on droid-hud reference.
  */
 
 // ANSI escape codes

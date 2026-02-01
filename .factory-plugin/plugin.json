@@ -1,8 +1,20 @@
 {
   "name": "oh-my-droid",
-  "description": "Multi-agent orchestration plugin for Factory AI Droid CLI",
-  "version": "1.0.0",
+  "version": "3.8.17",
+  "description": "Multi-agent orchestration system for Factory Droid",
   "author": {
     "name": "Jio Kim"
-  }
+  },
+  "repository": "https://github.com/MeroZemory/oh-my-droid",
+  "homepage": "https://github.com/MeroZemory/oh-my-droid",
+  "license": "MIT",
+  "keywords": [
+    "factory-droid",
+    "plugin",
+    "multi-agent",
+    "orchestration",
+    "automation"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
 }

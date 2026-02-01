@@ -3,8 +3,6 @@
  *
  * Self-referential work loop with PRD support, progress tracking, and architect verification.
  * All ralph-related functionality is now consolidated in this single module.
- *
- * Adapted from oh-my-claudecode.
  */
 
 // ============================================================================
@@ -21,7 +19,6 @@ export {
 
   // Loop control
   createRalphLoopHook,
-  detectCompletionPromise,
   isUltraQAActive,
 
   // PRD integration
@@ -53,7 +50,7 @@ export {
   writePrd,
   findPrdPath,
   getPrdPath,
-  getOmdPrdPath,
+  getOmcPrdPath,
 
   // PRD status & operations
   getPrdStatus,
@@ -92,7 +89,7 @@ export {
   parseProgress,
   findProgressPath,
   getProgressPath,
-  getOmdProgressPath,
+  getOmcProgressPath,
 
   // Progress operations
   initProgress,

@@ -1,27 +1,27 @@
 ---
 name: ultrawork
-description: Maximum parallel execution mode with droid orchestration for high-throughput task completion
+description: Activate maximum performance mode with parallel agent orchestration for high-throughput task completion
 ---
 
 # Ultrawork Skill
 
-Activates maximum performance mode with parallel droid orchestration.
+Activates maximum performance mode with parallel agent orchestration.
 
 ## When Activated
 
-This skill enhances Claude's capabilities by:
+This skill enhances the agent's capabilities by:
 
-1. **Parallel Execution**: Running multiple droids simultaneously for independent tasks
-2. **Aggressive Delegation**: Routing tasks to specialist droids immediately
+1. **Parallel Execution**: Running multiple agents simultaneously for independent tasks
+2. **Aggressive Delegation**: Routing tasks to specialist agents immediately
 3. **Background Operations**: Using `run_in_background: true` for long operations
 4. **Persistence Enforcement**: Never stopping until all tasks are verified complete
-5. **Smart Model Routing**: Using tiered droids to save tokens
+5. **Smart Model Routing**: Using tiered agents to save tokens
 
 ## Smart Model Routing (CRITICAL - SAVE TOKENS)
 
 **Choose tier based on task complexity: LOW (haiku) → MEDIUM (sonnet) → HIGH (opus)**
 
-### Available Droids by Tier
+### Available Agents by Tier
 
 | Domain | LOW (Haiku) | MEDIUM (Sonnet) | HIGH (Opus) |
 |--------|-------------|-----------------|-------------|
@@ -49,7 +49,7 @@ This skill enhances Claude's capabilities by:
 
 ### Routing Examples
 
-**CRITICAL: Always pass `model` parameter explicitly - Claude Code does NOT auto-apply models from droid definitions!**
+**CRITICAL: Always pass `model` parameter explicitly - Factory Droid does NOT auto-apply models from agent definitions!**
 
 ```
 // Simple question → LOW tier (saves tokens!)
@@ -68,28 +68,13 @@ Task(subagent_type="oh-my-droid:explore", model="haiku", prompt="Find where User
 Task(subagent_type="oh-my-droid:explore-medium", model="sonnet", prompt="Find all authentication patterns in the codebase")
 ```
 
-## Delegation Enforcement (CRITICAL)
-
-**YOU ARE AN ORCHESTRATOR, NOT AN IMPLEMENTER.**
-
-| Action | YOU Do | DELEGATE |
-|--------|--------|----------|
-| Read files for context | ✓ | |
-| Track progress (TODO) | ✓ | |
-| Spawn parallel droids | ✓ | |
-| **ANY code change** | ✗ NEVER | executor droid |
-| **UI work** | ✗ NEVER | designer droid |
-| **Docs** | ✗ NEVER | writer droid |
-
-**Path Exception**: Only write to `.omd/`, `.claude/`, `CLAUDE.md`, `DROIDS.md`
-
 ## Background Execution Rules
 
 **Run in Background** (set `run_in_background: true`):
-- Package installation: npm install, pip install, gradle build
-- Build processes: npm run build, gradle assemble, ./gradlew build
-- Test suites: npm test, ./gradlew test, pytest
-- APK/AAB builds: ./gradlew assembleDebug, bundleRelease
+- Package installation: npm install, pip install, cargo build
+- Build processes: npm run build, make, tsc
+- Test suites: npm test, pytest, cargo test
+- Docker operations: docker build, docker pull
 
 **Run Blocking** (foreground):
 - Quick status checks: git status, ls, pwd
@@ -103,6 +88,18 @@ Before stopping, verify:
 - [ ] FUNCTIONALITY: All requested features work
 - [ ] TESTS: All tests pass (if applicable)
 - [ ] ERRORS: Zero unaddressed errors
-- [ ] APK/AAB: Builds successfully (if applicable)
 
 **If ANY checkbox is unchecked, CONTINUE WORKING.**
+
+## STATE CLEANUP ON COMPLETION
+
+**IMPORTANT: Delete state files on completion - do NOT just set `active: false`**
+
+When all verification passes and work is complete:
+
+```bash
+# Delete ultrawork state files
+rm -f .omd/state/ultrawork-state.json
+```
+
+This ensures clean state for future sessions. Stale state files with `active: false` should not be left behind.

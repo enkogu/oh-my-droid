@@ -4,17 +4,15 @@
  * Middleware that ensures model parameter is always present in Task/Agent calls.
  * Automatically injects the default model from agent definitions when not specified.
  *
- * This solves the problem where Claude Code doesn't automatically apply models
+ * This solves the problem where Factory Droid doesn't automatically apply models
  * from agent definitions - every Task call must explicitly pass the model parameter.
- *
- * Ported from oh-my-claudecode with adaptations for oh-my-droid.
  */
 
-import { getAgentDefinitions } from '../agents/definitions.js';
+import { getAgentDefinitions } from '../droids/definitions.js';
 import type { ModelType } from '../shared/types.js';
 
 /**
- * Agent input structure from Claude Agent SDK
+ * Agent input structure from Factory Droid SDK
  */
 export interface AgentInput {
   description: string;
@@ -37,7 +35,7 @@ export interface EnforcementResult {
   injected: boolean;
   /** The model that was used */
   model: ModelType;
-  /** Warning message (only if OMD_DEBUG=true) */
+  /** Warning message (only if OMC_DEBUG=true) */
   warning?: string;
 }
 
@@ -86,9 +84,9 @@ export function enforceModel(agentInput: AgentInput): EnforcementResult {
     model: sdkModel,
   };
 
-  // Create warning message (only shown if OMD_DEBUG=true)
+  // Create warning message (only shown if OMC_DEBUG=true)
   let warning: string | undefined;
-  if (process.env.OMD_DEBUG === 'true') {
+  if (process.env.OMC_DEBUG === 'true') {
     warning = `[OMD] Auto-injecting model: ${sdkModel} for ${agentType}`;
   }
 

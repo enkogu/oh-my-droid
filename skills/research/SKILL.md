@@ -1,19 +1,19 @@
 ---
 name: research
-description: Orchestrate parallel scientist droids for comprehensive research with AUTO mode
+description: Orchestrate parallel scientist agents for comprehensive research with AUTO mode
 argument-hint: <research goal>
 ---
 
 # Research Skill
 
-Orchestrate parallel scientist droids for comprehensive research workflows with optional AUTO mode for fully autonomous execution.
+Orchestrate parallel scientist agents for comprehensive research workflows with optional AUTO mode for fully autonomous execution.
 
 ## Overview
 
 Research is a multi-stage workflow that decomposes complex research goals into parallel investigations:
 
 1. **Decomposition** - Break research goal into independent stages/hypotheses
-2. **Execution** - Run parallel scientist droids on each stage
+2. **Execution** - Run parallel scientist agents on each stage
 3. **Verification** - Cross-validate findings, check consistency
 4. **Synthesis** - Aggregate results into comprehensive report
 
@@ -76,7 +76,7 @@ Task(subagent_type="oh-my-droid:scientist-high", model="opus", prompt="[RESEARCH
 
 **CRITICAL: Always pass `model` parameter explicitly!**
 
-| Task Complexity | Droid | Model | Use For |
+| Task Complexity | Agent | Model | Use For |
 |-----------------|-------|-------|---------|
 | Data gathering | `scientist-low` | haiku | File enumeration, pattern counting, simple lookups |
 | Standard analysis | `scientist` | sonnet | Code analysis, pattern detection, documentation review |
@@ -216,7 +216,7 @@ Validate consistency across all findings:
 
 ### Concurrency Limit
 
-**Maximum 5 concurrent scientist droids** to prevent resource exhaustion.
+**Maximum 5 concurrent scientist agents** to prevent resource exhaustion.
 
 If more than 5 stages, batch them:
 ```
@@ -351,7 +351,7 @@ Findings must meet quality threshold:
 | Evidence present | At least 1 [EVIDENCE] per [FINDING] |
 | Confidence stated | Each finding has [CONFIDENCE] |
 | Source cited | File paths are absolute and valid |
-| Reproducible | Another droid could verify |
+| Reproducible | Another agent could verify |
 
 ## Report Generation
 
@@ -460,7 +460,7 @@ Report generator embeds figures:
 
 ## Configuration
 
-Optional settings in `.droid/settings.json`:
+Optional settings in `.factory/settings.json`:
 
 ```json
 {

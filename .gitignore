@@ -1,60 +1,10 @@
-# oh-my-droid state directories
-.omd/
-.omc/
-
-# Local project settings (generated on install)
-.factory/
-
-# Reference repos (not part of this project)
-oh-my-claudecode/
-
-# Dependencies
 node_modules/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# Build outputs
 dist/
-build/
-*.js
-*.d.ts
-*.map
-
-# Keep source files
-!src/**/*.js
-
-# TypeScript
-*.tsbuildinfo
-
-# Logs
-logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Environment
-.env
-.env.local
-.env.*.local
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
 .DS_Store
-Thumbs.db
+.omc/
+.sisyphus/
 
-# Test coverage
-coverage/
-.nyc_output/
-
-# Temporary files
-tmp/
-temp/
-*.tmp
+# Windows reserved names (prevent accidental creation)
+nul
+NUL

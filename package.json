@@ -1,7 +1,7 @@
 {
   "name": "oh-my-droid",
-  "version": "1.0.0",
-  "description": "Multi-agent orchestration plugin for Factory AI Droid CLI",
+  "version": "3.8.17",
+  "description": "Multi-agent orchestration system for Factory Droid - Inspired by oh-my-opencode",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,24 +13,27 @@
   },
   "bin": {
     "oh-my-droid": "dist/cli/index.js",
+    "omd": "dist/cli/index.js",
     "omd-analytics": "dist/cli/analytics.js",
     "omd-cli": "dist/cli/index.js"
   },
   "files": [
     "dist",
     "droids",
+    "bridge",
+    "commands",
     "hooks",
     "scripts",
     "skills",
     "templates",
     "docs",
     ".factory-plugin/plugin.json",
+    ".mcp.json",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
-    "build:full": "tsc && node scripts/build-skill-bridge.mjs",
+    "build": "tsc && node scripts/build-skill-bridge.mjs && node scripts/build-mcp-server.mjs",
     "build:bridge": "node scripts/build-skill-bridge.mjs",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
@@ -38,7 +41,7 @@
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint src/",
+    "lint": "eslint src",
     "format": "prettier --write src/**/*.ts",
     "sync-metadata": "tsx scripts/sync-metadata.ts",
     "sync-metadata:verify": "tsx scripts/sync-metadata.ts --verify",
@@ -49,10 +52,15 @@
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.1.0",
     "@ast-grep/napi": "^0.31.0",
+    "@modelcontextprotocol/sdk": "^1.25.3",
     "@tokscale/core": "^1.0.25",
+    "@types/better-sqlite3": "^7.6.13",
+    "ajv": "^8.17.1",
+    "better-sqlite3": "^12.6.2",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
     "jsonc-parser": "^3.3.1",
+    "safe-regex": "^2.1.1",
     "vscode-languageserver-protocol": "^3.17.5",
     "zod": "^3.23.8"
   },
@@ -85,13 +93,13 @@
   "license": "MIT",
   "keywords": [
     "droid",
+    "factory-droid",
     "factory-ai",
     "ai",
     "agent",
     "multi-agent",
     "orchestration",
     "omd",
-    "anthropic",
     "llm"
   ],
   "publishConfig": {

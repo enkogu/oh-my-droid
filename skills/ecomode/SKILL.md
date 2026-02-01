@@ -1,6 +1,6 @@
 ---
 name: ecomode
-description: Token-efficient parallel execution mode using Haiku and Sonnet droids
+description: Token-efficient parallel execution mode using Haiku and Sonnet agents
 ---
 
 # Ecomode Skill
@@ -9,10 +9,10 @@ Activates token-efficient parallel execution for pro-plan users who prioritize c
 
 ## When Activated
 
-This skill enhances Claude's capabilities by:
+This skill enhances the agent's capabilities by:
 
-1. **Parallel Execution**: Running multiple droids simultaneously for independent tasks
-2. **Token-Conscious Routing**: Preferring Haiku and Sonnet droids, avoiding Opus
+1. **Parallel Execution**: Running multiple agents simultaneously for independent tasks
+2. **Token-Conscious Routing**: Preferring Haiku and Sonnet agents, avoiding Opus
 3. **Background Operations**: Using `run_in_background: true` for long operations
 4. **Persistence Enforcement**: Never stopping until all tasks are verified complete
 5. **Cost Optimization**: Minimizing token usage while maintaining quality
@@ -31,7 +31,7 @@ This skill enhances Claude's capabilities by:
 
 **Choose tier based on task complexity: LOW (haiku) preferred → MEDIUM (sonnet) fallback → HIGH (opus) AVOID**
 
-### Droid Routing Table
+### Agent Routing Table
 
 | Domain | PREFERRED (Haiku) | FALLBACK (Sonnet) | AVOID (Opus) |
 |--------|-------------------|-------------------|--------------|
@@ -62,7 +62,7 @@ This skill enhances Claude's capabilities by:
 
 ### Routing Examples
 
-**CRITICAL: Always pass `model` parameter explicitly - Claude Code does NOT auto-apply models from droid definitions!**
+**CRITICAL: Always pass `model` parameter explicitly - Factory Droid does NOT auto-apply models from agent definitions!**
 
 ```
 // Simple question → LOW tier (DEFAULT)
@@ -89,20 +89,20 @@ Task(subagent_type="oh-my-droid:explore-medium", model="sonnet", prompt="Find al
 |--------|--------|----------|
 | Read files for context | ✓ | |
 | Track progress (TODO) | ✓ | |
-| Spawn parallel droids | ✓ | |
+| Spawn parallel agents | ✓ | |
 | **ANY code change** | ✗ NEVER | executor-low/executor |
 | **UI work** | ✗ NEVER | designer-low/designer |
 | **Docs** | ✗ NEVER | writer |
 
-**Path Exception**: Only write to `.omd/`, `.claude/`, `CLAUDE.md`, `DROIDS.md`
+**Path Exception**: Only write to `.omd/`, `.factory/`, `FACTORY.md`, `AGENTS.md`
 
 ## Background Execution Rules
 
 **Run in Background** (set `run_in_background: true`):
-- Package installation: npm install, pip install, gradle build
-- Build processes: ./gradlew assembleDebug, npm run build
-- Test suites: ./gradlew test, npm test, pytest
-- APK/AAB builds: ./gradlew assembleRelease, bundleRelease
+- Package installation: npm install, pip install, cargo build
+- Build processes: npm run build, make, tsc
+- Test suites: npm test, pytest, cargo test
+- Docker operations: docker build, docker pull
 
 **Run Blocking** (foreground):
 - Quick status checks: git status, ls, pwd
@@ -116,15 +116,26 @@ Before stopping, verify:
 - [ ] FUNCTIONALITY: All requested features work
 - [ ] TESTS: All tests pass (if applicable)
 - [ ] ERRORS: Zero unaddressed errors
-- [ ] APK/AAB: Builds successfully (for Android projects)
 
 **If ANY checkbox is unchecked, CONTINUE WORKING.**
 
 ## Token Savings Tips
 
-1. **Batch similar tasks** to one droid instead of spawning many
+1. **Batch similar tasks** to one agent instead of spawning many
 2. **Use explore (haiku)** for file discovery, not architect
 3. **Prefer executor-low** for simple changes - only upgrade if it fails
-4. **Avoid opus droids** unless the task genuinely requires deep reasoning
+4. **Avoid opus agents** unless the task genuinely requires deep reasoning
 5. **Use writer (haiku)** for all documentation tasks
-6. **Use build-fixer-low** for simple Gradle errors
+
+## STATE CLEANUP ON COMPLETION
+
+**IMPORTANT: Delete state files on completion - do NOT just set `active: false`**
+
+When ecomode completes (all verification passes):
+
+```bash
+# Delete ecomode state files
+rm -f .omd/state/ecomode-state.json
+```
+
+This ensures clean state for future sessions. Stale state files with `active: false` should not be left behind.

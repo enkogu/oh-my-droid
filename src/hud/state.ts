@@ -8,7 +8,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
-import type { OmdHudState, BackgroundTask, HudConfig } from './types.js';
+import type { OmcHudState, BackgroundTask, HudConfig } from './types.js';
 import { DEFAULT_HUD_CONFIG, PRESET_CONFIGS } from './types.js';
 import { cleanupStaleBackgroundTasks, markOrphanedTasksAsStale } from './background-cleanup.js';
 
@@ -17,83 +17,69 @@ import { cleanupStaleBackgroundTasks, markOrphanedTasksAsStale } from './backgro
 // ============================================================================
 
 /**
- * Get the HUD state file path in the project's .omd directory
+ * Get the HUD state file path in the project's .omd/state directory
  */
 function getLocalStateFilePath(directory?: string): string {
   const baseDir = directory || process.cwd();
-  const omdDir = join(baseDir, '.omd');
-  return join(omdDir, 'hud-state.json');
+  const omdStateDir = join(baseDir, '.omd', 'state');
+  return join(omdStateDir, 'hud-state.json');
 }
 
-/**
- * Get global HUD state file path (for cross-session persistence)
- */
-function getGlobalStateFilePath(): string {
-  return join(homedir(), '.factory', 'omd', 'hud-state.json');
-}
 
 /**
  * Get the HUD config file path
  */
 function getConfigFilePath(): string {
-  return join(homedir(), '.factory', 'omd', 'hud-config.json');
+  return join(homedir(), '.factory', '.omd', 'hud-config.json');
 }
 
 /**
- * Ensure the .omd directory exists
+ * Ensure the .omd/state directory exists
  */
 function ensureStateDir(directory?: string): void {
   const baseDir = directory || process.cwd();
-  const omdDir = join(baseDir, '.omd');
-  if (!existsSync(omdDir)) {
-    mkdirSync(omdDir, { recursive: true });
+  const omdStateDir = join(baseDir, '.omd', 'state');
+  if (!existsSync(omdStateDir)) {
+    mkdirSync(omdStateDir, { recursive: true });
   }
 }
 
 /**
- * Ensure the ~/.factory/omd directory exists
+ * Ensure the ~/.factory/.omc directory exists
  */
 function ensureGlobalConfigDir(): void {
-  const configDir = join(homedir(), '.factory', 'omd');
+  const configDir = join(homedir(), '.factory', '.omd');
   if (!existsSync(configDir)) {
     mkdirSync(configDir, { recursive: true });
   }
 }
 
-/**
- * Ensure the ~/.factory/omd directory exists
- */
-function ensureGlobalStateDir(): void {
-  const factoryDir = join(homedir(), '.factory', 'omd');
-  if (!existsSync(factoryDir)) {
-    mkdirSync(factoryDir, { recursive: true });
-  }
-}
 
 // ============================================================================
 // HUD State Operations
 // ============================================================================
 
 /**
- * Read HUD state from disk (checks both local and global)
+ * Read HUD state from disk (checks new local and legacy local only)
  */
-export function readHudState(directory?: string): OmdHudState | null {
-  // Check local state first
+export function readHudState(directory?: string): OmcHudState | null {
+  // Check new local state first (.omd/state/hud-state.json)
   const localStateFile = getLocalStateFilePath(directory);
   if (existsSync(localStateFile)) {
     try {
       const content = readFileSync(localStateFile, 'utf-8');
       return JSON.parse(content);
     } catch {
-      // Fall through to global check
+      // Fall through to legacy check
     }
   }
 
-  // Check global state
-  const globalStateFile = getGlobalStateFilePath();
-  if (existsSync(globalStateFile)) {
+  // Check legacy local state (.omd/hud-state.json)
+  const baseDir = directory || process.cwd();
+  const legacyStateFile = join(baseDir, '.omd', 'hud-state.json');
+  if (existsSync(legacyStateFile)) {
     try {
-      const content = readFileSync(globalStateFile, 'utf-8');
+      const content = readFileSync(legacyStateFile, 'utf-8');
       return JSON.parse(content);
     } catch {
       return null;
@@ -104,22 +90,17 @@ export function readHudState(directory?: string): OmdHudState | null {
 }
 
 /**
- * Write HUD state to disk (both local and global for redundancy)
+ * Write HUD state to disk (local only)
  */
 export function writeHudState(
-  state: OmdHudState,
+  state: OmcHudState,
   directory?: string
 ): boolean {
   try {
-    // Write to local .omd
+    // Write to local .omd/state only
     ensureStateDir(directory);
     const localStateFile = getLocalStateFilePath(directory);
     writeFileSync(localStateFile, JSON.stringify(state, null, 2));
-
-    // Write to global ~/.factory/omd for cross-session persistence
-    ensureGlobalStateDir();
-    const globalStateFile = getGlobalStateFilePath();
-    writeFileSync(globalStateFile, JSON.stringify(state, null, 2));
 
     return true;
   } catch {
@@ -130,7 +111,7 @@ export function writeHudState(
 /**
  * Create a new empty HUD state
  */
-export function createEmptyHudState(): OmdHudState {
+export function createEmptyHudState(): OmcHudState {
   return {
     timestamp: new Date().toISOString(),
     backgroundTasks: [],
@@ -140,7 +121,7 @@ export function createEmptyHudState(): OmdHudState {
 /**
  * Get running background tasks from state
  */
-export function getRunningTasks(state: OmdHudState | null): BackgroundTask[] {
+export function getRunningTasks(state: OmcHudState | null): BackgroundTask[] {
   if (!state) return [];
   return state.backgroundTasks.filter((task) => task.status === 'running');
 }
@@ -148,7 +129,7 @@ export function getRunningTasks(state: OmdHudState | null): BackgroundTask[] {
 /**
  * Get background task count string (e.g., "3/5")
  */
-export function getBackgroundTaskCount(state: OmdHudState | null): {
+export function getBackgroundTaskCount(state: OmcHudState | null): {
   running: number;
   max: number;
 } {
@@ -187,6 +168,7 @@ export function readHudConfig(): HudConfig {
         ...DEFAULT_HUD_CONFIG.thresholds,
         ...config.thresholds,
       },
+      staleTaskThresholdMinutes: config.staleTaskThresholdMinutes ?? DEFAULT_HUD_CONFIG.staleTaskThresholdMinutes,
     };
   } catch {
     return DEFAULT_HUD_CONFIG;
