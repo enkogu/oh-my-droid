@@ -9,7 +9,7 @@
  */
 
 import { existsSync, readFileSync, writeFileSync, readdirSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { homedir } from 'os';
 
 async function readStdin() {
@@ -32,8 +32,8 @@ function readJsonFile(path) {
 function writeJsonFile(path, data) {
   try {
     // Ensure directory exists
-    const dir = path.substring(0, path.lastIndexOf('/'));
-    if (dir && !existsSync(dir)) {
+    const dir = dirname(path);
+    if (dir && dir !== '.' && !existsSync(dir)) {
       mkdirSync(dir, { recursive: true });
     }
     writeFileSync(path, JSON.stringify(data, null, 2));
@@ -349,7 +349,9 @@ async function main() {
 
     // Priority 7: Ultrawork - ALWAYS continue while active (not just when tasks exist)
     // This prevents false stops from bash errors, transient failures, etc.
-    if (ultrawork.state?.active && !isStaleState(ultrawork.state)) {
+    // Session isolation: only block if state belongs to this session. If no session_id (legacy), allow.
+    if (ultrawork.state?.active && !isStaleState(ultrawork.state) &&
+        (!ultrawork.state.session_id || ultrawork.state.session_id === sessionId)) {
       const newCount = (ultrawork.state.reinforcement_count || 0) + 1;
       const maxReinforcements = ultrawork.state.max_reinforcements || 50;
 

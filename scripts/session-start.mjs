@@ -81,6 +81,7 @@ async function main() {
     try { data = JSON.parse(input); } catch {}
 
     const directory = data.directory || process.cwd();
+    const sessionId = data.sessionId || data.session_id || '';
     const messages = [];
 
     // Check HUD installation (one-time setup guidance)
@@ -95,7 +96,8 @@ async function main() {
     const ultraworkState = readJsonFile(join(directory, '.omd', 'state', 'ultrawork-state.json'))
       || readJsonFile(join(homedir(), '.omd', 'state', 'ultrawork-state.json'));
 
-    if (ultraworkState?.active) {
+    // Only restore if session matches (prevents cross-project contamination)
+    if (ultraworkState?.active && (!ultraworkState.session_id || ultraworkState.session_id === sessionId)) {
       messages.push(`<session-restore>
 
 [ULTRAWORK MODE RESTORED]

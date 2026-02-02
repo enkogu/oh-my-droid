@@ -8,7 +8,7 @@
  */
 
 import { readFileSync } from 'fs';
-import { join, dirname, resolve } from 'path';
+import { join, dirname, resolve, relative, isAbsolute } from 'path';
 import { fileURLToPath } from 'url';
 
 import type {
@@ -53,7 +53,8 @@ export function loadAgentPrompt(agentName: string): string {
     // Security: Verify resolved path is within the droids directory
     const resolvedPath = resolve(agentPath);
     const resolvedDroidsDir = resolve(droidsDir);
-    if (!resolvedPath.startsWith(resolvedDroidsDir + '/') && resolvedPath !== resolvedDroidsDir) {
+    const rel = relative(resolvedDroidsDir, resolvedPath);
+    if (rel.startsWith('..') || isAbsolute(rel)) {
       throw new Error(`Invalid agent name: path traversal detected`);
     }
 

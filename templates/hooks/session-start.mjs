@@ -116,6 +116,7 @@ async function main() {
     try { data = JSON.parse(input); } catch {}
 
     const directory = data.directory || process.cwd();
+    const sessionId = data.sessionId || data.session_id || '';
     const messages = [];
 
     // Check for updates (non-blocking)
@@ -143,10 +144,11 @@ To update, run: droid /plugin install oh-my-droid
     }
 
     // Check for ultrawork state
-    const ultraworkState = readJsonFile(join(directory, '.omd', 'ultrawork-state.json'))
-      || readJsonFile(join(homedir(), '.factory', 'ultrawork-state.json'));
+    const ultraworkState = readJsonFile(join(directory, '.omd', 'state', 'ultrawork-state.json'))
+      || readJsonFile(join(homedir(), '.omd', 'state', 'ultrawork-state.json'));
 
-    if (ultraworkState?.active) {
+    // Only restore if session matches (prevents cross-project contamination)
+    if (ultraworkState?.active && (!ultraworkState.session_id || ultraworkState.session_id === sessionId)) {
       messages.push(`<session-restore>
 
 [ULTRAWORK MODE RESTORED]
