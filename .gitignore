@@ -3,6 +3,7 @@ dist/
 *.log
 .DS_Store
 .omc/
+.omd/
 .sisyphus/
 
 # Windows reserved names (prevent accidental creation)

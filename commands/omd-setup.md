@@ -272,7 +272,7 @@ Ask user: "Would you like to configure MCP servers for enhanced capabilities? (C
 
 If yes, invoke the mcp-setup skill:
 ```
-/oh-my-droid:mcp-setup
+/mcp-setup
 ```
 
 If no, skip to next step.
@@ -315,7 +315,7 @@ Just include these words naturally in your request:
 **ralph includes ultrawork:** When you activate ralph mode, it automatically includes ultrawork's parallel execution. No need to combine keywords.
 
 MCP SERVERS:
-Run /oh-my-droid:mcp-setup to add tools like web search, GitHub, etc.
+Run /mcp-setup to add tools like web search, GitHub, etc.
 
 HUD STATUSLINE:
 The status bar now shows OMD state. Restart Factory Droid to see it.

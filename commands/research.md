@@ -11,12 +11,12 @@ Orchestrate parallel scientist agents for comprehensive research workflows with 
 ## Usage Examples
 
 ```
-/oh-my-droid:research <goal>                    # Standard research with user checkpoints
-/oh-my-droid:research AUTO: <goal>              # Fully autonomous until complete
-/oh-my-droid:research status                    # Check current research session status
-/oh-my-droid:research resume                    # Resume interrupted research session
-/oh-my-droid:research list                      # List all research sessions
-/oh-my-droid:research report <session-id>       # Generate report for session
+/research <goal>                    # Standard research with user checkpoints
+/research AUTO: <goal>              # Fully autonomous until complete
+/research status                    # Check current research session status
+/research resume                    # Resume interrupted research session
+/research list                      # List all research sessions
+/research report <session-id>       # Generate report for session
 ```
 
 ## Research Protocol
@@ -73,7 +73,7 @@ AUTO mode runs the complete research workflow autonomously with loop control.
 1. **Max Iterations:** 10
 2. **Continue until:** Promise tag emitted OR max iterations
 3. **State tracking:** Persist after each stage completion
-4. **Cancellation:** `/oh-my-droid:cancel` or "stop", "cancel"
+4. **Cancellation:** `/cancel` or "stop", "cancel"
 
 ## Session Management
 
@@ -86,7 +86,7 @@ Sessions are stored at `.omd/research/{session-id}/` with:
 ## Cancellation
 
 ```
-/oh-my-droid:cancel
+/cancel
 ```
 
 Or say: "stop research", "cancel research", "abort"

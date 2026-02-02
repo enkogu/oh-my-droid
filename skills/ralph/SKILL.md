@@ -176,7 +176,7 @@ When you believe the task is complete:
 
 2. **Wait for Architect's assessment**
 
-3. **If Architect approves**: Run `/oh-my-droid:cancel` to cleanly exit ralph mode
+3. **If Architect approves**: Run `/cancel` to cleanly exit ralph mode
 4. **If Architect finds issues**: Fix them, then repeat verification
 
 DO NOT exit without Architect verification.
@@ -192,7 +192,7 @@ DO NOT exit without Architect verification.
 
 **IMPORTANT: Use the cancel skill for proper state cleanup**
 
-When work is complete and Architect verification passes, run `/oh-my-droid:cancel` to cleanly exit ralph mode. This handles:
+When work is complete and Architect verification passes, run `/cancel` to cleanly exit ralph mode. This handles:
 - Deletion of ralph state files (both local and global)
 - Cleanup of linked ultrawork or ecomode state
 - Proper termination of the ralph loop
@@ -204,7 +204,7 @@ This ensures clean state for future sessions without leaving stale state files b
 - Review your progress so far
 - Continue from where you left off
 - Use parallel execution and background tasks
-- When FULLY complete AND Architect verified: Run `/oh-my-droid:cancel` to cleanly exit and clean up all state files
+- When FULLY complete AND Architect verified: Run `/cancel` to cleanly exit and clean up all state files
 - Do not stop until the task is truly done
 
 Original task:

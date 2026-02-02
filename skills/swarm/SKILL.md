@@ -156,7 +156,7 @@ LOOP:
 Exit when ANY of:
 - isSwarmComplete() returns true (all tasks done or failed)
 - All agents idle (no pending tasks, no claimed tasks)
-- User cancels via `/oh-my-droid:cancel`
+- User cancels via `/cancel`
 
 ## Storage
 
@@ -582,7 +582,7 @@ interface SwarmStats {
 
 ## Cancel Swarm
 
-User can cancel via `/oh-my-droid:cancel`:
+User can cancel via `/cancel`:
 - Stops orchestrator monitoring
 - Signals all background agents to exit
 - Preserves partial progress in SQLite database

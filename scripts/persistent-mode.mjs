@@ -246,7 +246,7 @@ async function main() {
 
         console.log(JSON.stringify({
           continue: true,
-          message: `[RALPH LOOP - ITERATION ${iteration + 1}/${maxIter}] Work is NOT done. Continue working.\nWhen FULLY complete (after Architect verification), run /oh-my-droid:cancel to cleanly exit ralph mode and clean up state files. If cancel fails, retry with /oh-my-droid:cancel --force.\n${ralph.state.prompt ? `Task: ${ralph.state.prompt}` : ''}`
+          message: `[RALPH LOOP - ITERATION ${iteration + 1}/${maxIter}] Work is NOT done. Continue working.\nWhen FULLY complete (after Architect verification), run /omd-cancel (or /cancel) to cleanly exit ralph mode and clean up state files. If cancel fails, retry with /omd-cancel --force.\n${ralph.state.prompt ? `Task: ${ralph.state.prompt}` : ''}`
         }));
         return;
       }
@@ -264,7 +264,7 @@ async function main() {
 
           console.log(JSON.stringify({
             continue: true,
-            message: `[AUTOPILOT - Phase: ${phase}] Autopilot not complete. Continue working. When all phases are complete, run /oh-my-droid:cancel to cleanly exit and clean up state files. If cancel fails, retry with /oh-my-droid:cancel --force.`
+            message: `[AUTOPILOT - Phase: ${phase}] Autopilot not complete. Continue working. When all phases are complete, run /omd-cancel (or /cancel) to cleanly exit and clean up state files. If cancel fails, retry with /omd-cancel --force.`
           }));
           return;
         }
@@ -284,7 +284,7 @@ async function main() {
 
           console.log(JSON.stringify({
             continue: true,
-            message: `[ULTRAPILOT] ${incomplete} workers still running. Continue working. When all workers complete, run /oh-my-droid:cancel to cleanly exit and clean up state files. If cancel fails, retry with /oh-my-droid:cancel --force.`
+            message: `[ULTRAPILOT] ${incomplete} workers still running. Continue working. When all workers complete, run /omd-cancel (or /cancel) to cleanly exit and clean up state files. If cancel fails, retry with /omd-cancel --force.`
           }));
           return;
         }
@@ -303,7 +303,7 @@ async function main() {
 
           console.log(JSON.stringify({
             continue: true,
-            message: `[SWARM ACTIVE] ${pending} tasks remain. Continue working. When all tasks are done, run /oh-my-droid:cancel to cleanly exit and clean up state files. If cancel fails, retry with /oh-my-droid:cancel --force.`
+            message: `[SWARM ACTIVE] ${pending} tasks remain. Continue working. When all tasks are done, run /omd-cancel (or /cancel) to cleanly exit and clean up state files. If cancel fails, retry with /omd-cancel --force.`
           }));
           return;
         }
@@ -323,7 +323,7 @@ async function main() {
 
           console.log(JSON.stringify({
             continue: true,
-            message: `[PIPELINE - Stage ${currentStage + 1}/${totalStages}] Pipeline not complete. Continue working. When all stages complete, run /oh-my-droid:cancel to cleanly exit and clean up state files. If cancel fails, retry with /oh-my-droid:cancel --force.`
+            message: `[PIPELINE - Stage ${currentStage + 1}/${totalStages}] Pipeline not complete. Continue working. When all stages complete, run /omd-cancel (or /cancel) to cleanly exit and clean up state files. If cancel fails, retry with /omd-cancel --force.`
           }));
           return;
         }
@@ -341,7 +341,7 @@ async function main() {
 
         console.log(JSON.stringify({
           continue: true,
-          message: `[ULTRAQA - Cycle ${cycle + 1}/${maxCycles}] Tests not all passing. Continue fixing. When all tests pass, run /oh-my-droid:cancel to cleanly exit and clean up state files. If cancel fails, retry with /oh-my-droid:cancel --force.`
+          message: `[ULTRAQA - Cycle ${cycle + 1}/${maxCycles}] Tests not all passing. Continue fixing. When all tests pass, run /omd-cancel (or /cancel) to cleanly exit and clean up state files. If cancel fails, retry with /omd-cancel --force.`
         }));
         return;
       }
@@ -372,7 +372,7 @@ async function main() {
         reason += ` ${totalIncomplete} incomplete ${itemType} remain. Continue working.`;
       } else if (newCount >= 3) {
         // Only suggest cancel after minimum iterations (guard against no-tasks-created scenario)
-        reason += ` If all work is complete, run /oh-my-droid:cancel to cleanly exit ultrawork mode and clean up state files. If cancel fails, retry with /oh-my-droid:cancel --force. Otherwise, continue working.`;
+        reason += ` If all work is complete, run /omd-cancel (or /cancel) to cleanly exit ultrawork mode and clean up state files. If cancel fails, retry with /omd-cancel --force. Otherwise, continue working.`;
       } else {
         // Early iterations with no tasks yet - just tell LLM to continue
         reason += ` Continue working - create Tasks to track your progress.`;
@@ -408,7 +408,7 @@ async function main() {
         reason += ` ${totalIncomplete} incomplete ${itemType} remain. Continue working.`;
       } else if (newCount >= 3) {
         // Only suggest cancel after minimum iterations (guard against no-tasks-created scenario)
-        reason += ` If all work is complete, run /oh-my-droid:cancel to cleanly exit ecomode and clean up state files. If cancel fails, retry with /oh-my-droid:cancel --force. Otherwise, continue working.`;
+        reason += ` If all work is complete, run /omd-cancel (or /cancel) to cleanly exit ecomode and clean up state files. If cancel fails, retry with /omd-cancel --force. Otherwise, continue working.`;
       } else {
         // Early iterations with no tasks yet - just tell LLM to continue
         reason += ` Continue working - create Tasks to track your progress.`;

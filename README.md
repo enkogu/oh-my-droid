@@ -14,17 +14,20 @@ Based on [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) by 
 ## Quick Start
 
 **Step 1: Install**
+
 ```bash
-/plugin marketplace add https://github.com/MeroZemory/oh-my-droid
-/plugin install oh-my-droid@oh-my-droid
+droid plugin marketplace add https://github.com/MeroZemory/oh-my-droid
+droid plugin install oh-my-droid@oh-my-droid
 ```
 
 **Step 2: Setup**
+
 ```bash
-/oh-my-droid:omd-setup
+/omd-setup
 ```
 
 **Step 3: Build something**
+
 ```
 autopilot: build a REST API for managing tasks
 ```
@@ -49,15 +52,15 @@ That's it. Everything else is automatic.
 
 ### Execution Modes
 
-| Mode | Speed | Use For |
-|------|-------|---------|
-| **Autopilot** | Fast | Full autonomous workflows |
-| **Ultrawork** | Parallel | Maximum parallelism for any task |
-| **Ralph** | Persistent | Tasks that must complete fully |
-| **Ultrapilot** | 3-5x faster | Multi-component systems |
-| **Ecomode** | Fast + 30-50% cheaper | Budget-conscious projects |
-| **Swarm** | Coordinated | Parallel independent tasks |
-| **Pipeline** | Sequential | Multi-stage processing |
+| Mode                 | Speed                 | Use For                          |
+| -------------------- | --------------------- | -------------------------------- |
+| **Autopilot**  | Fast                  | Full autonomous workflows        |
+| **Ultrawork**  | Parallel              | Maximum parallelism for any task |
+| **Ralph**      | Persistent            | Tasks that must complete fully   |
+| **Ultrapilot** | 3-5x faster           | Multi-component systems          |
+| **Ecomode**    | Fast + 30-50% cheaper | Budget-conscious projects        |
+| **Swarm**      | Coordinated           | Parallel independent tasks       |
+| **Pipeline**   | Sequential            | Multi-stage processing           |
 
 ### Intelligent Orchestration
 
@@ -78,14 +81,14 @@ That's it. Everything else is automatic.
 
 Optional shortcuts for power users. Natural language works fine without them.
 
-| Keyword | Effect | Example |
-|---------|--------|---------|
-| `autopilot` | Full autonomous execution | `autopilot: build a todo app` |
-| `ralph` | Persistence mode | `ralph: refactor auth` |
-| `ulw` | Maximum parallelism | `ulw fix all errors` |
-| `eco` | Token-efficient execution | `eco: migrate database` |
-| `plan` | Planning interview | `plan the API` |
-| `ralplan` | Iterative planning consensus | `ralplan this feature` |
+| Keyword       | Effect                       | Example                         |
+| ------------- | ---------------------------- | ------------------------------- |
+| `autopilot` | Full autonomous execution    | `autopilot: build a todo app` |
+| `ralph`     | Persistence mode             | `ralph: refactor auth`        |
+| `ulw`       | Maximum parallelism          | `ulw fix all errors`          |
+| `eco`       | Token-efficient execution    | `eco: migrate database`       |
+| `plan`      | Planning interview           | `plan the API`                |
+| `ralplan`   | Iterative planning consensus | `ralplan this feature`        |
 
 **ralph includes ultrawork:** When you activate ralph mode, it automatically includes ultrawork's parallel execution. No need to combine keywords.
 

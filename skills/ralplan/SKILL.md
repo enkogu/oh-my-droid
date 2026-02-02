@@ -12,7 +12,7 @@ Ralplan orchestrates three specialized agentsâ€”Planner, Architect, and Criticâ€
 ## Usage
 
 ```
-/oh-my-droid:ralplan [task]
+/ralplan [task]
 ```
 
 ## What It Does

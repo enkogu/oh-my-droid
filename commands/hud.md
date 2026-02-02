@@ -10,12 +10,12 @@ Configure the OMD HUD (Heads-Up Display) for the statusline.
 
 | Command | Description |
 |---------|-------------|
-| `/oh-my-droid:hud` | Show current HUD status (auto-setup if needed) |
-| `/oh-my-droid:hud setup` | Install/repair HUD statusline |
-| `/oh-my-droid:hud minimal` | Switch to minimal display |
-| `/oh-my-droid:hud focused` | Switch to focused display (default) |
-| `/oh-my-droid:hud full` | Switch to full display |
-| `/oh-my-droid:hud status` | Show detailed HUD status |
+| `/hud` | Show current HUD status (auto-setup if needed) |
+| `/hud setup` | Install/repair HUD statusline |
+| `/hud minimal` | Switch to minimal display |
+| `/hud focused` | Switch to focused display (default) |
+| `/hud full` | Switch to full display |
+| `/hud status` | Show detailed HUD status |
 
 ## Auto-Setup
 
@@ -134,7 +134,7 @@ async function main() {
   if (pluginCacheDir) {
     console.log(`[OMD] HUD not built. Run: cd "${pluginCacheDir}" && npm install`);
   } else {
-    console.log("[OMD] Plugin not found. Run: /oh-my-droid:omd-setup");
+    console.log("[OMD] Plugin not found. Run: /omd-setup");
   }
 }
 
@@ -277,9 +277,9 @@ You can manually edit the config file. Each option can be set individually - any
 ## Troubleshooting
 
 If the HUD is not showing:
-1. Run `/oh-my-droid:hud setup` to auto-install and configure
+1. Run `/hud setup` to auto-install and configure
 2. Restart Factory Droid after setup completes
-3. If still not working, run `/oh-my-droid:doctor` for full diagnostics
+3. If still not working, run `/doctor` for full diagnostics
 
 Manual verification:
 - HUD script: `~/.factory/hud/omd-hud.mjs`

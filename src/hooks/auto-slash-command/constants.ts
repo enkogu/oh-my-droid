@@ -17,15 +17,15 @@ export const SLASH_COMMAND_PATTERN = /^\/([a-zA-Z][\w-]*)\s*(.*)/;
 
 /**
  * Commands that should NOT be auto-expanded
- * (they have special handling elsewhere or are now skills with oh-my-droid: prefix)
+ * (they have special handling elsewhere)
  */
 export const EXCLUDED_COMMANDS = new Set([
   'ralph',
-  'oh-my-droid:ralplan',
-  'oh-my-droid:ultraqa',
-  'oh-my-droid:learner',
-  'oh-my-droid:plan',
-  'oh-my-droid:cancel',
+  'ralplan',
+  'ultraqa',
+  'learner',
+  'plan',
+  'cancel',
   // Factory Droid built-in commands that shouldn't be expanded
   'help',
   'clear',

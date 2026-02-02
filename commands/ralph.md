@@ -99,7 +99,7 @@ When you believe the task is complete:
 
 2. **Wait for Architect's assessment**
 
-3. **If Architect approves**: Run `/oh-my-droid:cancel` to cleanly exit ralph mode
+3. **If Architect approves**: Run `/cancel` to cleanly exit ralph mode
 4. **If Architect finds issues**: Fix them, then repeat verification
 
 DO NOT exit without Architect verification.
@@ -116,7 +116,7 @@ DO NOT exit without Architect verification.
 - Review your progress so far
 - Continue from where you left off
 - Use parallel execution and background tasks
-- When FULLY complete AND Architect verified: Run `/oh-my-droid:cancel` to exit and clean up state
+- When FULLY complete AND Architect verified: Run `/cancel` to exit and clean up state
 - Do not stop until the task is truly done
 
 Original task:

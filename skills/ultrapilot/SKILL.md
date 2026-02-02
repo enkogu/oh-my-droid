@@ -24,9 +24,9 @@ Ultrapilot is the parallel evolution of autopilot. It decomposes your task into 
 ## Usage
 
 ```
-/oh-my-droid:ultrapilot <your task>
-/oh-my-droid:up "Build a full-stack todo app"
-/oh-my-droid:ultrapilot Refactor the entire backend
+/ultrapilot <your task>
+/up "Build a full-stack todo app"
+/ultrapilot Refactor the entire backend
 ```
 
 ## Magic Keywords
@@ -375,7 +375,7 @@ Optional settings in `.factory/settings.json`:
 ## Cancellation
 
 ```
-/oh-my-droid:cancel
+/cancel
 ```
 
 Or say: "stop", "cancel ultrapilot", "abort"
@@ -390,7 +390,7 @@ Or say: "stop", "cancel ultrapilot", "abort"
 If ultrapilot was cancelled or a worker failed:
 
 ```
-/oh-my-droid:ultrapilot resume
+/ultrapilot resume
 ```
 
 **Resume Logic:**
@@ -403,7 +403,7 @@ If ultrapilot was cancelled or a worker failed:
 ### Example 1: Full-Stack App
 
 ```
-/oh-my-droid:ultrapilot Build a todo app with React frontend, Express backend, and PostgreSQL database
+/ultrapilot Build a todo app with React frontend, Express backend, and PostgreSQL database
 ```
 
 **Workers:**
@@ -420,7 +420,7 @@ If ultrapilot was cancelled or a worker failed:
 ### Example 2: Multi-Service Refactor
 
 ```
-/oh-my-droid:up Refactor all services to use dependency injection
+/up Refactor all services to use dependency injection
 ```
 
 **Workers:**
@@ -436,7 +436,7 @@ If ultrapilot was cancelled or a worker failed:
 ### Example 3: Test Coverage
 
 ```
-/oh-my-droid:ultrapilot Generate tests for all untested modules
+/ultrapilot Generate tests for all untested modules
 ```
 
 **Workers:**
@@ -601,7 +601,7 @@ You can provide a custom decomposition file to skip Phase 1:
 
 Then run:
 ```
-/oh-my-droid:ultrapilot --custom-decomposition
+/ultrapilot --custom-decomposition
 ```
 
 ## STATE CLEANUP ON COMPLETION

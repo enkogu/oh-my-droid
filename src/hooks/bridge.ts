@@ -302,7 +302,7 @@ The task is NOT complete yet. Continue working.
 IMPORTANT:
 - Review your progress so far
 - Continue from where you left off
-- When FULLY complete (after Architect verification), run \`/oh-my-droid:cancel\` to cleanly exit and clean up state files. If cancel fails, retry with \`/oh-my-droid:cancel --force\`.
+- When FULLY complete (after Architect verification), run \`/omd-cancel\` (or \`/cancel\`) to cleanly exit and clean up state files. If cancel fails, retry with \`/omd-cancel --force\`.
 - Do not stop until the task is truly done
 
 Original task:

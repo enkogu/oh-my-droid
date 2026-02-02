@@ -84,7 +84,7 @@ argument-hint: "<args>"
 ## Examples
 
 ```
-/oh-my-droid:<name> example-arg
+/<name> example-arg
 ```
 
 ## Notes

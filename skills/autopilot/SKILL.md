@@ -21,9 +21,9 @@ Autopilot is the ultimate hands-off mode. Give it a brief product idea (2-3 line
 ## Usage
 
 ```
-/oh-my-droid:autopilot <your idea>
-/oh-my-droid:ap "A CLI tool that tracks daily habits"
-/oh-my-droid:autopilot Add dark mode to the app
+/autopilot <your idea>
+/ap "A CLI tool that tracks daily habits"
+/autopilot Add dark mode to the app
 ```
 
 ## Magic Keywords
@@ -114,7 +114,7 @@ Optional settings in `.factory/settings.json`:
 ## Cancellation
 
 ```
-/oh-my-droid:cancel
+/cancel
 ```
 
 Or say: "stop", "cancel", "abort"
@@ -123,23 +123,23 @@ Progress is preserved for resume.
 
 ## Resume
 
-If autopilot was cancelled or failed, just run `/oh-my-droid:autopilot` again to resume from where it stopped.
+If autopilot was cancelled or failed, just run `/autopilot` again to resume from where it stopped.
 
 ## Examples
 
 **New Project:**
 ```
-/oh-my-droid:autopilot A REST API for a bookstore inventory with CRUD operations
+/autopilot A REST API for a bookstore inventory with CRUD operations
 ```
 
 **Feature Addition:**
 ```
-/oh-my-droid:autopilot Add user authentication with JWT tokens
+/autopilot Add user authentication with JWT tokens
 ```
 
 **Enhancement:**
 ```
-/oh-my-droid:ap Add dark mode support with system preference detection
+/ap Add dark mode support with system preference detection
 ```
 
 ## Best Practices

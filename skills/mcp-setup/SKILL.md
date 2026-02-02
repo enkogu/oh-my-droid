@@ -122,10 +122,10 @@ TROUBLESHOOTING:
 - If MCP servers don't appear, run `droid mcp list` to check status
 - Ensure you have Node.js 18+ installed for npx-based servers
 - For GitHub Docker option, ensure Docker is installed and running
-- Run /oh-my-droid:doctor to diagnose issues
+- Run /doctor to diagnose issues
 
 MANAGING MCP SERVERS:
-- Add more servers: /oh-my-droid:mcp-setup or `droid mcp add ...`
+- Add more servers: /mcp-setup or `droid mcp add ...`
 - List servers: `droid mcp list`
 - Remove a server: `droid mcp remove <server-name>`
 ```

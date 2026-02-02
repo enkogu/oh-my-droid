@@ -10,10 +10,10 @@ Automate the release process for oh-my-droid.
 ## Usage
 
 ```
-/oh-my-droid:release <version>
+/release <version>
 ```
 
-Example: `/oh-my-droid:release 2.4.0` or `/oh-my-droid:release patch` or `/oh-my-droid:release minor`
+Example: `/release 2.4.0` or `/release patch` or `/release minor`
 
 ## Release Checklist
 

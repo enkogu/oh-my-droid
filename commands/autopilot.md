@@ -170,6 +170,6 @@ Signal: **AUTOPILOT_COMPLETE**
 
 ## Completion
 
-When all phases complete successfully, run `/oh-my-droid:cancel` to cleanly exit autopilot and clean up state files.
+When all phases complete successfully, run `/cancel` to cleanly exit autopilot and clean up state files.
 
 Then display the autopilot summary.

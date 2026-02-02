@@ -16,7 +16,7 @@ Spawn N coordinated agents working on a shared task list with SQLite-based atomi
 ## Usage Pattern
 
 ```
-/oh-my-droid:swarm N:agent-type "task description"
+/swarm N:agent-type "task description"
 ```
 
 ### Parameters
@@ -28,10 +28,10 @@ Spawn N coordinated agents working on a shared task list with SQLite-based atomi
 ### Examples
 
 ```bash
-/oh-my-droid:swarm 5:executor "fix all TypeScript errors"
-/oh-my-droid:swarm 3:build-fixer "fix build errors in src/"
-/oh-my-droid:swarm 4:designer "implement responsive layouts for all components"
-/oh-my-droid:swarm 2:architect "analyze and document all API endpoints"
+/swarm 5:executor "fix all TypeScript errors"
+/swarm 3:build-fixer "fix build errors in src/"
+/swarm 4:designer "implement responsive layouts for all components"
+/swarm 2:architect "analyze and document all API endpoints"
 ```
 
 ## Architecture
@@ -143,7 +143,7 @@ LOOP:
 Exit when ANY of:
 - isSwarmComplete() returns true (all tasks done or failed)
 - All agents idle (no pending tasks, no claimed tasks)
-- User cancels via `/oh-my-droid:cancel`
+- User cancels via `/cancel`
 
 ## Storage
 
@@ -410,7 +410,7 @@ interface SwarmStats {
 
 Use unified cancel command:
 ```
-/oh-my-droid:cancel
+/cancel
 ```
 
 This:
@@ -423,25 +423,25 @@ This:
 
 ### Fix All Type Errors
 ```
-/oh-my-droid:swarm 5:executor "fix all TypeScript type errors"
+/swarm 5:executor "fix all TypeScript type errors"
 ```
 Spawns 5 executors, each claiming and fixing individual files.
 
 ### Implement UI Components
 ```
-/oh-my-droid:swarm 3:designer "implement Material-UI styling for all components"
+/swarm 3:designer "implement Material-UI styling for all components"
 ```
 Spawns 3 designers, each styling different component files.
 
 ### Security Audit
 ```
-/oh-my-droid:swarm 4:security-reviewer "review all API endpoints for vulnerabilities"
+/swarm 4:security-reviewer "review all API endpoints for vulnerabilities"
 ```
 Spawns 4 security reviewers, each auditing different endpoints.
 
 ### Documentation Sprint
 ```
-/oh-my-droid:swarm 2:writer "add JSDoc comments to all exported functions"
+/swarm 2:writer "add JSDoc comments to all exported functions"
 ```
 Spawns 2 writers, each documenting different modules.
 

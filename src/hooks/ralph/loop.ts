@@ -1,7 +1,7 @@
 /**
  * Ralph Hook
  *
- * Self-referential work loop that continues until cancelled via /oh-my-droid:cancel.
+ * Self-referential work loop that continues until cancelled via /cancel.
  * Named after the character who keeps working until the job is done.
  *
  * Enhanced with PRD (Product Requirements Document) support for structured task tracking.
@@ -205,7 +205,7 @@ export function createRalphLoopHook(directory: string): RalphLoopHook {
   ): boolean => {
     // Mutual exclusion check: cannot start Ralph Loop if UltraQA is active
     if (isUltraQAActive(directory)) {
-      console.error('Cannot start Ralph Loop while UltraQA is active. Cancel UltraQA first with /oh-my-droid:cancel.');
+      console.error('Cannot start Ralph Loop while UltraQA is active. Cancel UltraQA first with /omd-cancel (or /cancel).');
       return false;
     }
 

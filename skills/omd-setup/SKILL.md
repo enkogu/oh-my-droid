@@ -451,8 +451,8 @@ Ask user: "Would you like to install the OMD CLI for standalone analytics? (Reco
 The CLI (`omc` command) is **no longer supported** via npm/bun global install.
 
 All functionality is available through the plugin system:
-- Use `/oh-my-droid:help` for guidance
-- Use `/oh-my-droid:doctor` for diagnostics
+- Use `/help` for guidance
+- Use `/doctor` for diagnostics
 
 Skip this step - the plugin provides all features.
 
@@ -470,7 +470,7 @@ Ask user: "Would you like to configure MCP servers for enhanced capabilities? (C
 
 If yes, invoke the mcp-setup skill:
 ```
-/oh-my-droid:mcp-setup
+/mcp-setup
 ```
 
 If no, skip to next step.
@@ -514,7 +514,7 @@ Just include these words naturally in your request:
 **ralph includes ultrawork:** When you activate ralph mode, it automatically includes ultrawork's parallel execution. No need to combine keywords.
 
 MCP SERVERS:
-Run /oh-my-droid:mcp-setup to add tools like web search, GitHub, etc.
+Run /mcp-setup to add tools like web search, GitHub, etc.
 
 HUD STATUSLINE:
 The status bar now shows OMD state. Restart Factory Droid to see it.
@@ -613,23 +613,23 @@ echo "Setup completed successfully!"
 ## Keeping Up to Date
 
 After installing oh-my-droid updates (via npm or plugin update), run:
-- `/oh-my-droid:omd-setup --local` to update project config
-- `/oh-my-droid:omd-setup --global` to update global config
+- `/omd-setup --local` to update project config
+- `/omd-setup --global` to update global config
 
 This ensures you have the newest features and agent configurations.
 
 ## Help Text
 
-When user runs `/oh-my-droid:omd-setup --help` or just `--help`, display:
+When user runs `/omd-setup --help` or just `--help`, display:
 
 ```
 OMD Setup - Configure oh-my-droid
 
 USAGE:
-  /oh-my-droid:omd-setup           Run initial setup wizard
-  /oh-my-droid:omd-setup --local   Configure local project (.factory/FACTORY.md)
-  /oh-my-droid:omd-setup --global  Configure global settings (~/.factory/FACTORY.md)
-  /oh-my-droid:omd-setup --help    Show this help
+  /omd-setup           Run initial setup wizard
+  /omd-setup --local   Configure local project (.factory/FACTORY.md)
+  /omd-setup --global  Configure global settings (~/.factory/FACTORY.md)
+  /omd-setup --help    Show this help
 
 MODES:
   Initial Setup (no flags)
@@ -653,9 +653,9 @@ MODES:
     - Use this to update global config after OMC upgrades
 
 EXAMPLES:
-  /oh-my-droid:omd-setup           # First time setup
-  /oh-my-droid:omd-setup --local   # Update this project
-  /oh-my-droid:omd-setup --global  # Update all projects
+  /omd-setup           # First time setup
+  /omd-setup --local   # Update this project
+  /omd-setup --global  # Update all projects
 
 For more info: https://github.com/MeroZemory/oh-my-droid
 ```

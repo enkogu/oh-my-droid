@@ -148,7 +148,8 @@ function loadCommandDefinitions(): Record<string, string> {
 
   for (const file of readdirSync(commandsDir)) {
     if (file.endsWith('.md')) {
-      definitions[file] = readFileSync(join(commandsDir, file), 'utf-8');
+      // Normalize newlines for cross-platform consistency (Windows CRLF vs *nix LF)
+      definitions[file] = readFileSync(join(commandsDir, file), 'utf-8').replace(/\r\n/g, '\n');
     }
   }
 
@@ -459,10 +460,10 @@ export function install(options: InstallOptions = {}): InstallResult {
         '    }',
         '  } else if (existsSync(pluginCacheBase)) {',
         '    // Plugin cache directory exists but no versions',
-        '    console.log(`[OMD HUD] Plugin cache found but no versions installed. Run: /oh-my-droid:omd-setup`);',
+        '    console.log(`[OMD HUD] Plugin cache found but no versions installed. Run: /omd-setup`);',
         '  } else {',
         '    // No plugin installation found at all',
-        '    console.log("[OMD HUD] Plugin not installed. Run: /oh-my-droid:omd-setup");',
+        '    console.log("[OMD HUD] Plugin not installed. Run: /omd-setup");',
         '  }',
         '}',
         '',

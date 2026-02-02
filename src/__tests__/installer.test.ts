@@ -56,7 +56,8 @@ function loadCommandDefinitions(): Record<string, string> {
 
   for (const file of readdirSync(commandsDir)) {
     if (file.endsWith('.md')) {
-      definitions[file] = readFileSync(join(commandsDir, file), 'utf-8');
+      // Normalize newlines so tests are stable across Windows (CRLF) and *nix (LF)
+      definitions[file] = readFileSync(join(commandsDir, file), 'utf-8').replace(/\r\n/g, '\n');
     }
   }
 
@@ -210,11 +211,11 @@ describe('Installer Constants', () => {
     it('should have valid frontmatter for each command', () => {
       for (const [_filename, content] of Object.entries(COMMAND_DEFINITIONS)) {
         // Check for frontmatter delimiters
-        expect(content).toMatch(/^---\n/);
-        expect(content).toMatch(/\n---\n/);
+        expect(content).toMatch(/^---\r?\n/);
+        expect(content).toMatch(/\r?\n---\r?\n/);
 
         // Extract frontmatter
-        const frontmatterMatch = (content as string).match(/^---\n([\s\S]*?)\n---/);
+        const frontmatterMatch = (content as string).match(/^---\r?\n([\s\S]*?)\r?\n---/);
         expect(frontmatterMatch).toBeTruthy();
 
         const frontmatter = frontmatterMatch![1];

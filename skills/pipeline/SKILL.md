@@ -420,7 +420,7 @@ This skill activates when:
 
 **Explicit invocation:**
 ```
-/oh-my-droid:pipeline review "task"
+/pipeline review "task"
 ```
 
 **Auto-detection:**

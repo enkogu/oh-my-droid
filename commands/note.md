@@ -10,12 +10,12 @@ Save important context to `.omd/notepad.md` that survives conversation compactio
 
 | Command | Action |
 |---------|--------|
-| `/oh-my-droid:note <content>` | Add to Working Memory with timestamp |
-| `/oh-my-droid:note --priority <content>` | Add to Priority Context (always loaded) |
-| `/oh-my-droid:note --manual <content>` | Add to MANUAL section (never pruned) |
-| `/oh-my-droid:note --show` | Display current notepad contents |
-| `/oh-my-droid:note --prune` | Remove entries older than 7 days |
-| `/oh-my-droid:note --clear` | Clear Working Memory (keep Priority + MANUAL) |
+| `/note <content>` | Add to Working Memory with timestamp |
+| `/note --priority <content>` | Add to Priority Context (always loaded) |
+| `/note --manual <content>` | Add to MANUAL section (never pruned) |
+| `/note --show` | Display current notepad contents |
+| `/note --prune` | Remove entries older than 7 days |
+| `/note --clear` | Clear Working Memory (keep Priority + MANUAL) |
 
 ## Sections
 
@@ -37,11 +37,11 @@ Save important context to `.omd/notepad.md` that survives conversation compactio
 ## Examples
 
 ```
-/oh-my-droid:note Found auth bug in UserContext - missing useEffect dependency
-/oh-my-droid:note --priority Project uses TypeScript strict mode, all files in src/
-/oh-my-droid:note --manual Contact: api-team@company.com for backend questions
-/oh-my-droid:note --show
-/oh-my-droid:note --prune
+/note Found auth bug in UserContext - missing useEffect dependency
+/note --priority Project uses TypeScript strict mode, all files in src/
+/note --manual Contact: api-team@company.com for backend questions
+/note --show
+/note --prune
 ```
 
 ## Behavior

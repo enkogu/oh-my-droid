@@ -127,7 +127,7 @@ function createSkillInvocation(skillName, originalPrompt, args = '') {
 
 You MUST invoke the skill using the Skill tool:
 
-Skill: oh-my-droid:${skillName}${argsSection}
+Skill: ${skillName}${argsSection}
 
 User request:
 ${originalPrompt}
@@ -147,7 +147,7 @@ function createMultiSkillInvocation(skills, originalPrompt) {
   const skillBlocks = skills.map((s, i) => {
     const argsSection = s.args ? `\nArguments: ${s.args}` : '';
     return `### Skill ${i + 1}: ${s.name.toUpperCase()}
-Skill: oh-my-droid:${s.name}${argsSection}`;
+Skill: ${s.name}${argsSection}`;
   }).join('\n\n');
 
   return `[MAGIC KEYWORDS DETECTED: ${skills.map(s => s.name.toUpperCase()).join(', ')}]

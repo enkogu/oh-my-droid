@@ -24,25 +24,25 @@ All data persists in `.writer-memory/memory.json` for git-friendly collaboration
 
 | Command | Action |
 |---------|--------|
-| `/oh-my-droid:writer-memory init <project-name>` | Initialize new project memory |
-| `/oh-my-droid:writer-memory status` | Show memory overview (character count, scene count, etc) |
-| `/oh-my-droid:writer-memory char add <name>` | Add new character |
-| `/oh-my-droid:writer-memory char <name>` | View character details |
-| `/oh-my-droid:writer-memory char update <name> <field> <value>` | Update character field |
-| `/oh-my-droid:writer-memory char list` | List all characters |
-| `/oh-my-droid:writer-memory rel add <char1> <char2> <type>` | Add relationship |
-| `/oh-my-droid:writer-memory rel <char1> <char2>` | View relationship |
-| `/oh-my-droid:writer-memory rel update <char1> <char2> <event>` | Add relationship event |
-| `/oh-my-droid:writer-memory scene add <title>` | Add new scene |
-| `/oh-my-droid:writer-memory scene <id>` | View scene details |
-| `/oh-my-droid:writer-memory scene list` | List all scenes |
-| `/oh-my-droid:writer-memory theme add <name>` | Add theme |
-| `/oh-my-droid:writer-memory world set <field> <value>` | Set world attribute |
-| `/oh-my-droid:writer-memory query <question>` | Query memory naturally (Korean supported) |
-| `/oh-my-droid:writer-memory validate <character> <dialogue>` | Check if dialogue matches character tone |
-| `/oh-my-droid:writer-memory synopsis` | Generate emotion-focused synopsis |
-| `/oh-my-droid:writer-memory export` | Export full memory as readable markdown |
-| `/oh-my-droid:writer-memory backup` | Create manual backup |
+| `/writer-memory init <project-name>` | Initialize new project memory |
+| `/writer-memory status` | Show memory overview (character count, scene count, etc) |
+| `/writer-memory char add <name>` | Add new character |
+| `/writer-memory char <name>` | View character details |
+| `/writer-memory char update <name> <field> <value>` | Update character field |
+| `/writer-memory char list` | List all characters |
+| `/writer-memory rel add <char1> <char2> <type>` | Add relationship |
+| `/writer-memory rel <char1> <char2>` | View relationship |
+| `/writer-memory rel update <char1> <char2> <event>` | Add relationship event |
+| `/writer-memory scene add <title>` | Add new scene |
+| `/writer-memory scene <id>` | View scene details |
+| `/writer-memory scene list` | List all scenes |
+| `/writer-memory theme add <name>` | Add theme |
+| `/writer-memory world set <field> <value>` | Set world attribute |
+| `/writer-memory query <question>` | Query memory naturally (Korean supported) |
+| `/writer-memory validate <character> <dialogue>` | Check if dialogue matches character tone |
+| `/writer-memory synopsis` | Generate emotion-focused synopsis |
+| `/writer-memory export` | Export full memory as readable markdown |
+| `/writer-memory backup` | Create manual backup |
 
 ## Memory Types
 

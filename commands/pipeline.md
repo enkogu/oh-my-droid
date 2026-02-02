@@ -24,12 +24,12 @@ Execute a pipeline of agents where each stage receives context from previous sta
 Use predefined pipelines for common workflows:
 
 ```
-/oh-my-droid:pipeline review <task>
-/oh-my-droid:pipeline implement <task>
-/oh-my-droid:pipeline debug <issue>
-/oh-my-droid:pipeline research <topic>
-/oh-my-droid:pipeline refactor <target>
-/oh-my-droid:pipeline security <scope>
+/pipeline review <task>
+/pipeline implement <task>
+/pipeline debug <issue>
+/pipeline research <topic>
+/pipeline refactor <target>
+/pipeline security <scope>
 ```
 
 ### Custom Pipelines
@@ -37,8 +37,8 @@ Use predefined pipelines for common workflows:
 Define your own agent sequence:
 
 ```
-/oh-my-droid:pipeline explore -> architect -> executor "add authentication"
-/oh-my-droid:pipeline explore:haiku -> architect:opus -> executor:sonnet "optimize performance"
+/pipeline explore -> architect -> executor "add authentication"
+/pipeline explore:haiku -> architect:opus -> executor:sonnet "optimize performance"
 ```
 
 ### With Parallel Stages
@@ -46,7 +46,7 @@ Define your own agent sequence:
 Run agents in parallel then merge:
 
 ```
-/oh-my-droid:pipeline [explore, researcher] -> architect -> executor "implement OAuth"
+/pipeline [explore, researcher] -> architect -> executor "implement OAuth"
 ```
 
 ## Built-in Pipeline Definitions
@@ -182,7 +182,7 @@ Configuration:
 
 Stop active pipeline:
 ```
-/oh-my-droid:cancel
+/cancel
 ```
 
 The unified cancel command auto-detects active pipeline and cleans up state.
@@ -191,24 +191,24 @@ The unified cancel command auto-detects active pipeline and cleans up state.
 
 ### Example 1: Feature Implementation
 ```
-/oh-my-droid:pipeline review "add rate limiting to API"
+/pipeline review "add rate limiting to API"
 ```
 Triggers: explore → architect → critic → executor
 
 ### Example 2: Bug Fix
 ```
-/oh-my-droid:pipeline debug "login fails with OAuth"
+/pipeline debug "login fails with OAuth"
 ```
 Triggers: explore → architect → build-fixer
 
 ### Example 3: Custom Chain
 ```
-/oh-my-droid:pipeline explore:haiku -> architect:opus -> executor:sonnet -> tdd-guide:sonnet "refactor auth module"
+/pipeline explore:haiku -> architect:opus -> executor:sonnet -> tdd-guide:sonnet "refactor auth module"
 ```
 
 ### Example 4: Research-Driven Implementation
 ```
-/oh-my-droid:pipeline research "implement GraphQL subscriptions"
+/pipeline research "implement GraphQL subscriptions"
 ```
 Triggers: parallel(researcher, explore) → architect → writer
 

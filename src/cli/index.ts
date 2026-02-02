@@ -310,7 +310,7 @@ program
   .option('-f, --force', 'Overwrite existing configuration')
   .action(async (options) => {
     console.log(chalk.yellow('⚠️  DEPRECATED: The init command is deprecated.'));
-    console.log(chalk.gray('Configuration is now managed automatically. Use /oh-my-droid:omd-setup instead.\n'));
+    console.log(chalk.gray('Configuration is now managed automatically. Use /omd-setup instead.\n'));
 
     const paths = getConfigPaths();
     const targetPath = options.global ? paths.user : paths.project;

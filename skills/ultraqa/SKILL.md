@@ -19,11 +19,11 @@ Parse the goal from arguments. Supported formats:
 
 | Invocation | Goal Type | What to Check |
 |------------|-----------|---------------|
-| `/oh-my-droid:ultraqa --tests` | tests | All test suites pass |
-| `/oh-my-droid:ultraqa --build` | build | Build succeeds with exit 0 |
-| `/oh-my-droid:ultraqa --lint` | lint | No lint errors |
-| `/oh-my-droid:ultraqa --typecheck` | typecheck | No TypeScript errors |
-| `/oh-my-droid:ultraqa --custom "pattern"` | custom | Custom success pattern in output |
+| `/ultraqa --tests` | tests | All test suites pass |
+| `/ultraqa --build` | build | Build succeeds with exit 0 |
+| `/ultraqa --lint` | lint | No lint errors |
+| `/ultraqa --typecheck` | typecheck | No TypeScript errors |
+| `/ultraqa --custom "pattern"` | custom | Custom success pattern in output |
 
 If no structured goal provided, interpret the argument as a custom goal.
 
@@ -107,7 +107,7 @@ Track state in `.omd/ultraqa-state.json`:
 
 ## Cancellation
 
-User can cancel with `/oh-my-droid:cancel` which clears the state file.
+User can cancel with `/cancel` which clears the state file.
 
 ## Important Rules
 

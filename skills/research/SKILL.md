@@ -20,20 +20,20 @@ Research is a multi-stage workflow that decomposes complex research goals into p
 ## Usage Examples
 
 ```
-/oh-my-droid:research <goal>                    # Standard research with user checkpoints
-/oh-my-droid:research AUTO: <goal>              # Fully autonomous until complete
-/oh-my-droid:research status                    # Check current research session status
-/oh-my-droid:research resume                    # Resume interrupted research session
-/oh-my-droid:research list                      # List all research sessions
-/oh-my-droid:research report <session-id>       # Generate report for session
+/research <goal>                    # Standard research with user checkpoints
+/research AUTO: <goal>              # Fully autonomous until complete
+/research status                    # Check current research session status
+/research resume                    # Resume interrupted research session
+/research list                      # List all research sessions
+/research report <session-id>       # Generate report for session
 ```
 
 ### Quick Examples
 
 ```
-/oh-my-droid:research What are the performance characteristics of different sorting algorithms?
-/oh-my-droid:research AUTO: Analyze authentication patterns in this codebase
-/oh-my-droid:research How does the error handling work across the API layer?
+/research What are the performance characteristics of different sorting algorithms?
+/research AUTO: Analyze authentication patterns in this codebase
+/research How does the error handling work across the API layer?
 ```
 
 ## Research Protocol
@@ -145,12 +145,12 @@ Pending stages: {{PENDING_STAGES}}
 1. **Max Iterations:** 10 (configurable)
 2. **Continue until:** Promise tag emitted OR max iterations
 3. **State tracking:** Persist after each stage completion
-4. **Cancellation:** `/oh-my-droid:cancel` or "stop", "cancel"
+4. **Cancellation:** `/cancel` or "stop", "cancel"
 
 ### AUTO Mode Example
 
 ```
-/oh-my-droid:research AUTO: Comprehensive security analysis of the authentication system
+/research AUTO: Comprehensive security analysis of the authentication system
 
 [Decomposition]
 - Stage 1 (LOW): Enumerate auth-related files
@@ -280,12 +280,12 @@ Batch 2: Stages 6-7 (parallel)
 
 | Command | Action |
 |---------|--------|
-| `/oh-my-droid:research status` | Show current session progress |
-| `/oh-my-droid:research resume` | Resume most recent interrupted session |
-| `/oh-my-droid:research resume <session-id>` | Resume specific session |
-| `/oh-my-droid:research list` | List all sessions with status |
-| `/oh-my-droid:research report <session-id>` | Generate/regenerate report |
-| `/oh-my-droid:research cancel` | Cancel current session (preserves state) |
+| `/research status` | Show current session progress |
+| `/research resume` | Resume most recent interrupted session |
+| `/research resume <session-id>` | Resume specific session |
+| `/research list` | List all sessions with status |
+| `/research report <session-id>` | Generate/regenerate report |
+| `/research cancel` | Cancel current session (preserves state) |
 
 ## Tag Extraction
 
@@ -480,7 +480,7 @@ Optional settings in `.factory/settings.json`:
 ## Cancellation
 
 ```
-/oh-my-droid:cancel
+/cancel
 ```
 
 Or say: "stop research", "cancel research", "abort"

@@ -32,7 +32,7 @@ Determine if task is suitable for parallel execution:
 - File boundaries are clear
 - Dependencies between subtasks are minimal
 
-**If NOT parallelizable:** Fall back to regular `/oh-my-droid:autopilot`
+**If NOT parallelizable:** Fall back to regular `/autopilot`
 
 ## Phase 1: Decomposition
 
@@ -145,7 +145,7 @@ Track state in `.omd/ultrapilot-state.json`:
 
 ## Completion
 
-When all phases complete and Architect validates, run `/oh-my-droid:cancel` to cleanly exit ultrapilot and clean up state files.
+When all phases complete and Architect validates, run `/cancel` to cleanly exit ultrapilot and clean up state files.
 
 Then display summary with:
 - Time savings vs sequential

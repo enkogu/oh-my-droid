@@ -162,9 +162,9 @@ USAGE TIPS:
 TROUBLESHOOTING:
 - If MCP servers don't appear, check ~/.factory/settings.json for syntax errors
 - Ensure you have Node.js 18+ installed for npx commands
-- Run /oh-my-droid:doctor to diagnose issues
+- Run /doctor to diagnose issues
 
-To add more MCP servers later, run: /oh-my-droid:mcp-setup
+To add more MCP servers later, run: /mcp-setup
 ```
 
 ## Custom MCP Server

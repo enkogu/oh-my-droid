@@ -25,13 +25,13 @@ The skill checks state files to determine what's active and cancels in order of 
 
 Basic cancellation (auto-detects mode):
 ```
-/oh-my-droid:cancel
+/cancel
 ```
 
 Force clear ALL state files:
 ```
-/oh-my-droid:cancel --force
-/oh-my-droid:cancel --all
+/cancel --force
+/cancel --all
 ```
 
 ## User Arguments
@@ -53,7 +53,7 @@ Force clear ALL state files:
 
 | Mode | Progress Preserved | Resume |
 |------|-------------------|--------|
-| Autopilot | Yes (phase, spec, plan) | `/oh-my-droid:autopilot` |
+| Autopilot | Yes (phase, spec, plan) | `/autopilot` |
 | All Others | No | N/A |
 
 ## Dependency-Aware Cleanup
