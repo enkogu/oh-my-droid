@@ -121,6 +121,13 @@ interface McpConnection {
   buffer: string;
 }
 
+function rejectAllPendingRequests(connection: McpConnection, error: Error): void {
+  for (const pending of connection.pendingRequests.values()) {
+    pending.reject(error);
+  }
+  connection.pendingRequests.clear();
+}
+
 /**
  * MCP Bridge - Manages connections to MCP servers
  */
@@ -194,6 +201,7 @@ export class McpBridge extends EventEmitter {
 
     // SECURITY: Set up error handler for spawn failures
     child.on('error', (error: Error) => {
+      rejectAllPendingRequests(connection, error);
       this.connections.delete(serverName);
       this.emit('spawn-error', { server: serverName, error: error.message });
       // Update registry with error state
@@ -202,6 +210,10 @@ export class McpBridge extends EventEmitter {
         connected: false,
         error: `Spawn failed: ${error.message}`,
       });
+    });
+
+    child.stdin?.on('error', (error: Error) => {
+      rejectAllPendingRequests(connection, error);
     });
 
     // Set up message handling
@@ -214,6 +226,7 @@ export class McpBridge extends EventEmitter {
     });
 
     child.on('exit', (code) => {
+      rejectAllPendingRequests(connection, new Error(`MCP server exited with code ${code ?? 'null'}`));
       this.connections.delete(serverName);
       this.emit('server-disconnected', { server: serverName, code });
 
@@ -449,6 +462,16 @@ export class McpBridge extends EventEmitter {
       return Promise.reject(new Error(`Not connected to server: ${serverName}`));
     }
 
+    if (connection.process.exitCode !== null) {
+      return Promise.reject(new Error(`Server process already exited: ${serverName}`));
+    }
+
+    if (!connection.process.stdin || connection.process.stdin.destroyed || !connection.process.stdin.writable) {
+      return Promise.reject(new Error(`Server stdin is not writable: ${serverName}`));
+    }
+
+    const stdin = connection.process.stdin;
+
     const id = ++connection.requestId;
     const request: McpRequest = {
       jsonrpc: '2.0',
@@ -476,7 +499,12 @@ export class McpBridge extends EventEmitter {
 
       // Send the request
       const message = JSON.stringify(request) + '\n';
-      connection.process.stdin?.write(message);
+      stdin.write(message, (error) => {
+        if (!error) return;
+        clearTimeout(timer);
+        connection.pendingRequests.delete(id);
+        reject(error);
+      });
     });
   }
 

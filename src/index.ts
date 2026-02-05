@@ -308,7 +308,14 @@ export function createDroidSession(options?: DroidOptions): DroidSession {
 
   // Build allowed tools list
   const allowedTools: string[] = [
-    'Read', 'Glob', 'Grep', 'WebSearch', 'WebFetch', 'Task', 'TodoWrite'
+    'Read',
+    'Glob',
+    'Grep',
+    'WebSearch',
+    'WebFetch',
+    'Task',
+    'TaskOutput',
+    'TodoWrite'
   ];
 
   if (config.permissions?.allowBash !== false) {

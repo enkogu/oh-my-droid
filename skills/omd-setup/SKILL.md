@@ -5,6 +5,10 @@ description: Setup and configure oh-my-droid (the ONLY command you need to learn
 
 # OMD Setup
 
+This skill is a **setup wizard**. Ignore unrelated context (open files, pending code changes, git/commits, etc.).
+
+**When you need to ask the user anything, use the `AskUser` tool and ONLY ask the wizard questions below.**
+
 This is the **only command you need to learn**. After running this, everything else is automatic.
 
 ## Graceful Interrupt Handling
@@ -63,13 +67,12 @@ if [ -f "$STATE_FILE" ]; then
 fi
 ```
 
-If state exists, use AskUserQuestion to prompt:
+If state exists, use `AskUser` to prompt **exactly**:
 
-**Question:** "Found a previous setup session. Would you like to resume or start fresh?"
-
-**Options:**
-1. **Resume from step $LAST_STEP** - Continue where you left off
-2. **Start fresh** - Begin from the beginning (clears saved state)
+1. [question] Found a previous setup session. What should I do?
+[topic] Resume
+[option] Resume from last step
+[option] Start fresh (clear saved state)
 
 If user chooses "Start fresh":
 ```bash
@@ -120,17 +123,80 @@ Check for flags in the user's invocation:
 - If `--global` flag present → Skip to Global Configuration (Step 2B)
 - If no flags → Run Initial Setup wizard (Step 1)
 
+**IMPORTANT:** Always run Step 1.1 (parallelism) even when `--local` or `--global` is used.
+
 ## Step 1: Initial Setup Wizard (Default Behavior)
 
 **Note**: If resuming and lastCompletedStep >= 1, skip to the appropriate step based on configType.
 
-Use the AskUserQuestion tool to prompt the user:
+Immediately use `AskUser` to prompt **exactly**:
 
-**Question:** "Where should I configure oh-my-droid?"
+1. [question] Where should I configure oh-my-droid?
+[topic] Scope
+[option] Local (this project)
+[option] Global (all projects)
 
-**Options:**
-1. **Local (this project)** - Creates `.factory/FACTORY.md` in current project directory. Best for project-specific configurations.
-2. **Global (all projects)** - Creates `~/.factory/FACTORY.md` for all Factory Droid sessions. Best for consistent behavior everywhere.
+## Step 1.1: Configure Parallelism (maxBackgroundTasks)
+
+**IMPORTANT:** Always run this step (even if `maxBackgroundTasks` is already set).
+
+Use `AskUser` to prompt:
+
+1. [question] How many background tasks should I allow in parallel?
+[topic] Parallelism
+[option] Keep current
+[option] 2
+[option] 5
+[option] 10
+[option] 20
+
+If the user chooses **Keep current**, skip updating settings.
+
+Otherwise, store it in `~/.factory/settings.json` as `maxBackgroundTasks`.
+
+Rules:
+- Default to **5** if the user provides an invalid value
+- Clamp to **2..20**
+
+```bash
+python3 - <<'PY'
+import json
+from pathlib import Path
+
+MIN_V = 2
+MAX_V = 20
+DEFAULT_V = 5
+
+settings_path = Path.home() / '.factory' / 'settings.json'
+settings_path.parent.mkdir(parents=True, exist_ok=True)
+
+try:
+  data = json.loads(settings_path.read_text('utf-8')) if settings_path.exists() else {}
+except Exception:
+  data = {}
+
+current = int(data.get('maxBackgroundTasks', DEFAULT_V) or DEFAULT_V)
+
+raw = "USER_CHOICE"  # replace with chosen value (or user's custom answer)
+raw_s = str(raw).strip().lower()
+if raw_s.startswith('keep'):
+  v = current
+else:
+  try:
+    v = int(raw_s)
+  except Exception:
+    v = current
+
+if v < MIN_V:
+  v = MIN_V
+if v > MAX_V:
+  v = MAX_V
+
+data['maxBackgroundTasks'] = v
+settings_path.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8')
+print('Set maxBackgroundTasks to', v, 'in', settings_path)
+PY
+```
 
 ## Step 2A: Local Configuration (--local flag or user chose LOCAL)
 
@@ -436,13 +502,12 @@ If the user wants to use background processes immediately in the current session
 
 ## Step 3.8: Set Default Execution Mode
 
-Use the AskUserQuestion tool to prompt the user:
+Use `AskUser` to prompt:
 
-**Question:** "Which parallel execution mode should be your default when you say 'fast' or 'parallel'?"
-
-**Options:**
-1. **ultrawork (maximum capability)** - Uses all agent tiers including Opus for complex tasks. Best for challenging work where quality matters most. (Recommended)
-2. **ecomode (token efficient)** - Prefers Haiku/Sonnet agents, avoids Opus. Best for pro-plan users who want cost efficiency.
+1. [question] Which execution mode should be the default when I interpret requests like "fast" / "parallel"?
+[topic] Default-Mode
+[option] ultrawork
+[option] ecomode
 
 Store the preference in `~/.factory/.omd-config.json`:
 
@@ -602,14 +667,13 @@ gh auth status &>/dev/null
 
 ### If gh is available and authenticated:
 
-Use the AskUserQuestion tool to prompt the user:
+Use `AskUser` to prompt:
 
-**Question:** "If you're enjoying oh-my-droid, would you like to support the project by starring it on GitHub?"
-
-**Options:**
-1. **Yes, star it!** - Star the repository
-2. **No thanks** - Skip without further prompts
-3. **Maybe later** - Skip without further prompts
+1. [question] Would you like to star the oh-my-droid GitHub repo?
+[topic] Star
+[option] Yes, star it
+[option] No
+[option] Maybe later
 
 If user chooses "Yes, star it!":
 

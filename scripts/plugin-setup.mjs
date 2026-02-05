@@ -29,51 +29,59 @@ const hudScriptPath = join(HUD_DIR, 'omd-hud.mjs');
 const hudScript = `#!/usr/bin/env node
 /**
  * OMD HUD - Statusline Script
- * Wrapper that imports from plugin cache or development paths
+ * Wrapper that imports from dev paths, plugin cache, or npm package
  */
 
 import { existsSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 async function main() {
   const home = homedir();
 
-  // 1. Try plugin cache first (marketplace: omc, plugin: oh-my-droid)
+  // 1. Development paths (preferred for local development)
+  const devPaths = [
+    join(home, "Workspace/oh-my-droid/dist/hud/index.js"),
+    join(home, "workspace/oh-my-droid/dist/hud/index.js"),
+    join(home, "projects/oh-my-droid/dist/hud/index.js"),
+  ];
+
+  for (const devPath of devPaths) {
+    if (existsSync(devPath)) {
+      try {
+        await import(pathToFileURL(devPath).href);
+        return;
+      } catch { /* continue */ }
+    }
+  }
+
+  // 2. Plugin cache (for production installs)
   const pluginCacheBase = join(home, ".factory/plugins/cache/oh-my-droid/oh-my-droid");
   if (existsSync(pluginCacheBase)) {
     try {
       const versions = readdirSync(pluginCacheBase);
       if (versions.length > 0) {
-        const latestVersion = versions.sort().reverse()[0];
+        const latestVersion = versions
+          .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+          .reverse()[0];
         const pluginPath = join(pluginCacheBase, latestVersion, "dist/hud/index.js");
         if (existsSync(pluginPath)) {
-          await import(pluginPath);
+          await import(pathToFileURL(pluginPath).href);
           return;
         }
       }
     } catch { /* continue */ }
   }
 
-  // 2. Development paths
-  const devPaths = [
-    join(home, "Workspace/oh-my-droid/dist/hud/index.js"),
-    join(home, "workspace/oh-my-droid/dist/hud/index.js"),
-    join(home, "Workspace/oh-my-droid/dist/hud/index.js"),
-    join(home, "workspace/oh-my-droid/dist/hud/index.js"),
-  ];
+  // 3. npm package (global or local install)
+  try {
+    await import("oh-my-droid/dist/hud/index.js");
+    return;
+  } catch { /* continue */ }
 
-  for (const devPath of devPaths) {
-    if (existsSync(devPath)) {
-      try {
-        await import(devPath);
-        return;
-      } catch { /* continue */ }
-    }
-  }
-
-  // 3. Fallback
-  console.log("[OMD] run /omd-setup to install properly");
+  // 4. Fallback
+  console.log("[OMD HUD] run /omd-setup to install properly");
 }
 
 main();
@@ -100,6 +108,13 @@ try {
 
   // Required for true parallel shell execution
   settings.allowBackgroundProcesses = true;
+
+  // Ensure maxBackgroundTasks is set with default 5, clamped to 2..20
+  if (typeof settings.maxBackgroundTasks !== 'number' ||
+      settings.maxBackgroundTasks < 2 ||
+      settings.maxBackgroundTasks > 20) {
+    settings.maxBackgroundTasks = 5;
+  }
 
   writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
   console.log('[OMD] Configured HUD statusLine + allowBackgroundProcesses in settings.json');

@@ -373,6 +373,13 @@ export function install(options: InstallOptions = {}): InstallResult {
         // Required for true parallel shell execution
         existingSettings.allowBackgroundProcesses = true;
 
+        // Ensure maxBackgroundTasks is set with default 5, clamped to 2..20
+        if (typeof existingSettings.maxBackgroundTasks !== 'number' ||
+            existingSettings.maxBackgroundTasks < 2 ||
+            existingSettings.maxBackgroundTasks > 20) {
+          existingSettings.maxBackgroundTasks = 5;
+        }
+
         // Write back settings
         writeFileSync(SETTINGS_FILE, JSON.stringify(existingSettings, null, 2));
         log('  Hooks configured in settings.json');
@@ -500,6 +507,13 @@ export function install(options: InstallOptions = {}): InstallResult {
           // Required for true parallel shell execution
           existingSettings.allowBackgroundProcesses = true;
 
+          // Ensure maxBackgroundTasks is set with default 5, clamped to 2..20
+          if (typeof existingSettings.maxBackgroundTasks !== 'number' ||
+              existingSettings.maxBackgroundTasks < 2 ||
+              existingSettings.maxBackgroundTasks > 20) {
+            existingSettings.maxBackgroundTasks = 5;
+          }
+
           writeFileSync(SETTINGS_FILE, JSON.stringify(existingSettings, null, 2));
           log('  Configured statusLine in settings.json');
         } else {
@@ -513,10 +527,25 @@ export function install(options: InstallOptions = {}): InstallResult {
             // Required for true parallel shell execution
             existingSettings.allowBackgroundProcesses = true;
 
+            // Ensure maxBackgroundTasks is set with default 5, clamped to 2..20
+            if (typeof existingSettings.maxBackgroundTasks !== 'number' ||
+                existingSettings.maxBackgroundTasks < 2 ||
+                existingSettings.maxBackgroundTasks > 20) {
+              existingSettings.maxBackgroundTasks = 5;
+            }
+
             writeFileSync(SETTINGS_FILE, JSON.stringify(existingSettings, null, 2));
             log('  Updated statusLine in settings.json (--force)');
           } else if (shouldEnableBackgroundProcesses) {
             existingSettings.allowBackgroundProcesses = true;
+
+            // Ensure maxBackgroundTasks is set with default 5, clamped to 2..20
+            if (typeof existingSettings.maxBackgroundTasks !== 'number' ||
+                existingSettings.maxBackgroundTasks < 2 ||
+                existingSettings.maxBackgroundTasks > 20) {
+              existingSettings.maxBackgroundTasks = 5;
+            }
+
             writeFileSync(SETTINGS_FILE, JSON.stringify(existingSettings, null, 2));
             log('  Enabled allowBackgroundProcesses in settings.json');
           }
