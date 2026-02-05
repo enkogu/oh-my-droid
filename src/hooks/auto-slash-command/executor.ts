@@ -20,6 +20,9 @@ import type {
 /** Factory Droid config directory */
 const FACTORY_CONFIG_DIR = join(homedir(), '.factory');
 
+/** Plugin root directory (set by Factory Droid plugin system) */
+const PLUGIN_ROOT = process.env.DROID_PLUGIN_ROOT;
+
 /**
  * Parse YAML-like frontmatter from markdown file
  * Simple implementation - supports basic key: value format
@@ -111,6 +114,54 @@ function discoverCommandsFromDir(
 }
 
 /**
+ * Discover skill-like commands (SKILL.md) from a skills directory.
+ */
+function discoverSkillsFromDir(skillsDir: string, scope: CommandScope): CommandInfo[] {
+  const skillCommands: CommandInfo[] = [];
+
+  if (!existsSync(skillsDir)) {
+    return skillCommands;
+  }
+
+  try {
+    const skillDirs = readdirSync(skillsDir, { withFileTypes: true });
+    for (const dir of skillDirs) {
+      if (!dir.isDirectory()) continue;
+
+      const skillPath = join(skillsDir, dir.name, 'SKILL.md');
+      if (!existsSync(skillPath)) continue;
+
+      try {
+        const content = readFileSync(skillPath, 'utf-8');
+        const { data, body } = parseFrontmatter(content);
+
+        const metadata: CommandMetadata = {
+          name: data.name || dir.name,
+          description: data.description || '',
+          argumentHint: data['argument-hint'],
+          model: data.model,
+          agent: data.agent,
+        };
+
+        skillCommands.push({
+          name: data.name || dir.name,
+          path: skillPath,
+          metadata,
+          content: body,
+          scope,
+        });
+      } catch {
+        continue;
+      }
+    }
+  } catch {
+    // Ignore errors reading skills directory
+  }
+
+  return skillCommands;
+}
+
+/**
  * Discover all available commands from multiple sources
  */
 export function discoverAllCommands(): CommandInfo[] {
@@ -118,50 +169,26 @@ export function discoverAllCommands(): CommandInfo[] {
   const projectCommandsDir = join(process.cwd(), '.factory', 'commands');
   const skillsDir = join(FACTORY_CONFIG_DIR, 'skills');
 
+  // When running as a Factory plugin, commands/skills live under DROID_PLUGIN_ROOT.
+  // This is critical for clean installs where ~/.factory/skills may not be populated.
+  const pluginCommandsDir = PLUGIN_ROOT ? join(PLUGIN_ROOT, 'commands') : null;
+  const pluginSkillsDir = PLUGIN_ROOT ? join(PLUGIN_ROOT, 'skills') : null;
+
   const userCommands = discoverCommandsFromDir(userCommandsDir, 'user');
   const projectCommands = discoverCommandsFromDir(projectCommandsDir, 'project');
 
-  // Discover skills (each skill directory may have a SKILL.md)
-  const skillCommands: CommandInfo[] = [];
-  if (existsSync(skillsDir)) {
-    try {
-      const skillDirs = readdirSync(skillsDir, { withFileTypes: true });
-      for (const dir of skillDirs) {
-        if (!dir.isDirectory()) continue;
+  const pluginCommands = pluginCommandsDir
+    ? discoverCommandsFromDir(pluginCommandsDir, 'plugin')
+    : [];
 
-        const skillPath = join(skillsDir, dir.name, 'SKILL.md');
-        if (existsSync(skillPath)) {
-          try {
-            const content = readFileSync(skillPath, 'utf-8');
-            const { data, body } = parseFrontmatter(content);
+  const pluginSkills = pluginSkillsDir
+    ? discoverSkillsFromDir(pluginSkillsDir, 'plugin')
+    : [];
 
-            const metadata: CommandMetadata = {
-              name: data.name || dir.name,
-              description: data.description || '',
-              argumentHint: data['argument-hint'],
-              model: data.model,
-              agent: data.agent,
-            };
+  const userSkills = discoverSkillsFromDir(skillsDir, 'skill');
 
-            skillCommands.push({
-              name: data.name || dir.name,
-              path: skillPath,
-              metadata,
-              content: body,
-              scope: 'skill',
-            });
-          } catch {
-            continue;
-          }
-        }
-      }
-    } catch {
-      // Ignore errors reading skills directory
-    }
-  }
-
-  // Priority: project > user > skills
-  return [...projectCommands, ...userCommands, ...skillCommands];
+  // Priority: project > user > plugin > skills
+  return [...projectCommands, ...userCommands, ...pluginCommands, ...pluginSkills, ...userSkills];
 }
 
 /**
@@ -232,7 +259,9 @@ export function executeSlashCommand(parsed: ParsedSlashCommand): ExecuteResult {
   if (!command) {
     return {
       success: false,
-      error: `Command "/${parsed.command}" not found. Available commands are in ~/.factory/commands/ or .factory/commands/`,
+      error:
+        `Command "/${parsed.command}" not found. Available commands are in ` +
+        `~/.factory/commands/, .factory/commands/, ~/.factory/skills/, or $DROID_PLUGIN_ROOT/{commands,skills}.`,
     };
   }
 

@@ -46,7 +46,7 @@ export interface AutoSlashCommandResult {
 /**
  * Command scope indicating where it was discovered
  */
-export type CommandScope = 'user' | 'project' | 'skill';
+export type CommandScope = 'user' | 'project' | 'skill' | 'plugin';
 
 /**
  * Command metadata from frontmatter
