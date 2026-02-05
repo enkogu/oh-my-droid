@@ -6,6 +6,9 @@ dist/
 .omd/
 .sisyphus/
 
+# Local vendor copies of external docs
+references/
+
 # Windows reserved names (prevent accidental creation)
 nul
 NUL

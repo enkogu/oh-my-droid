@@ -370,6 +370,9 @@ export function install(options: InstallOptions = {}): InstallResult {
 
         existingSettings.hooks = existingHooks;
 
+        // Required for true parallel shell execution
+        existingSettings.allowBackgroundProcesses = true;
+
         // Write back settings
         writeFileSync(SETTINGS_FILE, JSON.stringify(existingSettings, null, 2));
         log('  Hooks configured in settings.json');
@@ -485,12 +488,18 @@ export function install(options: InstallOptions = {}): InstallResult {
           existingSettings = JSON.parse(settingsContent);
         }
 
+        const shouldEnableBackgroundProcesses = existingSettings.allowBackgroundProcesses !== true;
+
         // Only add statusLine if not already configured
         if (!existingSettings.statusLine) {
           existingSettings.statusLine = {
             type: 'command',
             command: 'node ' + hudScriptPath
           };
+
+          // Required for true parallel shell execution
+          existingSettings.allowBackgroundProcesses = true;
+
           writeFileSync(SETTINGS_FILE, JSON.stringify(existingSettings, null, 2));
           log('  Configured statusLine in settings.json');
         } else {
@@ -500,8 +509,16 @@ export function install(options: InstallOptions = {}): InstallResult {
               type: 'command',
               command: 'node ' + hudScriptPath
             };
+
+            // Required for true parallel shell execution
+            existingSettings.allowBackgroundProcesses = true;
+
             writeFileSync(SETTINGS_FILE, JSON.stringify(existingSettings, null, 2));
             log('  Updated statusLine in settings.json (--force)');
+          } else if (shouldEnableBackgroundProcesses) {
+            existingSettings.allowBackgroundProcesses = true;
+            writeFileSync(SETTINGS_FILE, JSON.stringify(existingSettings, null, 2));
+            log('  Enabled allowBackgroundProcesses in settings.json');
           }
         }
       } catch {

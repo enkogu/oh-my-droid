@@ -158,7 +158,34 @@ fi
 
 **Note:** The `npm install` command triggers the `prepare` script which runs `npm run build`, creating the dist/ directory with all compiled HUD files.
 
-## Step 3.6: Install CLI Analytics Tools (Optional)
+## Step 3.6: Enable Background Processes (Required)
+
+To support true parallel shell execution (multiple long `Execute` commands at once), OMD requires Factory Droid background processes.
+
+**This must be set globally** in `~/.factory/settings.json` (there is no per-project equivalent).
+
+```bash
+python3 - <<'PY'
+import json
+from pathlib import Path
+
+settings_path = Path.home() / '.factory' / 'settings.json'
+settings_path.parent.mkdir(parents=True, exist_ok=True)
+
+try:
+  data = json.loads(settings_path.read_text('utf-8')) if settings_path.exists() else {}
+except Exception:
+  data = {}
+
+data['allowBackgroundProcesses'] = True
+settings_path.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8')
+print('Enabled allowBackgroundProcesses in', settings_path)
+PY
+```
+
+**IMPORTANT:** This setting may require a **Droid restart** (or starting the session with `--allow-background-processes`) to take effect.
+
+## Step 3.7: Install CLI Analytics Tools (Optional)
 
 The OMD CLI provides standalone token analytics commands (`omd stats`, `omd agents`, `omd backfill`, `omd tui`).
 

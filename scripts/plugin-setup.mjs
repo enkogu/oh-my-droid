@@ -98,8 +98,11 @@ try {
     command: `node ${hudScriptPath}`
   };
 
+  // Required for true parallel shell execution
+  settings.allowBackgroundProcesses = true;
+
   writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
-  console.log('[OMD] Configured HUD statusLine in settings.json');
+  console.log('[OMD] Configured HUD statusLine + allowBackgroundProcesses in settings.json');
 } catch (e) {
   console.log('[OMD] Warning: Could not configure settings.json:', e.message);
 }

@@ -406,7 +406,35 @@ elif [ -n "$LATEST_VERSION" ]; then
 fi
 ```
 
-## Step 3.7: Set Default Execution Mode
+## Step 3.7: Enable Background Processes (Required)
+
+Background processes are required for true parallel shell execution (e.g., running multiple long `Execute` commands concurrently).
+
+This must be set globally in `~/.factory/settings.json` (there is no per-project equivalent).
+
+```bash
+python3 - <<'PY'
+import json
+from pathlib import Path
+
+settings_path = Path.home() / '.factory' / 'settings.json'
+settings_path.parent.mkdir(parents=True, exist_ok=True)
+
+try:
+  data = json.loads(settings_path.read_text('utf-8')) if settings_path.exists() else {}
+except Exception:
+  data = {}
+
+data['allowBackgroundProcesses'] = True
+settings_path.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8')
+print('Enabled allowBackgroundProcesses in', settings_path)
+print('NOTE: You may need to restart Droid (or start with --allow-background-processes) for it to take effect.')
+PY
+```
+
+If the user wants to use background processes immediately in the current session and it still reports "Fire and forget is disabled", instruct them to restart Droid.
+
+## Step 3.8: Set Default Execution Mode
 
 Use the AskUserQuestion tool to prompt the user:
 
@@ -436,7 +464,7 @@ echo "Default execution mode set to: USER_CHOICE"
 
 **Note**: This preference ONLY affects generic keywords ("fast", "parallel"). Explicit keywords ("ulw", "eco") always override this preference.
 
-## Step 3.8: Install CLI Analytics Tools (Optional)
+## Step 3.9: Install CLI Analytics Tools (Optional)
 
 The OMD CLI provides standalone token analytics commands (`omd stats`, `omd agents`, `omd tui`).
 
