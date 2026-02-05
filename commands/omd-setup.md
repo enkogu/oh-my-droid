@@ -76,6 +76,22 @@ rm -f ".omd/state/setup-state.json"
 echo "Previous state cleared. Starting fresh setup."
 ```
 
+### Step 0.5: Always Ask Parallelism (Required)
+
+**MANDATORY:** Regardless of whether the user resumes or starts fresh, you MUST ask for `maxBackgroundTasks` in this run.
+
+If resuming, try to infer the scope from the state file:
+
+```bash
+# Optional: infer scope from state file
+CONFIG_TYPE=$(jq -r '.configType // empty' ".omd/state/setup-state.json" 2>/dev/null || true)
+```
+
+Interpretation:
+- If `CONFIG_TYPE` starts with `local` → scope = `Local (this project)`
+- If `CONFIG_TYPE` starts with `global` → scope = `Global (all projects)`
+- Otherwise, ask Step 1 (scope) again.
+
 ## Step 1: Ask User Preference
 
 Use the `AskUser` tool to prompt **exactly**:
@@ -87,7 +103,7 @@ Use the `AskUser` tool to prompt **exactly**:
 
 ## Step 1.1: Configure Parallelism (maxBackgroundTasks)
 
-**IMPORTANT:** Always run this step (even if `maxBackgroundTasks` is already set).
+**IMPORTANT:** Always run this step (even if `maxBackgroundTasks` is already set, and even when resuming).
 
 Use `AskUser` to prompt:
 
