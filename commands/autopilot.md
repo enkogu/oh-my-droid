@@ -34,7 +34,7 @@ Spawn the Analyst agent:
 ```
 Task(
   subagent_type="oh-my-droid:analyst",
-  model="opus",
+  model="claude-opus-4-5-20251101",
   prompt="REQUIREMENTS ANALYSIS
 
 Analyze this product idea: {{ARGUMENTS}}
@@ -56,7 +56,7 @@ After Analyst completes, spawn Architect:
 ```
 Task(
   subagent_type="oh-my-droid:architect",
-  model="opus",
+  model="claude-opus-4-5-20251101",
   prompt="TECHNICAL SPECIFICATION
 
 Based on the requirements above, create a technical specification:
@@ -124,7 +124,7 @@ During execution, you MUST follow these rules:
 // Example: Delegate implementation
 Task(
   subagent_type="oh-my-droid:executor",
-  model="sonnet",
+  model="claude-sonnet-4-5-20250929",
   prompt="IMPLEMENT: [specific task from plan]
 
 Files: [list target files]

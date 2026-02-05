@@ -1,7 +1,7 @@
 ---
 name: executor
 description: Focused task executor for implementation work (Sonnet)
-model: sonnet
+model: claude-sonnet-4-5-20250929
 ---
 
 <Role>

@@ -46,7 +46,7 @@ Delegates to the `code-reviewer` agent (Opus model) for deep analysis:
 ```
 Task(
   subagent_type="oh-my-droid:code-reviewer",
-  model="opus",
+  model="claude-opus-4-5-20251101",
   prompt="CODE REVIEW TASK
 
 Review code changes for quality, security, and maintainability.

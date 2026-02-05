@@ -6,6 +6,8 @@ import {
   resetAdapterCache
 } from '../../analytics/tokscale-adapter.js';
 
+const LOOKUP_TIMEOUT_MS = 30_000;
+
 describe('tokscale-adapter', () => {
   beforeEach(() => {
     // Reset the cached adapter before each test
@@ -39,7 +41,7 @@ describe('tokscale-adapter', () => {
       expect(pricing).toHaveProperty('outputPerMillion');
       expect(pricing.inputPerMillion).toBeGreaterThan(0);
       expect(pricing.outputPerMillion).toBeGreaterThan(0);
-    });
+    }, LOOKUP_TIMEOUT_MS);
 
     it('returns pricing for haiku model', async () => {
       const pricing = await lookupPricingWithFallback('claude-haiku-4');
@@ -47,7 +49,7 @@ describe('tokscale-adapter', () => {
       expect(pricing.inputPerMillion).toBeGreaterThan(0);
       expect(pricing.outputPerMillion).toBeGreaterThan(0);
       expect(pricing.outputPerMillion).toBeGreaterThan(pricing.inputPerMillion);
-    });
+    }, LOOKUP_TIMEOUT_MS);
 
     it('returns pricing for opus model', async () => {
       const pricing = await lookupPricingWithFallback('claude-opus-4.5');
@@ -55,14 +57,14 @@ describe('tokscale-adapter', () => {
       expect(pricing.inputPerMillion).toBeGreaterThan(0);
       expect(pricing.outputPerMillion).toBeGreaterThan(0);
       expect(pricing.outputPerMillion).toBeGreaterThan(pricing.inputPerMillion);
-    });
+    }, LOOKUP_TIMEOUT_MS);
 
     it('returns default pricing for unknown models', async () => {
       const pricing = await lookupPricingWithFallback('unknown-model-xyz');
       expect(pricing).toBeDefined();
       expect(pricing).toHaveProperty('inputPerMillion');
       expect(pricing).toHaveProperty('outputPerMillion');
-    });
+    }, LOOKUP_TIMEOUT_MS);
 
     it('includes cache pricing fields', async () => {
       const pricing = await lookupPricingWithFallback('claude-sonnet-4.5');

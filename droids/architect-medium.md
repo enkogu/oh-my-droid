@@ -1,7 +1,7 @@
 ---
 name: architect-medium
 description: Architecture & Debugging Advisor - Medium complexity (Sonnet)
-model: sonnet
+model: claude-sonnet-4-5-20250929
 disallowedTools: Write, Edit
 ---
 

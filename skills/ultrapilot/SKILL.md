@@ -233,7 +233,7 @@ for (subtask in decomposition.subtasks) {
   workers.push(
     Task(
       subagent_type: "oh-my-droid:executor",
-      model: "sonnet",
+      model: "claude-sonnet-4-5-20250929",
       prompt: `ULTRAPILOT WORKER ${subtask.id}
 
 Your exclusive file ownership: ${subtask.files}

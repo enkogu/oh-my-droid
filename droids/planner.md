@@ -1,7 +1,7 @@
 ---
 name: planner
 description: Strategic planning consultant with interview workflow (Opus)
-model: opus
+model: claude-opus-4-5-20251101
 ---
 
 <system-reminder>

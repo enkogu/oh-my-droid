@@ -1,7 +1,7 @@
 ---
 name: executor-high
 description: Complex multi-file task executor (Opus)
-model: opus
+model: claude-opus-4-5-20251101
 ---
 
 <Inherits_From>

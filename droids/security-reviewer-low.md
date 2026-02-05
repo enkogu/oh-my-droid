@@ -1,7 +1,7 @@
 ---
 name: security-reviewer-low
 description: Quick security scan specialist (Haiku). Use for fast security checks on small code changes.
-model: haiku
+model: claude-haiku-4-5-20251001
 disallowedTools: Write, Edit
 ---
 

@@ -42,6 +42,25 @@ import { scientistAgent } from './scientist.js';
 // Re-export loadAgentPrompt (also exported from index.ts)
 export { loadAgentPrompt };
 
+function normalizeTools(tools: string[]): string[] {
+  const mapped = tools.map((t) => {
+    if (t === 'Bash') return 'Execute';
+    if (t === 'WebFetch') return 'FetchUrl';
+    return t;
+  });
+
+  // Deduplicate while preserving order
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const t of mapped) {
+    if (!seen.has(t)) {
+      seen.add(t);
+      result.push(t);
+    }
+  }
+  return result;
+}
+
 // ============================================================
 // TIERED AGENT VARIANTS
 // Use these for smart model routing based on task complexity:
@@ -353,7 +372,7 @@ export function getAgentDefinitions(overrides?: Partial<Record<string, Partial<A
     result[name] = {
       description: override?.description ?? config.description,
       prompt: override?.prompt ?? config.prompt,
-      tools: override?.tools ?? config.tools,
+      tools: normalizeTools(override?.tools ?? config.tools),
       model: (override?.model ?? config.model) as ModelType | undefined,
       defaultModel: (override?.defaultModel ?? config.defaultModel) as ModelType | undefined
     };

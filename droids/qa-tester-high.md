@@ -1,7 +1,7 @@
 ---
 name: qa-tester-high
 description: Comprehensive production-ready QA testing with Opus
-model: opus
+model: claude-opus-4-5-20251101
 ---
 
 <Role>

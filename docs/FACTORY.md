@@ -119,7 +119,7 @@ Direct file writes are enforced via path patterns:
 **How to Delegate Source File Changes:**
 ```
 Task(subagent_type="oh-my-droid:executor",
-     model="sonnet",
+     model="claude-sonnet-4-5-20250929",
      prompt="Edit src/file.ts to add validation...")
 ```
 
@@ -341,7 +341,7 @@ When in planning/interview mode, use the `AskUserQuestion` tool for preference q
 
 ```
 1. Complete all work
-2. Spawn Architect: Task(subagent_type="oh-my-droid:architect", model="opus", prompt="Verify...")
+2. Spawn Architect: Task(subagent_type="oh-my-droid:architect", model="claude-opus-4-5-20251101", prompt="Verify...")
 3. WAIT for response
 4. If APPROVED -> output completion
 5. If REJECTED -> fix issues and re-verify

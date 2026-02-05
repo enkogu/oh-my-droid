@@ -38,8 +38,8 @@ describe('delegation-enforcer', () => {
       const result = enforceModel(input);
 
       expect(result.injected).toBe(false);
-      expect(result.modifiedInput.model).toBe('haiku');
-      expect(result.modifiedInput).toEqual(input);
+      expect(result.modifiedInput.model).toBe('claude-haiku-4-5-20251001');
+      expect(result.originalInput).toEqual(input);
     });
 
     it('injects model from agent definition when not specified', () => {
@@ -52,7 +52,7 @@ describe('delegation-enforcer', () => {
       const result = enforceModel(input);
 
       expect(result.injected).toBe(true);
-      expect(result.modifiedInput.model).toBe('sonnet'); // executor defaults to sonnet
+      expect(result.modifiedInput.model).toBe('claude-sonnet-4-5-20250929'); // executor defaults to sonnet
       expect(result.originalInput.model).toBeUndefined();
     });
 
@@ -66,7 +66,7 @@ describe('delegation-enforcer', () => {
       const result = enforceModel(input);
 
       expect(result.injected).toBe(true);
-      expect(result.modifiedInput.model).toBe('haiku'); // executor-low defaults to haiku
+      expect(result.modifiedInput.model).toBe('claude-haiku-4-5-20251001'); // executor-low defaults to haiku
     });
 
     it('throws error for unknown agent type', () => {
@@ -96,7 +96,7 @@ describe('delegation-enforcer', () => {
       const resultWithDebug = enforceModel(input);
       expect(resultWithDebug.warning).toBeDefined();
       expect(resultWithDebug.warning).toContain('Auto-injecting model');
-      expect(resultWithDebug.warning).toContain('sonnet');
+      expect(resultWithDebug.warning).toContain('claude-sonnet-4-5-20250929');
       expect(resultWithDebug.warning).toContain('executor');
     });
 
@@ -114,17 +114,17 @@ describe('delegation-enforcer', () => {
 
     it('works with all tiered agents', () => {
       const testCases = [
-        { agent: 'architect', expectedModel: 'opus' },
-        { agent: 'architect-medium', expectedModel: 'sonnet' },
-        { agent: 'architect-low', expectedModel: 'haiku' },
-        { agent: 'executor', expectedModel: 'sonnet' },
-        { agent: 'executor-high', expectedModel: 'opus' },
-        { agent: 'executor-low', expectedModel: 'haiku' },
-        { agent: 'explore', expectedModel: 'haiku' },
-        { agent: 'explore-medium', expectedModel: 'sonnet' },
-        { agent: 'designer', expectedModel: 'sonnet' },
-        { agent: 'designer-high', expectedModel: 'opus' },
-        { agent: 'designer-low', expectedModel: 'haiku' }
+        { agent: 'architect', expectedModel: 'claude-opus-4-5-20251101' },
+        { agent: 'architect-medium', expectedModel: 'claude-sonnet-4-5-20250929' },
+        { agent: 'architect-low', expectedModel: 'claude-haiku-4-5-20251001' },
+        { agent: 'executor', expectedModel: 'claude-sonnet-4-5-20250929' },
+        { agent: 'executor-high', expectedModel: 'claude-opus-4-5-20251101' },
+        { agent: 'executor-low', expectedModel: 'claude-haiku-4-5-20251001' },
+        { agent: 'explore', expectedModel: 'claude-haiku-4-5-20251001' },
+        { agent: 'explore-medium', expectedModel: 'claude-sonnet-4-5-20250929' },
+        { agent: 'designer', expectedModel: 'claude-sonnet-4-5-20250929' },
+        { agent: 'designer-high', expectedModel: 'claude-opus-4-5-20251101' },
+        { agent: 'designer-low', expectedModel: 'claude-haiku-4-5-20251001' }
       ];
 
       for (const testCase of testCases) {
@@ -200,7 +200,7 @@ describe('delegation-enforcer', () => {
 
       const result = processPreToolUse('Agent', toolInput);
 
-      expect(result.modifiedInput).toHaveProperty('model', 'sonnet');
+      expect(result.modifiedInput).toHaveProperty('model', 'claude-sonnet-4-5-20250929');
     });
 
     it('does not modify input when model already specified', () => {
@@ -213,7 +213,10 @@ describe('delegation-enforcer', () => {
 
       const result = processPreToolUse('Agent', toolInput);
 
-      expect(result.modifiedInput).toEqual(toolInput);
+      expect(result.modifiedInput).toEqual({
+        ...toolInput,
+        model: 'claude-haiku-4-5-20251001'
+      });
       expect(result.warning).toBeUndefined();
     });
 

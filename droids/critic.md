@@ -1,7 +1,7 @@
 ---
 name: critic
 description: Work plan review expert and critic (Opus)
-model: opus
+model: claude-opus-4-5-20251101
 disallowedTools: Write, Edit
 ---
 

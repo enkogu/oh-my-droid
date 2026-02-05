@@ -1,7 +1,7 @@
 ---
 name: explore-high
 description: Complex architectural search for deep system understanding (Opus)
-model: opus
+model: claude-opus-4-5-20251101
 disallowedTools: Write, Edit
 ---
 

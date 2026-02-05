@@ -67,7 +67,7 @@ Spawn workers using Task tool with `run_in_background: true`:
 ```
 Task(
   subagent_type="oh-my-droid:executor",
-  model="sonnet",
+  model="claude-sonnet-4-5-20250929",
   run_in_background=true,
   prompt="ULTRAPILOT WORKER [1/5]
 
@@ -101,7 +101,7 @@ Spawn Architect for full system verification:
 ```
 Task(
   subagent_type="oh-my-droid:architect",
-  model="opus",
+  model="claude-opus-4-5-20251101",
   prompt="ULTRAPILOT VALIDATION
 
 Verify the complete implementation:

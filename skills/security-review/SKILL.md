@@ -63,7 +63,7 @@ Delegates to the `security-reviewer` agent (Opus model) for deep security analys
 ```
 Task(
   subagent_type="oh-my-droid:security-reviewer",
-  model="opus",
+  model="claude-opus-4-5-20251101",
   prompt="SECURITY REVIEW TASK
 
 Conduct comprehensive security audit of codebase.

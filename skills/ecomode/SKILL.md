@@ -62,23 +62,25 @@ This skill enhances the agent's capabilities by:
 
 ### Routing Examples
 
-**CRITICAL: Always pass `model` parameter explicitly - Factory Droid does NOT auto-apply models from agent definitions!**
+OMD auto-injects the correct `model` for built-in tiered agents when missing.
+
+If you *do* specify `model`, use full model IDs (e.g. `claude-haiku-4-5-20251001`), not shorthands.
 
 ```
 // Simple question → LOW tier (DEFAULT)
-Task(subagent_type="oh-my-droid:architect-low", model="haiku", prompt="What does this function return?")
+Task(subagent_type="oh-my-droid:architect-low", model="claude-haiku-4-5-20251001", prompt="What does this function return?")
 
 // Standard implementation → TRY LOW first
-Task(subagent_type="oh-my-droid:executor-low", model="haiku", prompt="Add validation to login form")
+Task(subagent_type="oh-my-droid:executor-low", model="claude-haiku-4-5-20251001", prompt="Add validation to login form")
 
 // If LOW fails, escalate to MEDIUM
-Task(subagent_type="oh-my-droid:executor", model="sonnet", prompt="Add error handling to login")
+Task(subagent_type="oh-my-droid:executor", model="claude-sonnet-4-5-20250929", prompt="Add error handling to login")
 
 // File lookup → ALWAYS LOW
-Task(subagent_type="oh-my-droid:explore", model="haiku", prompt="Find where UserService is defined")
+Task(subagent_type="oh-my-droid:explore", model="claude-haiku-4-5-20251001", prompt="Find where UserService is defined")
 
 // Only use MEDIUM for complex patterns
-Task(subagent_type="oh-my-droid:explore-medium", model="sonnet", prompt="Find all authentication patterns in the codebase")
+Task(subagent_type="oh-my-droid:explore-medium", model="claude-sonnet-4-5-20250929", prompt="Find all authentication patterns in the codebase")
 ```
 
 ## DELEGATION ENFORCEMENT (CRITICAL)

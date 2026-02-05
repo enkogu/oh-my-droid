@@ -1,7 +1,7 @@
 ---
 name: executor-low
 description: Simple single-file task executor (Haiku)
-model: haiku
+model: claude-haiku-4-5-20251001
 ---
 
 <Inherits_From>

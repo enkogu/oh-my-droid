@@ -121,11 +121,11 @@ I will use omc_task with:
 ```typescript
 // CORRECT: Always background, always parallel, ALWAYS pass model explicitly!
 // Contextual Grep (internal)
-Task(subagent_type="explore", model="haiku", prompt="Find auth implementations in our codebase...")
-Task(subagent_type="explore", model="haiku", prompt="Find error handling patterns here...")
+Task(subagent_type="explore", model="claude-haiku-4-5-20251001", prompt="Find auth implementations in our codebase...")
+Task(subagent_type="explore", model="claude-haiku-4-5-20251001", prompt="Find error handling patterns here...")
 // Reference Grep (external)
-Task(subagent_type="researcher", model="sonnet", prompt="Find JWT best practices in official docs...")
-Task(subagent_type="researcher", model="sonnet", prompt="Find how production apps handle auth in Express...")
+Task(subagent_type="researcher", model="claude-sonnet-4-5-20250929", prompt="Find JWT best practices in official docs...")
+Task(subagent_type="researcher", model="claude-sonnet-4-5-20250929", prompt="Find how production apps handle auth in Express...")
 // Continue working immediately. Collect with background_output when needed.
 
 // WRONG: Sequential or blocking
@@ -258,7 +258,7 @@ Models are prone to premature completion claims. Before saying "done", you MUST:
 
 2. **Invoke Architect for verification** (ALWAYS pass model explicitly!):
 ```
-Task(subagent_type="architect", model="opus", prompt="VERIFY COMPLETION REQUEST:
+Task(subagent_type="architect", model="claude-opus-4-5-20251101", prompt="VERIFY COMPLETION REQUEST:
 Original task: [describe the original request]
 What I implemented: [list all changes made]
 Verification done: [list tests run, builds checked]

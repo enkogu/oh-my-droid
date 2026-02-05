@@ -78,6 +78,12 @@ function loadClaudeMdContent(): string {
 }
 
 describe('Installer Constants', () => {
+  const MODEL_ID_BY_TIER: Record<'haiku' | 'sonnet' | 'opus', string> = {
+    haiku: 'claude-haiku-4-5-20251001',
+    sonnet: 'claude-sonnet-4-5-20250929',
+    opus: 'claude-opus-4-5-20251101'
+  };
+
   // Load definitions once for all tests
   const AGENT_DEFINITIONS = loadAgentDefinitions();
   const COMMAND_DEFINITIONS = loadCommandDefinitions();
@@ -143,7 +149,10 @@ describe('Installer Constants', () => {
         expect(frontmatter).toMatch(/^name:\s+\S+/m);
         expect(frontmatter).toMatch(/^description:\s+.+/m);
         // Note: tools field removed - agents use disallowedTools or have all tools by default
-        expect(frontmatter).toMatch(/^model:\s+(haiku|sonnet|opus)/m);
+        const modelMatch = frontmatter.match(/^model:\s+(\S+)/m);
+        expect(modelMatch, `Missing model in frontmatter for ${filename}`).toBeTruthy();
+        const model = modelMatch![1];
+        expect(model).toMatch(/^(haiku|sonnet|opus|inherit|claude-(haiku|sonnet|opus)-.+)$/);
       }
     });
 
@@ -186,7 +195,11 @@ describe('Installer Constants', () => {
       for (const [filename, expectedModel] of Object.entries(modelExpectations)) {
         const content = AGENT_DEFINITIONS[filename];
         expect(content).toBeTruthy();
-        expect(content).toMatch(new RegExp(`^model:\\s+${expectedModel}`, 'm'));
+        const expectedTier = expectedModel as keyof typeof MODEL_ID_BY_TIER;
+        const expectedFull = MODEL_ID_BY_TIER[expectedTier];
+        const modelMatch = content.match(/^model:\s+(\S+)/m);
+        expect(modelMatch, `Missing model in ${filename}`).toBeTruthy();
+        expect([expectedModel, expectedFull]).toContain(modelMatch![1]);
       }
     });
 

@@ -1,7 +1,7 @@
 ---
 name: scientist-high
 description: Complex research, hypothesis testing, and ML specialist (Opus)
-model: opus
+model: claude-opus-4-5-20251101
 disallowedTools: Write, Edit
 ---
 

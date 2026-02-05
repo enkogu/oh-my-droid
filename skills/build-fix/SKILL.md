@@ -47,7 +47,7 @@ Delegates to the `build-fixer` agent (Sonnet model) to:
 ```
 Task(
   subagent_type="oh-my-droid:build-fixer",
-  model="sonnet",
+  model="claude-sonnet-4-5-20250929",
   prompt="BUILD FIX TASK
 
 Fix all build and TypeScript errors with minimal changes.

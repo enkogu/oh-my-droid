@@ -1,7 +1,7 @@
 ---
 name: designer-low
 description: Simple styling and minor UI tweaks (Haiku)
-model: haiku
+model: claude-haiku-4-5-20251001
 ---
 
 <Inherits_From>

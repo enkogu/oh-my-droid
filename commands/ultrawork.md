@@ -66,19 +66,19 @@ The PreToolUse hook will warn you if you attempt direct code changes.
 
 ```
 // Simple question → LOW tier (saves tokens!)
-Task(subagent_type="architect-low", model="haiku", prompt="What does this function return?")
+Task(subagent_type="architect-low", model="claude-haiku-4-5-20251001", prompt="What does this function return?")
 
 // Standard implementation → MEDIUM tier
-Task(subagent_type="executor", model="sonnet", prompt="Add error handling to login")
+Task(subagent_type="executor", model="claude-sonnet-4-5-20250929", prompt="Add error handling to login")
 
 // Complex refactoring → HIGH tier
-Task(subagent_type="executor-high", model="opus", prompt="Refactor auth module using JWT across 5 files")
+Task(subagent_type="executor-high", model="claude-opus-4-5-20251101", prompt="Refactor auth module using JWT across 5 files")
 
 // Quick file lookup → LOW tier
-Task(subagent_type="explore", model="haiku", prompt="Find where UserService is defined")
+Task(subagent_type="explore", model="claude-haiku-4-5-20251001", prompt="Find where UserService is defined")
 
 // Thorough search → MEDIUM tier
-Task(subagent_type="explore-medium", model="sonnet", prompt="Find all authentication patterns in the codebase")
+Task(subagent_type="explore-medium", model="claude-sonnet-4-5-20250929", prompt="Find all authentication patterns in the codebase")
 ```
 
 ## Background Execution Rules

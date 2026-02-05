@@ -18,7 +18,7 @@ export interface AgentInput {
   description: string;
   prompt: string;
   subagent_type: string;
-  model?: 'sonnet' | 'opus' | 'haiku';
+  model?: string;
   resume?: string;
   run_in_background?: boolean;
 }
@@ -50,13 +50,16 @@ export interface EnforcementResult {
  * @throws Error if agent type has no default model
  */
 export function enforceModel(agentInput: AgentInput): EnforcementResult {
-  // If model is already specified, return as-is
+  // If model is already specified, normalize shorthand model names to SDK model IDs.
   if (agentInput.model) {
+    const normalized = normalizeSdkModel(agentInput.model);
+    const modifiedInput = normalized === agentInput.model ? agentInput : { ...agentInput, model: normalized };
+
     return {
       originalInput: agentInput,
-      modifiedInput: agentInput,
+      modifiedInput,
       injected: false,
-      model: agentInput.model,
+      model: 'inherit',
     };
   }
 
@@ -102,9 +105,25 @@ export function enforceModel(agentInput: AgentInput): EnforcementResult {
 /**
  * Convert ModelType to SDK model format
  */
-function convertToSdkModel(model: ModelType): 'sonnet' | 'opus' | 'haiku' {
+const DEFAULT_SDK_MODEL_BY_TIER: Record<Exclude<ModelType, 'inherit'>, string> = {
+  haiku: 'claude-haiku-4-5-20251001',
+  sonnet: 'claude-sonnet-4-5-20250929',
+  opus: 'claude-opus-4-5-20251101',
+};
+
+function convertToSdkModel(model: ModelType): string {
   if (model === 'inherit') {
-    return 'sonnet'; // Default fallback
+    return DEFAULT_SDK_MODEL_BY_TIER.sonnet;
+  }
+  return DEFAULT_SDK_MODEL_BY_TIER[model];
+}
+
+function normalizeSdkModel(model: string): string {
+  if (model in DEFAULT_SDK_MODEL_BY_TIER) {
+    return DEFAULT_SDK_MODEL_BY_TIER[model as Exclude<ModelType, 'inherit'>];
+  }
+  if (model === 'inherit') {
+    return DEFAULT_SDK_MODEL_BY_TIER.sonnet;
   }
   return model;
 }

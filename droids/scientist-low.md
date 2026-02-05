@@ -1,7 +1,7 @@
 ---
 name: scientist-low
 description: Quick data inspection and simple statistics (Haiku)
-model: haiku
+model: claude-haiku-4-5-20251001
 disallowedTools: Write, Edit
 ---
 

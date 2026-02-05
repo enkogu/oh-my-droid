@@ -62,9 +62,9 @@ Ralph automatically activates Ultrawork for maximum parallel execution. You MUST
 
 **CRITICAL: Always pass `model` parameter explicitly!**
 ```
-Task(subagent_type="oh-my-droid:architect-low", model="haiku", prompt="...")
-Task(subagent_type="oh-my-droid:executor", model="sonnet", prompt="...")
-Task(subagent_type="oh-my-droid:architect", model="opus", prompt="...")
+Task(subagent_type="oh-my-droid:architect-low", model="claude-haiku-4-5-20251001", prompt="...")
+Task(subagent_type="oh-my-droid:executor", model="claude-sonnet-4-5-20250929", prompt="...")
+Task(subagent_type="oh-my-droid:architect", model="claude-opus-4-5-20251101", prompt="...")
 ```
 
 ### Background Execution Rules
@@ -94,7 +94,7 @@ Before claiming completion, you MUST:
 When you believe the task is complete:
 1. **First**, spawn Architect to verify your work (ALWAYS pass model explicitly!):
    ```
-   Task(subagent_type="oh-my-droid:architect", model="opus", prompt="Verify this implementation is complete: [describe what you did]")
+   Task(subagent_type="oh-my-droid:architect", model="claude-opus-4-5-20251101", prompt="Verify this implementation is complete: [describe what you did]")
    ```
 
 2. **Wait for Architect's assessment**
