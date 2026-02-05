@@ -9,7 +9,6 @@
  */
 
 import type { HookDefinition, HookContext, HookResult } from '../shared/types.js';
-import { getBackgroundTaskGuidance, DEFAULT_MAX_BACKGROUND_TASKS } from './background-tasks.js';
 
 /**
  * Messages to remind agents to continue
@@ -129,7 +128,6 @@ I will not claim completion without verification.
 I will not abandon my users mid-task.
 The boulder stops at the summit, or not at all."
 
-${getBackgroundTaskGuidance(DEFAULT_MAX_BACKGROUND_TASKS)}
 `;
 
 /**

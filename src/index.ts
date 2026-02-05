@@ -22,6 +22,8 @@ import { continuationSystemPromptAddition } from './features/continuation-enforc
 import {
   createBackgroundTaskManager,
   shouldRunInBackground as shouldRunInBackgroundFn,
+  getBackgroundTaskGuidance,
+  DEFAULT_MAX_BACKGROUND_TASKS,
   type BackgroundTaskManager,
   type TaskExecutionDecision
 } from './features/background-tasks.js';
@@ -285,6 +287,11 @@ export function createDroidSession(options?: DroidOptions): DroidSession {
   if (config.features?.continuationEnforcement !== false) {
     systemPrompt += continuationSystemPromptAddition;
   }
+
+  // Add background task guidance with configured concurrency limit
+  systemPrompt += getBackgroundTaskGuidance(
+    config.permissions?.maxBackgroundTasks ?? DEFAULT_MAX_BACKGROUND_TASKS
+  );
 
   // Add custom system prompt
   if (options?.customSystemPrompt) {

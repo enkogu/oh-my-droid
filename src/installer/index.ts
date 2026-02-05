@@ -373,9 +373,9 @@ export function install(options: InstallOptions = {}): InstallResult {
         // Required for true parallel shell execution
         existingSettings.allowBackgroundProcesses = true;
 
-        // Ensure maxBackgroundTasks is set with default 5, clamped to 2..20
+        // Ensure maxBackgroundTasks is set with default 5, clamped to 1..20
         if (typeof existingSettings.maxBackgroundTasks !== 'number' ||
-            existingSettings.maxBackgroundTasks < 2 ||
+            existingSettings.maxBackgroundTasks < 1 ||
             existingSettings.maxBackgroundTasks > 20) {
           existingSettings.maxBackgroundTasks = 5;
         }
@@ -507,9 +507,9 @@ export function install(options: InstallOptions = {}): InstallResult {
           // Required for true parallel shell execution
           existingSettings.allowBackgroundProcesses = true;
 
-          // Ensure maxBackgroundTasks is set with default 5, clamped to 2..20
+          // Ensure maxBackgroundTasks is set with default 5, clamped to 1..20
           if (typeof existingSettings.maxBackgroundTasks !== 'number' ||
-              existingSettings.maxBackgroundTasks < 2 ||
+              existingSettings.maxBackgroundTasks < 1 ||
               existingSettings.maxBackgroundTasks > 20) {
             existingSettings.maxBackgroundTasks = 5;
           }
@@ -527,9 +527,9 @@ export function install(options: InstallOptions = {}): InstallResult {
             // Required for true parallel shell execution
             existingSettings.allowBackgroundProcesses = true;
 
-            // Ensure maxBackgroundTasks is set with default 5, clamped to 2..20
+            // Ensure maxBackgroundTasks is set with default 5, clamped to 1..20
             if (typeof existingSettings.maxBackgroundTasks !== 'number' ||
-                existingSettings.maxBackgroundTasks < 2 ||
+                existingSettings.maxBackgroundTasks < 1 ||
                 existingSettings.maxBackgroundTasks > 20) {
               existingSettings.maxBackgroundTasks = 5;
             }
@@ -539,9 +539,9 @@ export function install(options: InstallOptions = {}): InstallResult {
           } else if (shouldEnableBackgroundProcesses) {
             existingSettings.allowBackgroundProcesses = true;
 
-            // Ensure maxBackgroundTasks is set with default 5, clamped to 2..20
+            // Ensure maxBackgroundTasks is set with default 5, clamped to 1..20
             if (typeof existingSettings.maxBackgroundTasks !== 'number' ||
-                existingSettings.maxBackgroundTasks < 2 ||
+                existingSettings.maxBackgroundTasks < 1 ||
                 existingSettings.maxBackgroundTasks > 20) {
               existingSettings.maxBackgroundTasks = 5;
             }

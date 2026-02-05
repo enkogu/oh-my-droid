@@ -109,9 +109,9 @@ try {
   // Required for true parallel shell execution
   settings.allowBackgroundProcesses = true;
 
-  // Ensure maxBackgroundTasks is set with default 5, clamped to 2..20
+  // Ensure maxBackgroundTasks is set with default 5, clamped to 1..20
   if (typeof settings.maxBackgroundTasks !== 'number' ||
-      settings.maxBackgroundTasks < 2 ||
+      settings.maxBackgroundTasks < 1 ||
       settings.maxBackgroundTasks > 20) {
     settings.maxBackgroundTasks = 5;
   }

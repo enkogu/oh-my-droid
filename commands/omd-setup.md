@@ -101,32 +101,93 @@ Use `AskUser` to prompt:
 
 If the user chooses **Keep current**, skip updating settings.
 
-Otherwise, store it in `~/.factory/settings.json` as `maxBackgroundTasks`.
+Otherwise, update BOTH:
+
+1) **Factory Droid global settings**: `~/.factory/settings.json` → top-level `maxBackgroundTasks`
+2) **oh-my-droid config** (so OMD can read it):
+   - If scope is **Local** → `./.factory/droid.jsonc` → `permissions.maxBackgroundTasks`
+   - If scope is **Global** → `${XDG_CONFIG_HOME:-~/.config}/oh-my-droid/config.jsonc` → `permissions.maxBackgroundTasks`
 
 Rules:
 - Default to **5** if the user provides an invalid value
-- Clamp to **2..20**
+- Clamp to **1..20**
 
 ```bash
 python3 - <<'PY'
 import json
+import os
+import re
 from pathlib import Path
 
-MIN_V = 2
+MIN_V = 1
 MAX_V = 20
 DEFAULT_V = 5
 
-settings_path = Path.home() / '.factory' / 'settings.json'
-settings_path.parent.mkdir(parents=True, exist_ok=True)
+def strip_jsonc(text: str) -> str:
+  out: list[str] = []
+  i = 0
+  in_str = False
+  str_ch = ''
+  while i < len(text):
+    c = text[i]
+    if in_str:
+      out.append(c)
+      if c == '\\' and i + 1 < len(text):
+        i += 1
+        out.append(text[i])
+      elif c == str_ch:
+        in_str = False
+      i += 1
+      continue
+
+    if c in ('"', "'"):
+      in_str = True
+      str_ch = c
+      out.append(c)
+      i += 1
+      continue
+
+    if c == '/' and i + 1 < len(text) and text[i + 1] == '/':
+      i += 2
+      while i < len(text) and text[i] not in ('\n', '\r'):
+        i += 1
+      continue
+
+    if c == '/' and i + 1 < len(text) and text[i + 1] == '*':
+      i += 2
+      while i + 1 < len(text) and not (text[i] == '*' and text[i + 1] == '/'):
+        i += 1
+      i += 2
+      continue
+
+    out.append(c)
+    i += 1
+
+  return ''.join(out)
+
+def parse_jsonc_file(path: Path) -> dict:
+  if not path.exists():
+    return {}
+  raw = path.read_text('utf-8')
+  cleaned = strip_jsonc(raw)
+  cleaned = re.sub(r',\s*([}\]])', r'\1', cleaned)
+  cleaned_s = cleaned.strip()
+  if not cleaned_s:
+    return {}
+  return json.loads(cleaned_s)
+
+factory_settings_path = Path.home() / '.factory' / 'settings.json'
+factory_settings_path.parent.mkdir(parents=True, exist_ok=True)
 
 try:
-  data = json.loads(settings_path.read_text('utf-8')) if settings_path.exists() else {}
+  factory_data = json.loads(factory_settings_path.read_text('utf-8')) if factory_settings_path.exists() else {}
 except Exception:
-  data = {}
+  factory_data = {}
 
-current = int(data.get('maxBackgroundTasks', DEFAULT_V) or DEFAULT_V)
+current = int(factory_data.get('maxBackgroundTasks', DEFAULT_V) or DEFAULT_V)
 
 raw = "USER_CHOICE"  # replace with chosen value (or user's custom answer)
+scope = "SCOPE_CHOICE"  # replace with: "Local (this project)" | "Global (all projects)" (or flags)
 raw_s = str(raw).strip().lower()
 if raw_s.startswith('keep'):
   v = current
@@ -141,9 +202,35 @@ if v < MIN_V:
 if v > MAX_V:
   v = MAX_V
 
-data['maxBackgroundTasks'] = v
-settings_path.write_text(json.dumps(data, indent=2) + '\n', encoding='utf-8')
-print('Set maxBackgroundTasks to', v, 'in', settings_path)
+# 1) Factory Droid settings (global)
+factory_data['maxBackgroundTasks'] = v
+factory_settings_path.write_text(json.dumps(factory_data, indent=2) + '\n', encoding='utf-8')
+print('Set Factory maxBackgroundTasks to', v, 'in', factory_settings_path)
+
+# 2) OMD config (local or global)
+scope_s = str(scope).strip().lower()
+if scope_s.startswith('local'):
+  omd_config_path = Path.cwd() / '.factory' / 'droid.jsonc'
+else:
+  xdg = Path(os.environ.get('XDG_CONFIG_HOME') or (Path.home() / '.config'))
+  omd_config_path = xdg / 'oh-my-droid' / 'config.jsonc'
+
+omd_config_path.parent.mkdir(parents=True, exist_ok=True)
+
+try:
+  omd_data = parse_jsonc_file(omd_config_path)
+except Exception as e:
+  print('Warning: could not parse OMD config; skipping update:', omd_config_path, '-', e)
+  omd_data = None
+
+if isinstance(omd_data, dict):
+  perms = omd_data.get('permissions')
+  if not isinstance(perms, dict):
+    perms = {}
+  perms['maxBackgroundTasks'] = v
+  omd_data['permissions'] = perms
+  omd_config_path.write_text(json.dumps(omd_data, indent=2) + '\n', encoding='utf-8')
+  print('Set OMD permissions.maxBackgroundTasks to', v, 'in', omd_config_path)
 PY
 ```
 
