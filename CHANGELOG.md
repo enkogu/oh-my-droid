@@ -1513,7 +1513,7 @@ The orchestrator (Opus) now analyzes task complexity BEFORE delegation and route
 ### Migration Guide
 No action needed - the system automatically routes based on complexity. To override:
 ```typescript
-Task(subagent_type="oracle", model="opus", prompt="Force Opus for this task")
+Task(subagent_type="oracle", model="claude-opus-4-5-20251101", prompt="Force Opus for this task")
 ```
 
 ---

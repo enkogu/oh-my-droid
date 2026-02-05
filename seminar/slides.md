@@ -686,7 +686,7 @@ Note: The tier system is central to OMC's cost efficiency. Always start low and 
 ```javascript
 Task(
   subagent_type="oh-my-droid:executor-low",
-  model="haiku",
+  model="claude-haiku-4-5-20251001",
   prompt="Add validation to the login form"
 )
 ```

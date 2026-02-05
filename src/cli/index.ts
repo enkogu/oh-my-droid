@@ -350,22 +350,22 @@ program
     },
     "researcher": {
       // Documentation and codebase analysis
-      "model": "claude-sonnet-4-5-20250514"
+      "model": "claude-sonnet-4-5-20250929"
     },
     "explore": {
       // Fast pattern matching - uses fastest model
-      "model": "claude-3-5-haiku-20241022"
+      "model": "claude-haiku-4-5-20251001"
     },
     "frontendEngineer": {
-      "model": "claude-sonnet-4-5-20250514",
+      "model": "claude-sonnet-4-5-20250929",
       "enabled": true
     },
     "documentWriter": {
-      "model": "claude-3-5-haiku-20241022",
+      "model": "claude-haiku-4-5-20251001",
       "enabled": true
     },
     "multimodalLooker": {
-      "model": "claude-sonnet-4-5-20250514",
+      "model": "claude-sonnet-4-5-20250929",
       "enabled": true
     }
   },

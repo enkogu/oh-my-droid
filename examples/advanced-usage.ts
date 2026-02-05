@@ -25,7 +25,7 @@ async function main() {
     config: {
       agents: {
         // Use a faster model for the orchestrator in dev
-        omd: { model: 'claude-sonnet-4-5-20250514' },
+        omd: { model: 'claude-sonnet-4-5-20250929' },
         // Disable some agents
         frontendEngineer: { enabled: false },
         documentWriter: { enabled: false }

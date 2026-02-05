@@ -95,7 +95,7 @@ triggers:
   - "keyword1"
   - "keyword2"
 agent: executor  # Optional: which agent to use
-model: sonnet    # Optional: model override
+model: claude-sonnet-4-5-20250929    # Optional: model override
 ---
 
 # Skill Name
