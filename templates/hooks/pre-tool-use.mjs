@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 /**
  * OMC Pre-Tool-Use Hook (Node.js)
- * Enforces delegation by warning when orchestrator attempts direct source file edits
+ * - Enforces delegation by warning when orchestrator attempts direct source file edits
+ * - Enables background Task/Agent delegations during ultrawork mode (parallelism)
  */
 
 import * as path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { existsSync, readFileSync } from 'fs';
+import { homedir } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -77,6 +80,70 @@ This is a soft warning. Operation will proceed.`;
   return null;
 }
 
+function safeReadJson(filePath) {
+  try {
+    if (!existsSync(filePath)) return null;
+    return JSON.parse(readFileSync(filePath, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+function isModeActive(directory, modeName) {
+  const localPath = path.join(directory, '.omd', 'state', `${modeName}-state.json`);
+  const globalPath = path.join(process.env.HOME || homedir(), '.omd', 'state', `${modeName}-state.json`);
+
+  const state = safeReadJson(localPath) || safeReadJson(globalPath);
+  if (!state || typeof state !== 'object') return false;
+
+  if (state.active === true) return true;
+  if (state.status === 'running' || state.status === 'active') return true;
+  return false;
+}
+
+function isUltraworkLikeModeActive(directory) {
+  // ultrawork is the primary parallel mode; ralph often co-activates ultrawork but we include it defensively.
+  return (
+    isModeActive(directory, 'ultrawork') ||
+    isModeActive(directory, 'ultrapilot') ||
+    isModeActive(directory, 'ralph')
+  );
+}
+
+function isDelegationTool(toolName) {
+  const t = String(toolName || '').toLowerCase();
+  return t === 'task' || t === 'agent';
+}
+
+function shouldAutoBackgroundDelegation(toolName, toolInput, directory) {
+  if (!isDelegationTool(toolName)) return false;
+  if (!isUltraworkLikeModeActive(directory)) return false;
+  if (!toolInput || typeof toolInput !== 'object') return false;
+
+  const input = toolInput;
+  if (typeof input.subagent_type !== 'string') return false;
+
+  // Respect explicit user/system choice.
+  if (input.run_in_background === false || input.runInBackground === false) return false;
+  if (input.run_in_background === true || input.runInBackground === true) return false;
+
+  return input.run_in_background === undefined && input.runInBackground === undefined;
+}
+
+function createPreToolUseOutput({ additionalContext, updatedInput } = {}) {
+  if (!additionalContext && !updatedInput) {
+    return { continue: true };
+  }
+  return {
+    continue: true,
+    hookSpecificOutput: {
+      hookEventName: 'PreToolUse',
+      ...(additionalContext ? { additionalContext } : {}),
+      ...(updatedInput ? { updatedInput } : {}),
+    },
+  };
+}
+
 async function main() {
   const input = await readStdin();
 
@@ -90,6 +157,23 @@ async function main() {
 
   // Extract tool name (handle both cases)
   const toolName = data.tool_name || data.toolName || '';
+  const directory = data.directory || process.cwd();
+
+  // ULTRAWORK: automatically background Task/Agent delegations to enable parallel execution.
+  if (shouldAutoBackgroundDelegation(toolName, data.tool_input || data.toolInput, directory)) {
+    const toolInput = data.tool_input || data.toolInput || {};
+    console.log(
+      JSON.stringify(
+        createPreToolUseOutput({
+          updatedInput: {
+            ...toolInput,
+            run_in_background: true,
+          },
+        })
+      )
+    );
+    return;
+  }
 
   // Handle Bash tool separately - check for file modification patterns
   if (toolName === 'Bash' || toolName === 'bash') {
@@ -97,22 +181,16 @@ async function main() {
     const command = toolInput.command || '';
     const warning = checkBashCommand(command);
     if (warning) {
-      console.log(JSON.stringify({
-        continue: true,
-        hookSpecificOutput: {
-          hookEventName: 'PreToolUse',
-          additionalContext: warning
-        }
-      }));
+      console.log(JSON.stringify(createPreToolUseOutput({ additionalContext: warning })));
     } else {
-      console.log(JSON.stringify({ continue: true }));
+      console.log(JSON.stringify(createPreToolUseOutput()));
     }
     return;
   }
 
   // Only check Edit and Write tools
   if (!['Edit', 'Write', 'edit', 'write'].includes(toolName)) {
-    console.log(JSON.stringify({ continue: true }));
+    console.log(JSON.stringify(createPreToolUseOutput()));
     return;
   }
 
@@ -122,13 +200,13 @@ async function main() {
 
   // No file path? Allow
   if (!filePath) {
-    console.log(JSON.stringify({ continue: true }));
+    console.log(JSON.stringify(createPreToolUseOutput()));
     return;
   }
 
   // Check if allowed path
   if (isAllowedPath(filePath)) {
-    console.log(JSON.stringify({ continue: true }));
+    console.log(JSON.stringify(createPreToolUseOutput()));
     return;
   }
 
@@ -141,18 +219,12 @@ Recommended: Delegate to executor agent instead:
 
 This is a soft warning. Operation will proceed.`;
 
-    console.log(JSON.stringify({
-      continue: true,
-      hookSpecificOutput: {
-        hookEventName: 'PreToolUse',
-        additionalContext: warning
-      }
-    }));
+    console.log(JSON.stringify(createPreToolUseOutput({ additionalContext: warning })));
     return;
   }
 
   // Not a source file, allow without warning
-  console.log(JSON.stringify({ continue: true }));
+  console.log(JSON.stringify(createPreToolUseOutput()));
 }
 
 main().catch(() => {
