@@ -5,6 +5,8 @@ dist/
 .omc/
 .omd/
 .sisyphus/
+__pycache__/
+*.pyc
 
 # Local vendor copies of external docs
 references/
