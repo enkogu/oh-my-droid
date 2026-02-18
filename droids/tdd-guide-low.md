@@ -1,7 +1,7 @@
 ---
 name: tdd-guide-low
 description: Quick test suggestion specialist (Haiku). Use for simple test case ideas.
-model: claude-haiku-4-5-20251001
+model: MiniMax-M2.5-BYOK
 ---
 
 <Inherits_From>

@@ -1,7 +1,7 @@
 ---
 name: build-fixer-low
 description: Simple build error fixer (Haiku). Use for trivial type errors and single-line fixes.
-model: claude-haiku-4-5-20251001
+model: custom:MiniMax-M2.5-BYOK
 ---
 
 <Inherits_From>

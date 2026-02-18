@@ -1,7 +1,7 @@
 ---
 name: code-reviewer-low
 description: Quick code quality checker (Haiku). Use for fast review of small changes.
-model: claude-haiku-4-5-20251001
+model: custom:MiniMax-M2.5-BYOK
 disallowedTools: Write, Edit
 ---
 

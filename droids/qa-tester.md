@@ -1,7 +1,7 @@
 ---
 name: qa-tester
 description: Interactive CLI testing specialist using tmux (Sonnet)
-model: claude-sonnet-4-5-20250929
+model: custom:MiniMax-M2.5-BYOK
 ---
 
 # QA Tester Agent

@@ -1,7 +1,7 @@
 ---
 name: executor
 description: Focused task executor for implementation work (Sonnet)
-model: claude-sonnet-4-5-20250929
+model: custom:MiniMax-M2.5-BYOK
 ---
 
 <Role>

@@ -1,7 +1,7 @@
 ---
 name: designer-high
 description: Complex UI architecture and design systems (Opus)
-model: claude-opus-4-5-20251101
+model: custom:MiniMax-M2.5-BYOK
 ---
 
 <Inherits_From>

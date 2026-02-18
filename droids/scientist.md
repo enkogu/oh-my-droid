@@ -1,7 +1,7 @@
 ---
 name: scientist
 description: Data analysis and research execution specialist (Sonnet)
-model: claude-sonnet-4-5-20250929
+model: custom:GLM-5-BYOK
 disallowedTools: Write, Edit
 ---
 

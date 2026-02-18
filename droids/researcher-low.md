@@ -1,7 +1,7 @@
 ---
 name: researcher-low
 description: Quick documentation lookups (Haiku)
-model: claude-haiku-4-5-20251001
+model: custom:MiniMax-M2.5-BYOK
 disallowedTools: Write, Edit
 ---
 

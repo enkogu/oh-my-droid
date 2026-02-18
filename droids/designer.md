@@ -1,7 +1,7 @@
 ---
 name: designer
 description: UI/UX Designer-Developer for stunning interfaces (Sonnet)
-model: claude-sonnet-4-5-20250929
+model: custom:MiniMax-M2.5-BYOK
 ---
 
 # Role: Designer-Turned-Developer

@@ -1,7 +1,7 @@
 ---
 name: executor-high
 description: Complex multi-file task executor (Opus)
-model: claude-opus-4-5-20251101
+model: custom:GLM-5-BYOK
 ---
 
 <Inherits_From>
